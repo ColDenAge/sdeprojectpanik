@@ -51,7 +51,7 @@ const AuthNavbar: React.FC = () => {
 
   // Get the appropriate label for the Gyms link based on user role
   const getGymsLabel = () => {
-    return userRole === "member" ? "My Gyms" : "Members List";
+    return userRole === "member" ? "My Gyms" : "Gym Management";
   };
 
   return (
