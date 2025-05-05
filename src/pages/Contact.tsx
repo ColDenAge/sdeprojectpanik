@@ -63,7 +63,7 @@ const Contact = (): JSX.Element => {
 
         {/* Heading Shape */}
         <div className="absolute w-[756px] h-[127px] top-0 left-0 bg-[url('/blue-shape.svg')] bg-cover">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-white font-bold text-5xl font-cairo">
+          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
             Contact Us
           </div>
         </div>
