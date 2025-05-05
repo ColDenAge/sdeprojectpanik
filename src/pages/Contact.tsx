@@ -1,203 +1,71 @@
-
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Mail, Phone, MapPin, MessageSquare } from "lucide-react";
-import Navbar from "@/components/homepage/Navbar";
+import image from "./image.png";
+import profilePic1 from "./profile-pic1.png";
+import profilePic3 from "./profile-pic3.png";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  subject: z.string().min(5, {
-    message: "Subject must be at least 5 characters.",
-  }),
-  message: z.string().min(10, {
-    message: "Message must be at least 10 characters long.",
-  }),
-});
-
-const Contact = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // In a real application, you would handle form submission here
-  }
-
+export const Box = (): JSX.Element => {
   return (
-    <div className="bg-[#F5F5F5] min-h-screen">
-      <div className="px-5 md:px-20 pt-[9px]">
-        <Navbar />
-      </div>
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0B294B] mb-4">Get In Touch</h1>
-          <p className="text-[#333] text-lg max-w-2xl mx-auto">
-            Have questions about our gym management software? Reach out to our team and we'll get back to you as soon as possible.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold text-[#0B294B] mb-6">Send us a message</h2>
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input placeholder="john@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subject</FormLabel>
-                        <FormControl>
-                          <Input placeholder="How can we help you?" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Message</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Type your message here..." 
-                            className="min-h-[150px]" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#0B294B] hover:bg-[#0B294B]/90 text-white"
-                  >
-                    Send Message
-                  </Button>
-                </form>
-              </Form>
+    <div className="relative w-[1524px] h-[1154px]">
+      <div className="fixed w-[1524px] h-[1154px] top-0 left-0">
+        {/* Dan Steven R. Leonardo */}
+        <div className="absolute w-[853px] h-64 top-[198px] left-[396px]">
+          <img className="absolute w-[255px] h-64 top-0 left-0" alt="Profile" src={profilePic1} />
+          <div className="absolute w-[569px] h-[221px] top-1.5 left-72">
+            <p className="w-[408px] top-[104px] left-0 absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              <span className="font-bold">Gmail:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">leonardo.dansteven04@gmail.com<br /></span>
+              <span className="font-bold">Contact No:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">+63 951 939 3066<br /></span>
+              <span className="font-bold">Blog:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">http://www.tumblr.com/systemforge</span>
+            </p>
+            <div className="absolute w-[565px] h-[89px] top-0 left-0 font-bold text-[#0b294b] text-5xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              Dan Steven R. Leonardo
             </div>
           </div>
-          
-          <div>
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold text-[#0B294B] mb-6">Contact Information</h2>
-              
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="bg-[#0B294B]/10 p-3 rounded-full mr-4">
-                    <Phone className="h-6 w-6 text-[#0B294B]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg text-[#0B294B]">Phone</h3>
-                    <p className="text-[#333]">+1 (123) 456-7890</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-[#0B294B]/10 p-3 rounded-full mr-4">
-                    <Mail className="h-6 w-6 text-[#0B294B]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg text-[#0B294B]">Email</h3>
-                    <p className="text-[#333]">info@byteminds.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-[#0B294B]/10 p-3 rounded-full mr-4">
-                    <MapPin className="h-6 w-6 text-[#0B294B]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg text-[#0B294B]">Location</h3>
-                    <p className="text-[#333]">
-                      123 Main Street<br />
-                      New York, NY 10001
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-[#0B294B]/10 p-3 rounded-full mr-4">
-                    <MessageSquare className="h-6 w-6 text-[#0B294B]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg text-[#0B294B]">Office Hours</h3>
-                    <p className="text-[#333]">
-                      Monday - Friday<br />
-                      9:00 AM - 5:00 PM
-                    </p>
-                  </div>
-                </div>
-              </div>
+        </div>
+
+        {/* Denver Jay B. Palabon */}
+        <div className="absolute w-[840px] h-64 top-[577px] left-[684px]">
+          <img className="absolute w-[255px] h-64 top-0 left-[585px]" alt="Profile" src={image} />
+          <div className="absolute w-[569px] h-[206px] top-[13px] left-0">
+            <p className="w-[484px] top-[89px] left-[81px] text-right absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              <span className="font-bold">Gmail:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">palabon.denverjay@gmail.com<br /></span>
+              <span className="font-bold">Contact No:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">+63 975 909 0034<br /></span>
+              <span className="font-bold">Blog:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">https://www.tumblr.com/blog/gymprojectsystem</span>
+            </p>
+            <div className="text-right absolute w-[565px] h-[89px] top-0 left-0 font-bold text-[#0b294b] text-5xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              Denver Jay B. Palabon
             </div>
+          </div>
+        </div>
+
+        {/* Jelord G. Seguis */}
+        <div className="absolute w-[853px] h-64 top-[898px] left-[396px]">
+          <img className="absolute w-[255px] h-64 top-0 left-0" alt="Profile" src={profilePic3} />
+          <div className="absolute w-[569px] h-[221px] top-[17px] left-72">
+            <p className="w-[408px] top-[104px] left-0 absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              <span className="font-bold">Gmail:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">seguisjelord@gmail.com<br /></span>
+              <span className="font-bold">Contact No:</span>{" "}
+              <span className="font-[Cairo-Regular,Helvetica]">+63 963 956 8548</span>
+            </p>
+            <div className="absolute w-[565px] h-[89px] top-0 left-0 font-bold text-[#0b294b] text-5xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+              Jelord G. Seguis
+            </div>
+          </div>
+        </div>
+
+        {/* Heading Shape */}
+        <div className="absolute w-[756px] h-[127px] top-0 left-0 bg-[url('/blue-shape.svg')] bg-[100%_100%]">
+          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] font-bold text-white text-5xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
+            Contact Us
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-export default Contact;
