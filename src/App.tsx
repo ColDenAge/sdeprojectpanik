@@ -16,7 +16,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import Choice from "./pages/Choice";
 import Dashboard from "./pages/Dashboard";
-import Members from "./pages/Members"; // Import the new Members page
+import Members from "./pages/Members"; 
+import MemberGyms from "./pages/MemberGyms"; // Import the new MemberGyms page
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,11 +62,11 @@ const App = () => {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/choice" element={<Choice />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/gyms" element={<Dashboard />} />
+              <Route path="/gyms" element={<MemberGyms />} /> {/* Update to use MemberGyms for members */}
               <Route path="/billings" element={<Dashboard />} />
               <Route path="/settings" element={<Dashboard />} />
               <Route path="/help" element={<Dashboard />} />
-              <Route path="/members" element={<Members />} /> {/* Update the members route to use the Members component */}
+              <Route path="/members" element={<Members />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
