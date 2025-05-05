@@ -5,44 +5,49 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-const emailSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address",
+const passwordSchema = z.object({
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters",
   }),
+  confirmPassword: z.string().min(8, {
+    message: "Password must be at least 8 characters",
+  })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-type EmailFormValues = z.infer<typeof emailSchema>;
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-const ForgotPassword = (): JSX.Element => {
+const ChangePassword = (): JSX.Element => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const form = useForm<EmailFormValues>({
-    resolver: zodResolver(emailSchema),
+  const form = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
     defaultValues: {
-      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: EmailFormValues) => {
+  const onSubmit = (data: PasswordFormValues) => {
     console.log(data);
     
-    // Show toast that reset link has been sent
+    // Here you would typically send the new password to your backend
+    // This is just a placeholder for demonstration
     toast({
-      title: "Reset link sent!",
-      description: "Check your email for the password reset link.",
+      title: "Password changed successfully",
+      description: "You can now login with your new password",
     });
     
-    // For demo purposes, navigate to change password page
-    // In a real app, this would typically happen after clicking a link in the email
-    setTimeout(() => {
-      navigate("/change-password");
-    }, 1500);
+    // Navigate to login page after successful password change
+    navigate("/login");
   };
 
   return (
@@ -55,28 +60,42 @@ const ForgotPassword = (): JSX.Element => {
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
         <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
-            Reset
+          <div className="absolute w-[339px] h-[89px] top-[18px] left-[336px] text-black font-bold text-5xl font-cairo">
+            New Password
           </div>
         </div>
 
         <div className="flex justify-center">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-[#0B294B] mb-6 text-center">Reset Your Password</h2>
+            <h2 className="text-2xl font-bold text-[#0B294B] mb-6 text-center">Create New Password</h2>
             <p className="text-center text-[#0B294B] mb-6">
-              Enter your email address and we'll send you a link to reset your password.
+              Your password must be at least 8 characters long.
             </p>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#0B294B]">Email</FormLabel>
+                      <FormLabel className="text-[#0B294B]">New Password</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Enter your email" {...field} />
+                        <Input type="password" placeholder="Enter your new password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#0B294B]">Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Confirm your new password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -84,7 +103,7 @@ const ForgotPassword = (): JSX.Element => {
                 />
                 
                 <Button type="submit" className="w-full bg-[#0B294B] hover:bg-[#0a2544]">
-                  Send Reset Link
+                  Change Password
                 </Button>
               </form>
             </Form>
@@ -104,4 +123,4 @@ const ForgotPassword = (): JSX.Element => {
   );
 };
 
-export default ForgotPassword;
+export default ChangePassword;
