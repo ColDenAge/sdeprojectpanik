@@ -1,28 +1,32 @@
 
-import React from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
+import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
 
 const Login = (): JSX.Element => {
   const form = useForm();
   const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
 
   const onSubmit = (data: any) => {
     console.log(data);
-    // In a real app, you would authenticate the user here
-    // For now, we'll just navigate to the choice page
+    // Set the authentication state to true
+    setIsAuthenticated(true);
+    // Navigate to the choice page
     navigate("/choice");
   };
 
   return (
     <div className="min-h-screen w-full">
-      {/* Navigation Bar */}
+      {/* Navigation Bar - conditionally render based on auth state */}
       <div className="w-full px-6 py-4">
-        <Navbar />
+        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
 
       <div className="mx-auto max-w-[1524px] py-8">

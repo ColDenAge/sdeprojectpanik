@@ -1,12 +1,15 @@
 
-import React from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
+import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
 
 const Choice = (): JSX.Element => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useContext(AuthContext);
 
   const handleChoice = (role: string) => {
     console.log(`User selected role: ${role}`);
@@ -19,7 +22,7 @@ const Choice = (): JSX.Element => {
     <div className="min-h-screen w-full">
       {/* Navigation Bar */}
       <div className="w-full px-6 py-4">
-        <Navbar />
+        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
 
       <div className="mx-auto max-w-[1524px] py-8">
