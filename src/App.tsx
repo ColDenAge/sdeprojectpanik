@@ -17,6 +17,7 @@ import Choice from "./pages/Choice";
 import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members"; 
 import MemberGyms from "./pages/MemberGyms";
+import Billings from "./pages/Billings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -92,8 +93,10 @@ const App = () => {
                 isAuthenticated && userRole === "manager" ? <Members /> : <Navigate to="/" />
               } />
               
+              {/* Billings page */}
+              <Route path="/billings" element={<Billings />} />
+              
               {/* Other dashboard sections */}
-              <Route path="/billings" element={<Dashboard />} />
               <Route path="/settings" element={<Dashboard />} />
               <Route path="/help" element={<Dashboard />} />
               
