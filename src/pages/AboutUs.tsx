@@ -21,7 +21,7 @@ const AboutUs: React.FC = () => {
           <div className="flex flex-col">
             <h2 className="text-slate-800 text-3xl font-bold mb-4">Our Story</h2>
             <p className="text-black text-base font-medium leading-6 mb-6">
-              ByteMinds Systems was founded in 2019 by a team of fitness enthusiasts and software engineers who saw a need for better technology solutions in the fitness industry. What started as a simple check-in system for a local gym has evolved into a comprehensive management platform used by fitness centers worldwide.
+              ByteMinds Systems is an independent team of passionate developers dedicated to designing and creating smart, efficient, and user-friendly systems that bring convenience to local businesses. Our mission is to empower businesses by streamlining operations, enhancing customer experiences, and driving growth through innovative technology solutions.
             </p>
             <p className="text-black text-base font-medium leading-6">
               Our journey began with a simple mission: to help gym owners focus on what they do best—creating great fitness experiences—while we handle the complex technology that powers their business operations.
