@@ -49,7 +49,7 @@ const AuthNavbar: React.FC = () => {
             </AvatarFallback>
           </Avatar>
           <span className="text-sm hidden md:inline-block">
-            {userRole === "Member" ? "Gym Member" : "Gym Manager"}
+            {userRole === "member" ? "Gym Member" : "Gym Manager"}
           </span>
         </div>
         <button 

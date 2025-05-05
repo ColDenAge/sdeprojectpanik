@@ -9,12 +9,14 @@ import { AuthContext } from "../App";
 
 const Choice = (): JSX.Element => {
   const navigate = useNavigate();
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, setIsAuthenticated, setUserRole } = useContext(AuthContext);
 
   const handleChoice = (role: string) => {
     console.log(`User selected role: ${role}`);
     // Set authentication state to true
     setIsAuthenticated(true);
+    // Set user role in context
+    setUserRole(role);
     // Store the user role in localStorage
     localStorage.setItem("userRole", role);
     // Navigate to home page
