@@ -3,10 +3,12 @@ import React from "react";
 export const Box = (): JSX.Element => {
   return (
     <div className="relative w-[1524px] h-[1154px]">
-      <div className="fixed w-[1524px] h-[1154px] top-0 left-0">
+      <div className="fixed w-full h-full top-0 left-0">
         {/* Dan Steven R. Leonardo */}
         <div className="absolute w-[853px] h-64 top-[198px] left-[396px]">
-          <img className="absolute w-[255px] h-64 top-0 left-0" alt="Profile" src={profilePic1} />
+          <div className="absolute w-[255px] h-64 top-0 left-0 flex items-center justify-center">
+            <div className="w-[160px] h-[160px] rounded-full bg-[#D9D9D9]" />
+          </div>
           <div className="absolute w-[569px] h-[221px] top-1.5 left-72">
             <p className="w-[408px] top-[104px] left-0 absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
               <span className="font-bold">Gmail:</span>{" "}
@@ -24,7 +26,9 @@ export const Box = (): JSX.Element => {
 
         {/* Denver Jay B. Palabon */}
         <div className="absolute w-[840px] h-64 top-[577px] left-[684px]">
-          <img className="absolute w-[255px] h-64 top-0 left-[585px]" alt="Profile" src={image} />
+          <div className="absolute w-[255px] h-64 top-0 left-[585px] flex items-center justify-center">
+            <div className="w-[160px] h-[160px] rounded-full bg-[#D9D9D9]" />
+          </div>
           <div className="absolute w-[569px] h-[206px] top-[13px] left-0">
             <p className="w-[484px] top-[89px] left-[81px] text-right absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
               <span className="font-bold">Gmail:</span>{" "}
@@ -42,7 +46,9 @@ export const Box = (): JSX.Element => {
 
         {/* Jelord G. Seguis */}
         <div className="absolute w-[853px] h-64 top-[898px] left-[396px]">
-          <img className="absolute w-[255px] h-64 top-0 left-0" alt="Profile" src={profilePic3} />
+          <div className="absolute w-[255px] h-64 top-0 left-0 flex items-center justify-center">
+            <div className="w-[160px] h-[160px] rounded-full bg-[#D9D9D9]" />
+          </div>
           <div className="absolute w-[569px] h-[221px] top-[17px] left-72">
             <p className="w-[408px] top-[104px] left-0 absolute font-normal text-[#0b294b] text-xl leading-normal tracking-[0] font-[Cairo-Bold,Helvetica]">
               <span className="font-bold">Gmail:</span>{" "}
