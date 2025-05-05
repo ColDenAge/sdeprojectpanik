@@ -1,13 +1,24 @@
+
 import React from "react";
+import Navbar from "@/components/homepage/Navbar";
+import profilePic1 from "../assets/profile-pic1.png";
+import profilePic2 from "../assets/profile-pic2.png";
+import profilePic3 from "../assets/profile-pic3.png";
 
 const Contact = (): JSX.Element => {
   return (
     <div className="relative w-[1524px] h-[1154px]">
       <div className="fixed w-full h-full top-0 left-0">
+        {/* Navigation Bar */}
+        <div className="w-full px-6 py-4">
+          <Navbar />
+        </div>
 
         {/* Dan Steven R. Leonardo */}
         <div className="absolute w-[853px] h-64 top-[198px] left-[396px] flex items-start gap-8">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9]" />
+          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+            <img src={profilePic1} alt="Dan Steven R. Leonardo" className="w-full h-full object-cover" />
+          </div>
           <div className="w-[569px] h-[221px] mt-1.5">
             <h2 className="font-bold text-[#0b294b] text-5xl font-cairo mb-2">
               Dan Steven R. Leonardo
@@ -22,7 +33,9 @@ const Contact = (): JSX.Element => {
 
         {/* Denver Jay B. Palabon */}
         <div className="absolute w-[840px] h-64 top-[577px] left-[684px] flex items-start gap-8 flex-row-reverse">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9]" />
+          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+            <img src={profilePic2} alt="Denver Jay B. Palabon" className="w-full h-full object-cover" />
+          </div>
           <div className="w-[569px] h-[206px] mt-[13px] text-right">
             <h2 className="font-bold text-[#0b294b] text-5xl font-cairo mb-2">
               Denver Jay B. Palabon
@@ -37,7 +50,9 @@ const Contact = (): JSX.Element => {
 
         {/* Jelord G. Seguis */}
         <div className="absolute w-[853px] h-64 top-[898px] left-[396px] flex items-start gap-8">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9]" />
+          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+            <img src={profilePic3} alt="Jelord G. Seguis" className="w-full h-full object-cover" />
+          </div>
           <div className="w-[569px] h-[221px] mt-[17px]">
             <h2 className="font-bold text-[#0b294b] text-5xl font-cairo mb-2">
               Jelord G. Seguis
