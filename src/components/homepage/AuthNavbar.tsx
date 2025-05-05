@@ -26,7 +26,7 @@ const AuthNavbar: React.FC = () => {
   const currentPath = location.pathname;
   const [activeTab, setActiveTab] = useState<string>(() => {
     // Determine initial active tab based on current path
-    const dashboardPaths = ['/dashboard', '/gyms', '/billings', '/settings', '/help'];
+    const dashboardPaths = ['/dashboard', '/gyms', '/billings', '/settings', '/help', '/members'];
     return dashboardPaths.includes(currentPath) ? "dashboard" : "main";
   });
 
@@ -139,6 +139,13 @@ const AuthNavbar: React.FC = () => {
               <span className="hidden md:inline">Billings</span>
             </Link>
             
+            {userRole === "manager" && (
+              <Link to="/members" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/members' ? 'text-gray-300' : ''}`}>
+                <Users className="h-5 w-5" />
+                <span className="hidden md:inline">Members List</span>
+              </Link>
+            )}
+            
             <Link to="/settings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/settings' ? 'text-gray-300' : ''}`}>
               <Settings className="h-5 w-5" />
               <span className="hidden md:inline">Account Settings</span>
@@ -156,4 +163,3 @@ const AuthNavbar: React.FC = () => {
 };
 
 export default AuthNavbar;
-
