@@ -3,16 +3,19 @@ import React from "react";
 import Navbar from "@/components/homepage/Navbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = (): JSX.Element => {
   const form = useForm();
+  const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
     console.log(data);
+    // In a real app, you would register the user here
+    // For now, we'll just navigate to the choice page
+    navigate("/choice");
   };
 
   return (
