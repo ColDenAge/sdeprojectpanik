@@ -1,3 +1,4 @@
+
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -46,6 +47,11 @@ const AuthNavbar: React.FC = () => {
     } else {
       navigate("/");
     }
+  };
+
+  // Get the appropriate label for the Gyms link based on user role
+  const getGymsLabel = () => {
+    return userRole === "member" ? "My Gyms" : "Members List";
   };
 
   return (
@@ -131,7 +137,7 @@ const AuthNavbar: React.FC = () => {
             
             <Link to="/gyms" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/gyms' ? 'text-gray-300' : ''}`}>
               <Dumbbell className="h-5 w-5" />
-              <span className="hidden md:inline">Gyms</span>
+              <span className="hidden md:inline">{getGymsLabel()}</span>
             </Link>
             
             {userRole === "manager" && (

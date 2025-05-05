@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createContext, useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Features from "./pages/Features";
@@ -17,7 +16,7 @@ import ChangePassword from "./pages/ChangePassword";
 import Choice from "./pages/Choice";
 import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members"; 
-import MemberGyms from "./pages/MemberGyms"; // Import the new MemberGyms page
+import MemberGyms from "./pages/MemberGyms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +42,19 @@ const App = () => {
     }
   }, []);
 
+  // Role-based redirect component
+  const RoleBasedRoute = ({ path, memberComponent, managerComponent }: { 
+    path: string, 
+    memberComponent: React.ReactNode, 
+    managerComponent: React.ReactNode 
+  }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" />;
+    }
+    
+    return userRole === "member" ? memberComponent : managerComponent;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={{ isAuthenticated, userRole, setIsAuthenticated, setUserRole }}>
@@ -51,6 +63,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/features" element={<Features />} />
               <Route path="/faqs" element={<FAQs />} />
@@ -61,13 +74,30 @@ const App = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/choice" element={<Choice />} />
+              
+              {/* Dashboard routes with role-based rendering */}
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/gyms" element={<MemberGyms />} /> {/* Update to use MemberGyms for members */}
+              
+              {/* Gyms page - different for each role */}
+              <Route path="/gyms" element={
+                <RoleBasedRoute 
+                  path="/gyms"
+                  memberComponent={<MemberGyms />} 
+                  managerComponent={<Members />}
+                />
+              } />
+              
+              {/* Members list - managers only */}
+              <Route path="/members" element={
+                isAuthenticated && userRole === "manager" ? <Members /> : <Navigate to="/" />
+              } />
+              
+              {/* Other dashboard sections */}
               <Route path="/billings" element={<Dashboard />} />
               <Route path="/settings" element={<Dashboard />} />
               <Route path="/help" element={<Dashboard />} />
-              <Route path="/members" element={<Members />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              
+              {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
