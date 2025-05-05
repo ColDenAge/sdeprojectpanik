@@ -30,9 +30,9 @@ const Navbar: React.FC = () => {
       <Link to="/contact" className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors ${currentPath === '/contact' ? 'text-gray-300' : ''}`}>
         Contact
       </Link>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors cursor-pointer">
+      <Link to="/login" className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors ${currentPath === '/login' ? 'text-gray-300' : ''}`}>
         Login
-      </div>
+      </Link>
       <div className="self-stretch my-auto">
         <Link to="/signup">
           <button className="bg-white text-[#0B294B] pt-[11px] pb-1 px-[26px] rounded-[10px] max-md:px-5 hover:bg-gray-100 transition-colors">
