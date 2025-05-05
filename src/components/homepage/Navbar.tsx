@@ -18,9 +18,9 @@ const Navbar: React.FC = () => {
       <Link to="/features" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 text-white hover:text-gray-300 transition-colors">
         Features
       </Link>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors cursor-pointer">
+      <Link to="/faqs" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors">
         FAQs
-      </div>
+      </Link>
       <div className="z-10 self-stretch pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors cursor-pointer">
         About Us
       </div>
