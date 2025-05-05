@@ -13,7 +13,7 @@ const Contact = (): JSX.Element => {
       <div className="relative mx-auto max-w-[1524px] h-[1154px]">
         {/* Dan Steven R. Leonardo */}
         <div className="absolute w-[853px] h-64 top-[198px] left-[396px] flex items-start gap-8">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+          <div className="w-[255px] h-64 rounded-full bg-[#FFFFFF] overflow-hidden">
             {/* D9D9D9 circular shape instead of image */}
           </div>
           <div className="w-[569px] h-[221px] mt-1.5">
@@ -30,7 +30,7 @@ const Contact = (): JSX.Element => {
 
         {/* Denver Jay B. Palabon */}
         <div className="absolute w-[840px] h-64 top-[577px] left-[684px] flex items-start gap-8 flex-row-reverse">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+          <div className="w-[255px] h-64 rounded-full bg-[#FFFFFF] overflow-hidden">
             {/* D9D9D9 circular shape instead of image */}
           </div>
           <div className="w-[569px] h-[206px] mt-[13px] text-right">
@@ -47,7 +47,7 @@ const Contact = (): JSX.Element => {
 
         {/* Jelord G. Seguis */}
         <div className="absolute w-[853px] h-64 top-[898px] left-[396px] flex items-start gap-8">
-          <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
+          <div className="w-[255px] h-64 rounded-full bg-[#FFFFFF] overflow-hidden">
             {/* D9D9D9 circular shape instead of image */}
           </div>
           <div className="w-[569px] h-[221px] mt-[17px]">
