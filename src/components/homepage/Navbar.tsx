@@ -1,4 +1,7 @@
+
 import React from "react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   return (
@@ -29,7 +32,7 @@ const Navbar: React.FC = () => {
       </div>
       <div className="self-stretch my-auto">
         <button className="bg-[rgba(11,41,75,1)] pt-[11px] pb-1 px-[26px] rounded-[10px] max-md:px-5">
-          Sign Up
+          <div className="text-white text-center text-lg font-medium">Sign Up</div>
         </button>
       </div>
     </nav>
