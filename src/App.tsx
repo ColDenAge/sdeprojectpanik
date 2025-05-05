@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import Members from "./pages/Members";
 import MemberGyms from "./pages/MemberGyms";
 import Billings from "./pages/Billings";
 import AccountSettings from "./pages/AccountSettings";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -100,8 +102,8 @@ const App = () => {
               {/* Account Settings page */}
               <Route path="/settings" element={<AccountSettings />} />
               
-              {/* Other dashboard sections */}
-              <Route path="/help" element={<Dashboard />} />
+              {/* Help page */}
+              <Route path="/help" element={<Help />} />
               
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
