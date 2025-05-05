@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSearch } from "./SearchContext";
 
 const gymsData = [
   {
@@ -25,6 +26,18 @@ const gymsData = [
 ];
 
 const GymsTab = () => {
+  const { searchTerm } = useSearch();
+
+  const filteredGyms = gymsData.filter((gym) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      gym.name.toLowerCase().includes(search) ||
+      gym.location.toLowerCase().includes(search) ||
+      gym.members.toString().includes(search) ||
+      gym.status.toLowerCase().includes(search)
+    );
+  });
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -38,24 +51,32 @@ const GymsTab = () => {
           </tr>
         </thead>
         <tbody>
-          {gymsData.map((gym, i) => (
-            <tr key={i} className="border-b hover:bg-muted/30">
-              <td className="px-4 py-3 text-sm">{gym.name}</td>
-              <td className="px-4 py-3 text-sm">{gym.location}</td>
-              <td className="px-4 py-3 text-sm">{gym.members}</td>
-              <td className="px-4 py-3 text-sm">
-                <Badge variant="success">
-                  {gym.status}
-                </Badge>
-              </td>
-              <td className="px-4 py-3 text-sm">
-                <div className="flex space-x-2">
-                  <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">Edit</Button>
-                  <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">View</Button>
-                </div>
+          {filteredGyms.length > 0 ? (
+            filteredGyms.map((gym, i) => (
+              <tr key={i} className="border-b hover:bg-muted/30">
+                <td className="px-4 py-3 text-sm">{gym.name}</td>
+                <td className="px-4 py-3 text-sm">{gym.location}</td>
+                <td className="px-4 py-3 text-sm">{gym.members}</td>
+                <td className="px-4 py-3 text-sm">
+                  <Badge variant="success">
+                    {gym.status}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  <div className="flex space-x-2">
+                    <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">Edit</Button>
+                    <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">View</Button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+                No gyms match your search
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

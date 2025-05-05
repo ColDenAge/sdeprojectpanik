@@ -3,8 +3,15 @@ import React from "react";
 import { Search, Filter, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useSearch } from "./SearchContext";
 
 const GymManagementHeader = () => {
+  const { searchTerm, setSearchTerm } = useSearch();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="w-full flex flex-col gap-4 mb-8">
       <h1 className="text-3xl font-bold">Gym Management</h1>
@@ -15,6 +22,8 @@ const GymManagementHeader = () => {
             type="search"
             placeholder="Search members, gyms, or locations..."
             className="pl-9 w-full"
+            value={searchTerm}
+            onChange={handleSearchChange}
           />
         </div>
         <div className="flex gap-2">
