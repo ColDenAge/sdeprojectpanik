@@ -25,7 +25,7 @@ const Login = (): JSX.Element => {
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
         <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-white font-bold text-5xl font-cairo">
+          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
             Login
           </div>
         </div>
