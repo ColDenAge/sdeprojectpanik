@@ -1,9 +1,12 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar: React.FC = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <nav className="flex items-center gap-5 text-2xl font-normal text-center flex-wrap justify-between max-md:max-w-full bg-[#0B294B] text-white p-4 rounded-lg">
       <div className="self-stretch flex flex-col items-stretch font-bold">
@@ -14,16 +17,16 @@ const Navbar: React.FC = () => {
         />
         <div className="mt-[-9px]">ByteMinds Systems</div>
       </div>
-      <Link to="/" className="text-white self-stretch my-auto hover:text-gray-300 transition-colors">Home</Link>
-      <Link to="/features" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 text-white hover:text-gray-300 transition-colors">
+      <Link to="/" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>Home</Link>
+      <Link to="/features" className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 text-white hover:text-gray-300 transition-colors ${currentPath === '/features' ? 'text-gray-300' : ''}`}>
         Features
       </Link>
-      <Link to="/faqs" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors">
+      <Link to="/faqs" className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors ${currentPath === '/faqs' ? 'text-gray-300' : ''}`}>
         FAQs
       </Link>
-      <div className="z-10 self-stretch pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors cursor-pointer">
+      <Link to="/about-us" className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors ${currentPath === '/about-us' ? 'text-gray-300' : ''}`}>
         About Us
-      </div>
+      </Link>
       <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 hover:text-gray-300 transition-colors cursor-pointer">
         Contact
       </div>
