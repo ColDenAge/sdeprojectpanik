@@ -11,43 +11,44 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="flex items-center gap-5 text-2xl font-normal text-center flex-wrap justify-between max-md:max-w-full">
-      <div className="self-stretch flex flex-col items-stretch font-bold">
-        <Link to="/">
+    <nav className="flex items-center gap-5 text-lg font-normal text-center flex-wrap justify-between bg-[#e1e1e1] w-full py-4 px-8">
+      <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
             alt="ByteMinds Systems Logo"
-            className="aspect-[1] object-contain w-[104px] self-center z-10 max-w-full"
+            className="aspect-[1] object-contain w-[50px]"
           />
+          <span className="font-bold text-xl">ByteMinds Systems</span>
         </Link>
-        <div className="mt-[-9px]">ByteMinds Systems</div>
       </div>
-      <Link 
-        to="/" 
-        className={`text-[rgba(54,59,64,1)] self-stretch my-auto ${isActive('/') ? 'text-[rgba(54,59,64,1)]' : ''}`}
-      >
-        Home
-      </Link>
-      <Link 
-        to="/features" 
-        className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 ${isActive('/features') ? 'text-gray-500' : ''}`}
-      >
-        Features
-      </Link>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
-        FAQs
-      </div>
-      <div className="z-10 self-stretch pt-[-6px] my-auto pb-1.5">
-        About Us
-      </div>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
-        Contact
-      </div>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
-        Login
-      </div>
-      <div className="self-stretch my-auto">
-        <button className="bg-[rgba(11,41,75,1)] pt-[11px] pb-1 px-[26px] rounded-[10px] max-md:px-5 text-white">
+      
+      <div className="flex items-center gap-8">
+        <Link 
+          to="/" 
+          className={`${isActive('/') ? 'text-[#0b294b] font-medium' : 'text-[#363b40]'}`}
+        >
+          Home
+        </Link>
+        <Link 
+          to="/features" 
+          className={`${isActive('/features') ? 'text-white bg-[#0b294b] px-4 py-2 rounded-md' : 'text-[#363b40]'}`}
+        >
+          Features
+        </Link>
+        <div className="text-[#363b40]">
+          FAQs
+        </div>
+        <div className="text-[#363b40]">
+          About Us
+        </div>
+        <div className="text-[#363b40]">
+          Contact
+        </div>
+        <div className="text-[#363b40]">
+          Login
+        </div>
+        <button className="bg-[#0b294b] py-2 px-6 rounded-md text-white">
           Sign Up
         </button>
       </div>
