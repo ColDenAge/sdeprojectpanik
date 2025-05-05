@@ -14,10 +14,10 @@ const Navbar: React.FC = () => {
         />
         <div className="mt-[-9px]">ByteMinds Systems</div>
       </div>
-      <div className="text-[rgba(54,59,64,1)] self-stretch my-auto">Home</div>
-      <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
+      <Link to="/" className="text-[rgba(54,59,64,1)] self-stretch my-auto">Home</Link>
+      <Link to="/features" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
         Features
-      </div>
+      </Link>
       <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
         FAQs
       </div>
