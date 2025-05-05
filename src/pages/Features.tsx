@@ -1,9 +1,13 @@
 
 import React from "react";
+import Navbar from "@/components/homepage/Navbar";
 
 const Features: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
+      <div className="w-full px-5 max-w-[1194px] mx-auto mt-6">
+        <Navbar />
+      </div>
       <section className="flex flex-col items-stretch gap-5 max-w-full w-[1194px] mt-5 max-md:mt-10">
         <div className="text-slate-800 text-center text-5xl font-bold leading-[58px] tracking-wide self-center max-w-full w-[499px] mt-12 max-md:max-w-full max-md:text-4xl max-md:leading-10 max-md:mt-10">
           Membership Management System Features
