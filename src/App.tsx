@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import Choice from "./pages/Choice";
 import Dashboard from "./pages/Dashboard";
+import Members from "./pages/Members"; // Import the new Members page
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,7 +65,7 @@ const App = () => {
               <Route path="/billings" element={<Dashboard />} />
               <Route path="/settings" element={<Dashboard />} />
               <Route path="/help" element={<Dashboard />} />
-              <Route path="/members" element={<Dashboard />} />
+              <Route path="/members" element={<Members />} /> {/* Update the members route to use the Members component */}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

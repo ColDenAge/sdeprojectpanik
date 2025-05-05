@@ -134,17 +134,15 @@ const AuthNavbar: React.FC = () => {
               <span className="hidden md:inline">Gyms</span>
             </Link>
             
+            <Link to="/members" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/members' ? 'text-gray-300' : ''}`}>
+              <Users className="h-5 w-5" />
+              <span className="hidden md:inline">Members List</span>
+            </Link>
+            
             <Link to="/billings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/billings' ? 'text-gray-300' : ''}`}>
               <Wallet className="h-5 w-5" />
               <span className="hidden md:inline">Billings</span>
             </Link>
-            
-            {userRole === "manager" && (
-              <Link to="/members" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/members' ? 'text-gray-300' : ''}`}>
-                <Users className="h-5 w-5" />
-                <span className="hidden md:inline">Members List</span>
-              </Link>
-            )}
             
             <Link to="/settings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/settings' ? 'text-gray-300' : ''}`}>
               <Settings className="h-5 w-5" />
