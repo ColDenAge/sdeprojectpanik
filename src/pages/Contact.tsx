@@ -1,7 +1,4 @@
 import React from "react";
-import image from "./image.png";
-import profilePic1 from "./profile-pic1.png";
-import profilePic3 from "./profile-pic3.png";
 
 export const Box = (): JSX.Element => {
   return (
