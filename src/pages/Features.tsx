@@ -21,7 +21,7 @@ const Features = () => {
       
       <div className="max-w-7xl mx-auto pb-20">
         <FeaturesHeader />
-        <FeatureSection />
+        {/* Note: The features components like MembershipSection already use FeatureSection internally */}
         <MembershipSection />
         <BusinessSection />
         <BookingSection />
