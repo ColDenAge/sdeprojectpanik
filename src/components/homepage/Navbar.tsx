@@ -1,8 +1,20 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar: React.FC = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Function to determine if a link is active
+  const isActiveLink = (path: string) => {
+    return currentPath === path;
+  };
+  
+  // Style for active and inactive links
+  const activeLinkStyle = "text-gray-500 font-medium";
+  const linkStyle = "text-[rgba(54,59,64,1)]";
+  
   return (
     <nav className="flex items-center gap-5 text-2xl font-normal text-center flex-wrap justify-between max-md:max-w-full">
       <div className="self-stretch flex flex-col items-stretch font-bold">
@@ -15,8 +27,16 @@ const Navbar: React.FC = () => {
           <div className="mt-[-9px]">ByteMinds Systems</div>
         </Link>
       </div>
-      <Link to="/" className="text-[rgba(54,59,64,1)] self-stretch my-auto">Home</Link>
-      <Link to="/programs" className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
+      <Link 
+        to="/" 
+        className={`self-stretch my-auto ${isActiveLink("/") ? activeLinkStyle : linkStyle}`}
+      >
+        Home
+      </Link>
+      <Link 
+        to="/programs" 
+        className={`z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5 ${isActiveLink("/programs") ? activeLinkStyle : linkStyle}`}
+      >
         Programs
       </Link>
       <div className="z-10 self-stretch whitespace-nowrap pt-[-6px] my-auto pb-1.5">
