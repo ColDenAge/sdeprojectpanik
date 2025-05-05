@@ -4,13 +4,13 @@ import Navbar from "@/components/homepage/Navbar";
 
 const Contact = (): JSX.Element => {
   return (
-    <div className="relative w-[1524px] h-[1154px]">
-      <div className="fixed w-full h-full top-0 left-0">
-        {/* Navigation Bar */}
-        <div className="w-full px-6 py-4">
-          <Navbar />
-        </div>
+    <div className="min-h-screen w-full">
+      {/* Navigation Bar */}
+      <div className="w-full px-6 py-4">
+        <Navbar />
+      </div>
 
+      <div className="relative mx-auto max-w-[1524px] h-[1154px]">
         {/* Dan Steven R. Leonardo */}
         <div className="absolute w-[853px] h-64 top-[198px] left-[396px] flex items-start gap-8">
           <div className="w-[255px] h-64 rounded-full bg-[#D9D9D9] overflow-hidden">
