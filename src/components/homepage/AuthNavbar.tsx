@@ -2,7 +2,7 @@
 import React, { useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, User, LogOut } from "lucide-react";
+import { Home, LayoutDashboard, Dumbbell, Wallet, Settings, HelpCircle, LogOut, User } from "lucide-react";
 import { AuthContext } from "../../App";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -33,12 +33,35 @@ const AuthNavbar: React.FC = () => {
       </div>
 
       {/* Main Navigation Links */}
-      <Link to="/" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>Homepage</Link>
-      <Link to="/features" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/features' ? 'text-gray-300' : ''}`}>Features</Link>
-      <Link to="/faqs" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/faqs' ? 'text-gray-300' : ''}`}>FAQs</Link>
-      <Link to="/about-us" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/about-us' ? 'text-gray-300' : ''}`}>About Us</Link>
-      <Link to="/contact" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/contact' ? 'text-gray-300' : ''}`}>Contact Us</Link>
-      <Link to="/dashboard" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors ${currentPath === '/dashboard' ? 'text-gray-300' : ''}`}>Dashboard</Link>
+      <Link to="/" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/' ? 'text-gray-300' : ''}`}>
+        <Home className="h-5 w-5" />
+        <span className="hidden md:inline">Home</span>
+      </Link>
+      
+      <Link to="/dashboard" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/dashboard' ? 'text-gray-300' : ''}`}>
+        <LayoutDashboard className="h-5 w-5" />
+        <span className="hidden md:inline">Dashboard</span>
+      </Link>
+      
+      <Link to="/gyms" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/gyms' ? 'text-gray-300' : ''}`}>
+        <Dumbbell className="h-5 w-5" />
+        <span className="hidden md:inline">Gyms</span>
+      </Link>
+      
+      <Link to="/billings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/billings' ? 'text-gray-300' : ''}`}>
+        <Wallet className="h-5 w-5" />
+        <span className="hidden md:inline">Billings</span>
+      </Link>
+      
+      <Link to="/settings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/settings' ? 'text-gray-300' : ''}`}>
+        <Settings className="h-5 w-5" />
+        <span className="hidden md:inline">Account Settings</span>
+      </Link>
+      
+      <Link to="/help" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/help' ? 'text-gray-300' : ''}`}>
+        <HelpCircle className="h-5 w-5" />
+        <span className="hidden md:inline">Help</span>
+      </Link>
       
       {/* User Controls */}
       <div className="flex items-center gap-4">
