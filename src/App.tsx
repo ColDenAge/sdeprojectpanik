@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -91,7 +90,7 @@ const App = () => {
                 />
               } />
               
-              {/* Members list - managers only */}
+              {/* Members list - managers only (this is now the Gym Management page) */}
               <Route path="/members" element={
                 isAuthenticated && userRole === "manager" ? <Members /> : <Navigate to="/" />
               } />
