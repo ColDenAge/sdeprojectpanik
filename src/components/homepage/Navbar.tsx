@@ -34,9 +34,11 @@ const Navbar: React.FC = () => {
         Login
       </div>
       <div className="self-stretch my-auto">
-        <button className="bg-white text-[#0B294B] pt-[11px] pb-1 px-[26px] rounded-[10px] max-md:px-5 hover:bg-gray-100 transition-colors">
-          <div className="text-center text-lg font-medium">Sign Up</div>
-        </button>
+        <Link to="/signup">
+          <button className="bg-white text-[#0B294B] pt-[11px] pb-1 px-[26px] rounded-[10px] max-md:px-5 hover:bg-gray-100 transition-colors">
+            <div className="text-center text-lg font-medium">Sign Up</div>
+          </button>
+        </Link>
       </div>
     </nav>
   );
