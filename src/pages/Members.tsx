@@ -149,11 +149,6 @@ const Members = () => {
                         <td className="px-4 py-3 text-sm">
                           <Badge
                             variant={member.status === "Active" ? "success" : "destructive"}
-                            className={`${
-                              member.status === "Active"
-                                ? "bg-green-100 text-green-800 hover:bg-green-100"
-                                : "bg-red-100 text-red-800 hover:bg-red-100"
-                            }`}
                           >
                             {member.status}
                           </Badge>
@@ -211,10 +206,7 @@ const Members = () => {
                         <td className="px-4 py-3 text-sm">{gym.location}</td>
                         <td className="px-4 py-3 text-sm">{gym.members}</td>
                         <td className="px-4 py-3 text-sm">
-                          <Badge
-                            variant="success"
-                            className="bg-green-100 text-green-800 hover:bg-green-100"
-                          >
+                          <Badge variant="success">
                             {gym.status}
                           </Badge>
                         </td>
