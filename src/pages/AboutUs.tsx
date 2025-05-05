@@ -1,12 +1,16 @@
 
-import React from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
+import AuthNavbar from "@/components/homepage/AuthNavbar";
+import { AuthContext } from "../App";
 
 const AboutUs: React.FC = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+  
   return (
     <main className="flex flex-col min-h-screen bg-[#D9D9D9]">
       <div className="px-5 md:px-20 pt-[9px]">
-        <Navbar />
+        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
 
       <div className="flex flex-col items-center px-5 max-w-[1152px] mx-auto w-full pt-12 pb-24">

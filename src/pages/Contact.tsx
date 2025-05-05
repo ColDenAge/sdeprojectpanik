@@ -1,13 +1,17 @@
 
-import React from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
+import AuthNavbar from "@/components/homepage/AuthNavbar";
+import { AuthContext } from "../App";
 
-const Contact = (): JSX.Element => {
+const Contact: React.FC = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+  
   return (
     <div className="min-h-screen w-full">
       {/* Navigation Bar */}
       <div className="w-full px-6 py-4">
-        <Navbar />
+        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
 
       <div className="relative mx-auto max-w-[1524px] h-[1154px]">

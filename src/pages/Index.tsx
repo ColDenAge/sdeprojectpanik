@@ -1,12 +1,17 @@
-import React from "react";
+
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
+import AuthNavbar from "@/components/homepage/AuthNavbar";
 import HeroSection from "@/components/homepage/HeroSection";
 import FeatureSection from "@/components/homepage/FeatureSection";
 import InfoBox from "@/components/homepage/InfoBox";
 import FeaturesGrid from "@/components/homepage/FeaturesGrid";
 import CallToAction from "@/components/homepage/CallToAction";
+import { AuthContext } from "../App";
 
 const Index: React.FC = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+
   return (
     <main className="bg-[rgba(66,73,81,1)] flex flex-col overflow-hidden items-stretch">
       {/* Hero Section with Background */}
@@ -17,7 +22,7 @@ const Index: React.FC = () => {
           className="absolute h-full w-full object-cover inset-0"
         />
         <div className="relative z-10 mb-[-89px] w-full max-w-[1587px] max-md:max-w-full max-md:mb-2.5">
-          <Navbar />
+          {isAuthenticated ? <AuthNavbar /> : <Navbar />}
           <HeroSection />
         </div>
       </header>
