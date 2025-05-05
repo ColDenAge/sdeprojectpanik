@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import FAQs from "./pages/FAQs";
@@ -19,18 +19,30 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Create an authentication context
+// Create an authentication context with user role
 export const AuthContext = createContext({ 
   isAuthenticated: false,
-  setIsAuthenticated: (value: boolean) => {}
+  userRole: "",
+  setIsAuthenticated: (value: boolean) => {},
+  setUserRole: (role: string) => {}
 });
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState("");
   
+  // Check localStorage on initial load
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userRole");
+    if (storedRole) {
+      setUserRole(storedRole);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+      <AuthContext.Provider value={{ isAuthenticated, userRole, setIsAuthenticated, setUserRole }}>
         <TooltipProvider>
           <Toaster />
           <Sonner />

@@ -12,21 +12,19 @@ import { AuthContext } from "../App";
 const Login = (): JSX.Element => {
   const form = useForm();
   const navigate = useNavigate();
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   const onSubmit = (data: any) => {
     console.log(data);
-    // Set the authentication state to true
-    setIsAuthenticated(true);
-    // Navigate to the choice page
+    // Instead of directly setting auth to true, navigate to choice page
     navigate("/choice");
   };
 
   return (
     <div className="min-h-screen w-full">
-      {/* Navigation Bar - conditionally render based on auth state */}
+      {/* Only show regular Navbar on login page */}
       <div className="w-full px-6 py-4">
-        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
+        <Navbar />
       </div>
 
       <div className="mx-auto max-w-[1524px] py-8">

@@ -9,20 +9,23 @@ import { AuthContext } from "../App";
 
 const Choice = (): JSX.Element => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
 
   const handleChoice = (role: string) => {
     console.log(`User selected role: ${role}`);
-    // In a real app, you would save this preference to a user profile
-    // For now, we'll just log it and redirect back to home
+    // Set authentication state to true
+    setIsAuthenticated(true);
+    // Store the user role in localStorage
+    localStorage.setItem("userRole", role);
+    // Navigate to home page
     navigate("/");
   };
 
   return (
     <div className="min-h-screen w-full">
-      {/* Navigation Bar */}
+      {/* Navigation Bar - always use regular Navbar here as user is making a choice */}
       <div className="w-full px-6 py-4">
-        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
+        <Navbar />
       </div>
 
       <div className="mx-auto max-w-[1524px] py-8">
