@@ -18,6 +18,7 @@ import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members"; 
 import MemberGyms from "./pages/MemberGyms";
 import Billings from "./pages/Billings";
+import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -96,8 +97,10 @@ const App = () => {
               {/* Billings page */}
               <Route path="/billings" element={<Billings />} />
               
+              {/* Account Settings page */}
+              <Route path="/settings" element={<AccountSettings />} />
+              
               {/* Other dashboard sections */}
-              <Route path="/settings" element={<Dashboard />} />
               <Route path="/help" element={<Dashboard />} />
               
               {/* Catch-all route */}
