@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members";
 import MemberGyms from "./pages/MemberGyms";
 import Billings from "./pages/Billings";
+import ManagerBillings from "./pages/ManagerBillings";
 import AccountSettings from "./pages/AccountSettings";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
@@ -96,8 +97,14 @@ const App = () => {
                 isAuthenticated && userRole === "manager" ? <Navigate to="/gyms" /> : <Navigate to="/" />
               } />
               
-              {/* Billings page */}
-              <Route path="/billings" element={<Billings />} />
+              {/* Billings page - different for each role */}
+              <Route path="/billings" element={
+                <RoleBasedRoute 
+                  path="/billings"
+                  memberComponent={<Billings />} 
+                  managerComponent={<ManagerBillings />}
+                />
+              } />
               
               {/* Account Settings page */}
               <Route path="/settings" element={<AccountSettings />} />
