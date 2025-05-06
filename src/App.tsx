@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import Choice from "./pages/Choice";
 import Dashboard from "./pages/Dashboard";
-import Members from "./pages/Members"; 
+import Members from "./pages/Members";
 import MemberGyms from "./pages/MemberGyms";
 import Billings from "./pages/Billings";
 import AccountSettings from "./pages/AccountSettings";
@@ -90,9 +91,9 @@ const App = () => {
                 />
               } />
               
-              {/* Members list - managers only (this is now the Gym Management page) */}
+              {/* Redirecting the /members route to /gyms for manager users */}
               <Route path="/members" element={
-                isAuthenticated && userRole === "manager" ? <Members /> : <Navigate to="/" />
+                isAuthenticated && userRole === "manager" ? <Navigate to="/gyms" /> : <Navigate to="/" />
               } />
               
               {/* Billings page */}

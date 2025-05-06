@@ -1,4 +1,3 @@
-
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -101,7 +100,6 @@ const AuthNavbar: React.FC = () => {
       {/* Navigation Links */}
       <div className="w-full flex items-center justify-between flex-wrap gap-4">
         {activeTab === "main" ? (
-          // ... keep existing code (Main tab links)
           <>
             <Link to="/" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/' ? 'text-gray-300' : ''}`}>
               <Home className="h-5 w-5" />
@@ -139,13 +137,6 @@ const AuthNavbar: React.FC = () => {
               <Dumbbell className="h-5 w-5" />
               <span className="hidden md:inline">{getGymsLabel()}</span>
             </Link>
-            
-            {userRole === "manager" && (
-              <Link to="/members" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/members' ? 'text-gray-300' : ''}`}>
-                <Users className="h-5 w-5" />
-                <span className="hidden md:inline">Members List</span>
-              </Link>
-            )}
             
             <Link to="/billings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/billings' ? 'text-gray-300' : ''}`}>
               <Wallet className="h-5 w-5" />
