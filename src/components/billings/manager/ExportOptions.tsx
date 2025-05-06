@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Download, FileText, Export } from "lucide-react";
+import { Download, FileText, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ExportOptions = () => {
@@ -25,7 +25,7 @@ const ExportOptions = () => {
     <Card>
       <CardHeader className="bg-muted/50">
         <CardTitle className="flex items-center gap-2">
-          <Export className="h-5 w-5" />
+          <BarChart className="h-5 w-5" />
           Export & Reports
         </CardTitle>
       </CardHeader>
