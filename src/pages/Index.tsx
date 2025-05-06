@@ -15,13 +15,13 @@ const Index: React.FC = () => {
   return (
     <main className="bg-[rgba(66,73,81,1)] flex flex-col overflow-hidden items-stretch">
       {/* Hero Section with Background */}
-      <header className="flex flex-col relative z-10 min-h-[1083px] w-full text-white pt-[9px] px-20 max-md:max-w-full max-md:px-5">
+      <header className="flex flex-col relative z-10 min-h-[1083px] w-full text-white px-5 md:px-20 py-6">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/203385d887c2d460dda9e13a6b2fbe5afd49e7db?placeholderIfAbsent=true"
           alt="Hero background"
           className="absolute h-full w-full object-cover inset-0"
         />
-        <div className="relative z-10 mb-[-89px] w-full max-w-[1587px] max-md:max-w-full max-md:mb-2.5">
+        <div className="relative z-10 w-full max-w-[1587px] max-md:max-w-full">
           {isAuthenticated ? <AuthNavbar /> : <Navbar />}
           <HeroSection />
         </div>
