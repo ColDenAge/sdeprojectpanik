@@ -1,25 +1,36 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Edit, Settings } from "lucide-react";
 import { useSearch } from "./SearchContext";
+import { AddEditGymDialog } from "./dialogs/AddEditGymDialog";
 
-const gymsData = [
+const initialGymsData = [
   {
+    id: "1",
     name: "Downtown Fitness",
     location: "Downtown",
+    address: "123 Main St, City, State",
+    contactNumber: "(555) 123-4567",
     members: 87,
     status: "Active",
   },
   {
+    id: "2",
     name: "Westside Gym",
     location: "Westside",
+    address: "456 West Ave, City, State",
+    contactNumber: "(555) 234-5678",
     members: 65,
     status: "Active",
   },
   {
+    id: "3",
     name: "Eastside Fitness Center",
     location: "Eastside",
+    address: "789 East Blvd, City, State",
+    contactNumber: "(555) 345-6789",
     members: 52,
     status: "Active",
   },
@@ -27,8 +38,11 @@ const gymsData = [
 
 const GymsTab = () => {
   const { searchTerm } = useSearch();
+  const [gyms, setGyms] = useState(initialGymsData);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentGym, setCurrentGym] = useState<undefined | typeof initialGymsData[0]>(undefined);
 
-  const filteredGyms = gymsData.filter((gym) => {
+  const filteredGyms = gyms.filter((gym) => {
     const search = searchTerm.toLowerCase();
     return (
       gym.name.toLowerCase().includes(search) ||
@@ -37,6 +51,24 @@ const GymsTab = () => {
       gym.status.toLowerCase().includes(search)
     );
   });
+
+  const handleEditGym = (gym: typeof initialGymsData[0]) => {
+    setCurrentGym(gym);
+    setDialogOpen(true);
+  };
+
+  const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string }) => {
+    if (currentGym) {
+      // Edit existing gym
+      setGyms(
+        gyms.map((item) =>
+          item.id === currentGym.id
+            ? { ...item, ...values }
+            : item
+        )
+      );
+    }
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -64,8 +96,15 @@ const GymsTab = () => {
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">Edit</Button>
-                    <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">View</Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                      onClick={() => handleEditGym(gym)}
+                    >
+                      <Settings className="h-4 w-4 mr-1" />
+                      Edit Info
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -79,6 +118,13 @@ const GymsTab = () => {
           )}
         </tbody>
       </table>
+
+      <AddEditGymDialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        gym={currentGym}
+        onSave={handleSaveGym}
+      />
     </div>
   );
 };
