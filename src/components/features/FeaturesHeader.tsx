@@ -4,7 +4,7 @@ import React from "react";
 const FeaturesHeader: React.FC = () => {
   return (
     <>
-      <div className="text-slate-800 text-center text-5xl font-bold leading-[58px] tracking-wide w-[599px] max-md:w-full max-md:text-4xl max-md:leading-10 max-md:mt-10">
+      <div className="text-slate-800 text-center text-5xl font-bold leading-[58px] tracking-wide w-[999px] max-md:w-full max-md:text-4xl max-md:leading-10 max-md:mt-10">
         Membership Management System Features
       </div>
       <div className="text-stone-500 text-center text-base font-medium leading-6 self-center max-w-full w-[810px] mt-3.5 max-md:max-w-full">
