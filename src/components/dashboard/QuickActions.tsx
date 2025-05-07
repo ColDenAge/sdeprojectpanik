@@ -99,12 +99,6 @@ const QuickActions: React.FC = () => {
                   () => showToast("Trainers Scheduled", "Your trainer scheduling request has been processed.")
                 )}
               >
-                Schedule Trainers
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/billings")}
-              >
                 View Reports
               </button>
               <button 
