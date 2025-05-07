@@ -5,7 +5,6 @@ import { AuthContext } from "../App";
 import HelpPageHeader from "@/components/help/HelpPageHeader";
 import FAQSection from "@/components/help/FAQSection";
 import ContactSection from "@/components/help/ContactSection";
-import GuidesSection from "@/components/help/GuidesSection";
 
 const Help = () => {
   const { userRole } = useContext(AuthContext);
@@ -15,7 +14,6 @@ const Help = () => {
       <HelpPageHeader />
       <div className="grid grid-cols-1 gap-8 mb-8">
         <FAQSection userRole={userRole} />
-        <GuidesSection userRole={userRole} />
         <ContactSection />
       </div>
     </DashboardLayout>

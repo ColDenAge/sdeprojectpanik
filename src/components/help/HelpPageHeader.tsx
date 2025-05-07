@@ -1,15 +1,13 @@
 
 import React from "react";
-import { HelpCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const HelpPageHeader = () => {
   return (
-    <div className="w-full flex justify-between items-center mb-8">
-      <h1 className="text-3xl font-bold">Help & Support</h1>
-      <button className="bg-[#0B294B] text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-[#0a2544] transition-colors">
-        <HelpCircle className="h-5 w-5" />
-        Contact Support
-      </button>
+    <div className="w-full mb-8">
+      <Link to="/contact" className="hover:opacity-80 transition-opacity">
+        <h1 className="text-3xl font-bold">Help & Support</h1>
+      </Link>
     </div>
   );
 };
