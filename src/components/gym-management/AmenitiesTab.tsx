@@ -1,9 +1,20 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { useSearch } from "./SearchContext";
 import { AddEditAmenityDialog } from "./dialogs/AddEditAmenityDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const amenitiesData = [
   {
@@ -33,6 +44,9 @@ const AmenitiesTab = () => {
   const [amenities, setAmenities] = useState(amenitiesData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentAmenity, setCurrentAmenity] = useState<undefined | typeof amenitiesData[0]>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [amenityToDelete, setAmenityToDelete] = useState<undefined | typeof amenitiesData[0]>(undefined);
+  const { toast } = useToast();
 
   const filteredAmenities = amenities.filter((amenity) => {
     const search = searchTerm.toLowerCase();
@@ -50,6 +64,22 @@ const AmenitiesTab = () => {
   const handleEditAmenity = (amenity: typeof amenitiesData[0]) => {
     setCurrentAmenity(amenity);
     setDialogOpen(true);
+  };
+
+  const handleDeleteAmenity = (amenity: typeof amenitiesData[0]) => {
+    setAmenityToDelete(amenity);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteAmenity = () => {
+    if (amenityToDelete) {
+      setAmenities(amenities.filter(amenity => amenity.id !== amenityToDelete.id));
+      toast({
+        title: "Amenity Deleted",
+        description: `${amenityToDelete.name} has been removed.`,
+      });
+    }
+    setDeleteDialogOpen(false);
   };
 
   const handleSaveAmenity = (values: { name: string; description: string }) => {
@@ -101,15 +131,26 @@ const AmenitiesTab = () => {
                   <td className="px-4 py-3 text-sm">{amenity.name}</td>
                   <td className="px-4 py-3 text-sm">{amenity.description}</td>
                   <td className="px-4 py-3 text-sm">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                      onClick={() => handleEditAmenity(amenity)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                        onClick={() => handleEditAmenity(amenity)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
+                        onClick={() => handleDeleteAmenity(amenity)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -130,6 +171,27 @@ const AmenitiesTab = () => {
         amenity={currentAmenity}
         onSave={handleSaveAmenity}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this amenity?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the amenity
+              {amenityToDelete && ` "${amenityToDelete.name}"`} and remove its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteAmenity}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,10 +1,21 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "./SearchContext";
 import { AddEditMembershipDialog } from "./dialogs/AddEditMembershipDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const membershipPlansData = [
   {
@@ -38,6 +49,9 @@ const MembershipPlansTab = () => {
   const [membershipPlans, setMembershipPlans] = useState(membershipPlansData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<undefined | typeof membershipPlansData[0]>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<undefined | typeof membershipPlansData[0]>(undefined);
+  const { toast } = useToast();
 
   const filteredPlans = membershipPlans.filter((plan) => {
     const search = searchTerm.toLowerCase();
@@ -57,6 +71,22 @@ const MembershipPlansTab = () => {
   const handleEditPlan = (plan: typeof membershipPlansData[0]) => {
     setCurrentPlan(plan);
     setDialogOpen(true);
+  };
+
+  const handleDeletePlan = (plan: typeof membershipPlansData[0]) => {
+    setPlanToDelete(plan);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeletePlan = () => {
+    if (planToDelete) {
+      setMembershipPlans(membershipPlans.filter(plan => plan.id !== planToDelete.id));
+      toast({
+        title: "Membership Plan Deleted",
+        description: `${planToDelete.name} plan has been removed.`,
+      });
+    }
+    setDeleteDialogOpen(false);
   };
 
   const handleSavePlan = (values: { name: string; price: string; duration: string; benefits: string }) => {
@@ -119,15 +149,26 @@ const MembershipPlansTab = () => {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                      onClick={() => handleEditPlan(plan)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                        onClick={() => handleEditPlan(plan)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
+                        onClick={() => handleDeletePlan(plan)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -148,6 +189,27 @@ const MembershipPlansTab = () => {
         membership={currentPlan}
         onSave={handleSavePlan}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this membership plan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              {planToDelete && ` "${planToDelete.name}"`} plan and remove its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeletePlan}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

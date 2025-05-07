@@ -2,9 +2,20 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Settings, Plus } from "lucide-react";
+import { Edit, Settings, Plus, Trash2 } from "lucide-react";
 import { useSearch } from "./SearchContext";
 import { AddEditGymDialog } from "./dialogs/AddEditGymDialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const initialGymsData = [
   {
@@ -41,6 +52,9 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const [gyms, setGyms] = useState(initialGymsData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentGym, setCurrentGym] = useState<undefined | typeof initialGymsData[0]>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [gymToDelete, setGymToDelete] = useState<undefined | typeof initialGymsData[0]>(undefined);
+  const { toast } = useToast();
 
   const filteredGyms = gyms.filter((gym) => {
     const search = searchTerm.toLowerCase();
@@ -60,6 +74,22 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const handleAddGym = () => {
     setCurrentGym(undefined);
     setDialogOpen(true);
+  };
+
+  const handleDeleteGym = (gym: typeof initialGymsData[0]) => {
+    setGymToDelete(gym);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteGym = () => {
+    if (gymToDelete) {
+      setGyms(gyms.filter(gym => gym.id !== gymToDelete.id));
+      toast({
+        title: "Gym Deleted",
+        description: `${gymToDelete.name} has been removed.`,
+      });
+    }
+    setDeleteDialogOpen(false);
   };
 
   const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string }) => {
@@ -132,6 +162,17 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
                       <Settings className="h-4 w-4 mr-1" />
                       Edit Info
                     </Button>
+                    {isManager && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
+                        onClick={() => handleDeleteGym(gym)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -152,6 +193,27 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         gym={currentGym}
         onSave={handleSaveGym}
       />
+      
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this gym?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the gym
+              {gymToDelete && ` "${gymToDelete.name}"`} and remove its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteGym}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

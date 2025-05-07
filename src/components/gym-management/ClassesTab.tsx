@@ -1,10 +1,21 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "./SearchContext";
 import { AddEditClassDialog } from "./dialogs/AddEditClassDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const classesData = [
   {
@@ -38,6 +49,9 @@ const ClassesTab = () => {
   const [classes, setClasses] = useState(classesData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentClass, setCurrentClass] = useState<undefined | typeof classesData[0]>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [classToDelete, setClassToDelete] = useState<undefined | typeof classesData[0]>(undefined);
+  const { toast } = useToast();
 
   const filteredClasses = classes.filter((cls) => {
     const search = searchTerm.toLowerCase();
@@ -56,6 +70,22 @@ const ClassesTab = () => {
   const handleEditClass = (cls: typeof classesData[0]) => {
     setCurrentClass(cls);
     setDialogOpen(true);
+  };
+
+  const handleDeleteClass = (cls: typeof classesData[0]) => {
+    setClassToDelete(cls);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteClass = () => {
+    if (classToDelete) {
+      setClasses(classes.filter(cls => cls.id !== classToDelete.id));
+      toast({
+        title: "Class Deleted",
+        description: `${classToDelete.name} has been removed.`,
+      });
+    }
+    setDeleteDialogOpen(false);
   };
 
   const handleSaveClass = (values: { name: string; instructor: string; schedule: string; capacity: string }) => {
@@ -116,15 +146,26 @@ const ClassesTab = () => {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                      onClick={() => handleEditClass(cls)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                        onClick={() => handleEditClass(cls)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
+                        onClick={() => handleDeleteClass(cls)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -145,6 +186,27 @@ const ClassesTab = () => {
         class={currentClass}
         onSave={handleSaveClass}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this class?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the class
+              {classToDelete && ` "${classToDelete.name}"`} and remove its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteClass}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
