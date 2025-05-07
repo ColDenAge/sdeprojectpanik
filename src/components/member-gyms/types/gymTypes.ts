@@ -32,3 +32,13 @@ export interface MembershipApplication {
   status: string;
   memberId: string;
 }
+
+export interface GymMember {
+  id: string;
+  name: string;
+  membership: string;
+  status: string;
+  location: string;
+  joinDate: string;
+  gyms: string[];
+}

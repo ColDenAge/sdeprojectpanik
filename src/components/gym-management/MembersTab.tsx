@@ -23,6 +23,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 
+// Updated member data to include gym affiliations
 const membersData = [
   {
     id: "1",
@@ -31,6 +32,7 @@ const membersData = [
     status: "Active",
     location: "Downtown",
     joinDate: "Jan 12, 2023",
+    gyms: ["Downtown Fitness"],
   },
   {
     id: "2",
@@ -39,6 +41,7 @@ const membersData = [
     status: "Active",
     location: "Westside",
     joinDate: "Mar 5, 2023",
+    gyms: ["Westside Gym"],
   },
   {
     id: "3",
@@ -47,6 +50,7 @@ const membersData = [
     status: "Inactive",
     location: "Downtown",
     joinDate: "Nov 19, 2022",
+    gyms: ["Downtown Fitness", "Eastside Fitness Center"],
   },
   {
     id: "4",
@@ -55,6 +59,7 @@ const membersData = [
     status: "Active",
     location: "Eastside",
     joinDate: "Jul 30, 2023",
+    gyms: ["Eastside Fitness Center"],
   },
   {
     id: "5",
@@ -63,6 +68,7 @@ const membersData = [
     status: "Active",
     location: "Downtown",
     joinDate: "Feb 14, 2023",
+    gyms: ["Downtown Fitness", "Westside Gym"],
   },
 ];
 
@@ -80,7 +86,8 @@ const MembersTab = () => {
       member.membership.toLowerCase().includes(search) ||
       member.status.toLowerCase().includes(search) ||
       member.location.toLowerCase().includes(search) ||
-      member.joinDate.toLowerCase().includes(search)
+      member.joinDate.toLowerCase().includes(search) ||
+      member.gyms.some(gym => gym.toLowerCase().includes(search))
     );
   });
 
@@ -110,6 +117,7 @@ const MembersTab = () => {
             <TableHead>Status</TableHead>
             <TableHead>Location</TableHead>
             <TableHead>Join Date</TableHead>
+            <TableHead>Gyms</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -129,6 +137,19 @@ const MembersTab = () => {
                 <TableCell>{member.location}</TableCell>
                 <TableCell>{member.joinDate}</TableCell>
                 <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {member.gyms.map((gym, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="outline" 
+                        className="bg-muted/50"
+                      >
+                        {gym}
+                      </Badge>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>
                   <div className="flex space-x-2">
                     <Button 
                       variant="ghost" 
@@ -144,7 +165,7 @@ const MembersTab = () => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-gray-500">
+              <TableCell colSpan={7} className="h-24 text-center text-gray-500">
                 No members match your search
               </TableCell>
             </TableRow>
