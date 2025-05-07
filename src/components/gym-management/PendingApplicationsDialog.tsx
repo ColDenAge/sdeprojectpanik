@@ -10,10 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
 import { MembershipApplication } from "./types/gymTypes";
+import ApplicationCard from "./ApplicationCard";
+import { useApplicationActions } from "./hooks/useApplicationActions";
 
 interface PendingApplicationsDialogProps {
   open: boolean;
@@ -32,23 +31,10 @@ const PendingApplicationsDialog: React.FC<PendingApplicationsDialogProps> = ({
   onApprove,
   onReject,
 }) => {
-  const { toast } = useToast();
-  
-  const handleApprove = (application: MembershipApplication) => {
-    onApprove(application.id);
-    toast({
-      title: "Application Approved",
-      description: `${application.memberName} has been approved for ${application.membershipType} membership.`,
-    });
-  };
-  
-  const handleReject = (application: MembershipApplication) => {
-    onReject(application.id);
-    toast({
-      title: "Application Rejected",
-      description: `${application.memberName}'s application has been rejected.`,
-    });
-  };
+  const { handleApprove, handleReject } = useApplicationActions({
+    onApprove,
+    onReject
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,44 +50,12 @@ const PendingApplicationsDialog: React.FC<PendingApplicationsDialogProps> = ({
           {applications.length > 0 ? (
             <div className="space-y-4">
               {applications.map((application) => (
-                <div 
-                  key={application.id} 
-                  className="p-4 border rounded-lg flex flex-col space-y-3"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-medium">{application.memberName}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {application.membershipType} Membership
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Requested on {application.requestDate}
-                      </p>
-                    </div>
-                    <Badge className="bg-amber-500">Pending</Badge>
-                  </div>
-                  
-                  <div className="flex justify-end space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleReject(application)}
-                      className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Reject
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleApprove(application)}
-                      className="text-green-500 border-green-200 hover:bg-green-50 hover:text-green-600"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Approve
-                    </Button>
-                  </div>
-                </div>
+                <ApplicationCard 
+                  key={application.id}
+                  application={application}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                />
               ))}
             </div>
           ) : (
