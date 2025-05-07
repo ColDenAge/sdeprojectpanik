@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Settings, Plus, Trash2 } from "lucide-react";
+import { Edit, Settings, Plus, Trash2, UserPlus } from "lucide-react";
 import { useSearch } from "./SearchContext";
 import { AddEditGymDialog } from "./dialogs/AddEditGymDialog";
+import PendingApplicationsDialog, { MembershipApplication } from "./PendingApplicationsDialog";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +27,7 @@ const initialGymsData = [
     contactNumber: "(555) 123-4567",
     members: 87,
     status: "Active",
+    pendingApplications: 2,
   },
   {
     id: "2",
@@ -35,6 +37,7 @@ const initialGymsData = [
     contactNumber: "(555) 234-5678",
     members: 65,
     status: "Active",
+    pendingApplications: 0,
   },
   {
     id: "3",
@@ -44,8 +47,41 @@ const initialGymsData = [
     contactNumber: "(555) 345-6789",
     members: 52,
     status: "Active",
+    pendingApplications: 1,
   },
 ];
+
+// Example mock data for pending applications
+const mockApplicationsData = {
+  "1": [
+    {
+      id: "a1",
+      gymId: "1",
+      memberName: "John Smith",
+      membershipType: "Premium",
+      requestDate: "May 6, 2025",
+      status: "pending",
+    },
+    {
+      id: "a2",
+      gymId: "1",
+      memberName: "Alice Johnson",
+      membershipType: "Standard",
+      requestDate: "May 7, 2025",
+      status: "pending",
+    },
+  ],
+  "3": [
+    {
+      id: "a3",
+      gymId: "3",
+      memberName: "Bob Williams",
+      membershipType: "Standard",
+      requestDate: "May 5, 2025",
+      status: "pending",
+    },
+  ],
+};
 
 const GymsTab = ({ userRole }: { userRole?: string }) => {
   const { searchTerm } = useSearch();
@@ -54,7 +90,12 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const [currentGym, setCurrentGym] = useState<undefined | typeof initialGymsData[0]>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [gymToDelete, setGymToDelete] = useState<undefined | typeof initialGymsData[0]>(undefined);
+  const [applicationsDialogOpen, setApplicationsDialogOpen] = useState(false);
+  const [currentGymApplications, setCurrentGymApplications] = useState<MembershipApplication[]>([]);
+  const [currentGymName, setCurrentGymName] = useState("");
   const { toast } = useToast();
+
+  const [pendingApplications, setPendingApplications] = useState<Record<string, MembershipApplication[]>>(mockApplicationsData);
 
   const filteredGyms = gyms.filter((gym) => {
     const search = searchTerm.toLowerCase();
@@ -84,6 +125,12 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const confirmDeleteGym = () => {
     if (gymToDelete) {
       setGyms(gyms.filter(gym => gym.id !== gymToDelete.id));
+      // Also remove any pending applications
+      if (pendingApplications[gymToDelete.id]) {
+        const newPendingApplications = { ...pendingApplications };
+        delete newPendingApplications[gymToDelete.id];
+        setPendingApplications(newPendingApplications);
+      }
       toast({
         title: "Gym Deleted",
         description: `${gymToDelete.name} has been removed.`,
@@ -109,9 +156,93 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         ...values,
         members: 0,
         status: "Active",
+        pendingApplications: 0,
       };
       setGyms([...gyms, newGym]);
     }
+  };
+
+  const handleViewApplications = (gym: typeof initialGymsData[0]) => {
+    setCurrentGymName(gym.name);
+    setCurrentGymApplications(pendingApplications[gym.id] || []);
+    setApplicationsDialogOpen(true);
+  };
+
+  const handleApproveApplication = (applicationId: string) => {
+    // Update pending applications
+    const updatedApplications = { ...pendingApplications };
+    
+    // Find which gym this application belongs to
+    let gymId = "";
+    for (const [key, apps] of Object.entries(updatedApplications)) {
+      const appIndex = apps.findIndex(app => app.id === applicationId);
+      if (appIndex >= 0) {
+        gymId = key;
+        // Remove application from pending list
+        updatedApplications[key] = apps.filter(app => app.id !== applicationId);
+        if (updatedApplications[key].length === 0) {
+          delete updatedApplications[key];
+        }
+        break;
+      }
+    }
+    
+    setPendingApplications(updatedApplications);
+    
+    // Update gym's pending applications count and member count
+    if (gymId) {
+      setGyms(gyms.map(gym => {
+        if (gym.id === gymId) {
+          return {
+            ...gym,
+            pendingApplications: gym.pendingApplications - 1,
+            members: gym.members + 1
+          };
+        }
+        return gym;
+      }));
+    }
+    
+    // Update current displayed applications
+    setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
+  };
+
+  const handleRejectApplication = (applicationId: string) => {
+    // Update pending applications
+    const updatedApplications = { ...pendingApplications };
+    
+    // Find which gym this application belongs to
+    let gymId = "";
+    for (const [key, apps] of Object.entries(updatedApplications)) {
+      const appIndex = apps.findIndex(app => app.id === applicationId);
+      if (appIndex >= 0) {
+        gymId = key;
+        // Remove application from pending list
+        updatedApplications[key] = apps.filter(app => app.id !== applicationId);
+        if (updatedApplications[key].length === 0) {
+          delete updatedApplications[key];
+        }
+        break;
+      }
+    }
+    
+    setPendingApplications(updatedApplications);
+    
+    // Update gym's pending applications count
+    if (gymId) {
+      setGyms(gyms.map(gym => {
+        if (gym.id === gymId) {
+          return {
+            ...gym,
+            pendingApplications: gym.pendingApplications - 1
+          };
+        }
+        return gym;
+      }));
+    }
+    
+    // Update current displayed applications
+    setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
   };
 
   const isManager = userRole === "manager";
@@ -136,6 +267,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
             <th className="px-4 py-3 text-left text-sm font-medium">Location</th>
             <th className="px-4 py-3 text-left text-sm font-medium">Members</th>
             <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+            <th className="px-4 py-3 text-left text-sm font-medium">Applications</th>
             <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
           </tr>
         </thead>
@@ -150,6 +282,21 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
                   <Badge variant="success">
                     {gym.status}
                   </Badge>
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  {gym.pendingApplications > 0 ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800 px-3"
+                      onClick={() => handleViewApplications(gym)}
+                    >
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      {gym.pendingApplications} Pending
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">No pending</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex space-x-2">
@@ -179,7 +326,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+              <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
                 No gyms match your search
               </td>
             </tr>
@@ -192,6 +339,15 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         onOpenChange={setDialogOpen} 
         gym={currentGym}
         onSave={handleSaveGym}
+      />
+      
+      <PendingApplicationsDialog
+        open={applicationsDialogOpen}
+        onOpenChange={setApplicationsDialogOpen}
+        gymName={currentGymName}
+        applications={currentGymApplications}
+        onApprove={handleApproveApplication}
+        onReject={handleRejectApplication}
       />
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

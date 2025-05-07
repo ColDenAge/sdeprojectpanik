@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Users, MapPin, CalendarIcon, CheckCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -59,6 +59,13 @@ const availableGyms = [
   }
 ];
 
+// Map gym IDs to the corresponding IDs in the manager view
+const gymIdMapping: Record<number, string> = {
+  1: "1", // FitLife Downtown -> "1" in manager view
+  2: "2", // Elite Fitness Center -> "2" in manager view
+  3: "3", // PowerLift Gym -> "3" in manager view
+};
+
 const AvailableGyms = () => {
   const [selectedGym, setSelectedGym] = useState<null | typeof availableGyms[0]>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,7 +74,14 @@ const AvailableGyms = () => {
   const [selectedMembership, setSelectedMembership] = useState<null | any>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
+  const [applications, setApplications] = useState<Record<string, any[]>>({});
   const { toast } = useToast();
+
+  // Mock user data
+  const currentUser = {
+    name: "Alex Johnson",
+    id: "user123"
+  };
 
   const handleViewDetails = (gym: typeof availableGyms[0]) => {
     setSelectedGym(gym);
@@ -94,10 +108,36 @@ const AvailableGyms = () => {
 
   const confirmMembership = () => {
     if (selectedGym) {
+      // Create a new application
+      const newApplication = {
+        id: `app-${Date.now()}`,
+        gymId: gymIdMapping[selectedGym.id], // Convert to manager gym ID
+        memberName: currentUser.name,
+        membershipType: selectedMembership?.name,
+        requestDate: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        status: "pending",
+        memberId: currentUser.id
+      };
+      
+      // Update applications state
+      setApplications(prev => {
+        const gymId = gymIdMapping[selectedGym.id];
+        return {
+          ...prev,
+          [gymId]: [...(prev[gymId] || []), newApplication]
+        };
+      });
+      
       toast({
         title: "Membership Application Submitted",
         description: `Your application for ${selectedMembership?.name} membership at ${selectedGym.name} has been submitted successfully.`,
       });
+      
+      // Update local application success tracking
       setApplicationSuccess([...applicationSuccess, selectedGym.id]);
     }
     setMembershipDialogOpen(false);
@@ -107,6 +147,13 @@ const AvailableGyms = () => {
   const hasApplied = (gymId: number) => {
     return applicationSuccess.includes(gymId);
   };
+
+  // Effects to simulate updating the gym manager's pending applications
+  useEffect(() => {
+    // This would normally be handled by a backend or context/redux
+    // Here we simulate the data connection between member and manager views
+    console.log("Applications submitted:", applications);
+  }, [applications]);
 
   return (
     <Card>
@@ -252,8 +299,9 @@ const AvailableGyms = () => {
                         variant="outline" 
                         className="text-[#0B294B] border-[#0B294B] hover:bg-[#0B294B]/10"
                         onClick={() => handleSelectMembership(membership)}
+                        disabled={hasApplied(selectedGym.id)}
                       >
-                        Select
+                        {hasApplied(selectedGym.id) ? "Applied" : "Select"}
                       </Button>
                     </div>
                   ))}

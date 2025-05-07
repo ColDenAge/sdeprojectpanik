@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { UserCheck, Edit } from "lucide-react";
 import { 
@@ -49,10 +49,51 @@ const activeSubscriptions = [
 ];
 
 const ActiveSubscriptions = () => {
+  const [subscriptions, setSubscriptions] = useState(activeSubscriptions);
   const [selectedSubscription, setSelectedSubscription] = useState<null | typeof activeSubscriptions[0]>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [pendingSubscriptions, setPendingSubscriptions] = useState<any[]>([]);
   const { toast } = useToast();
+
+  // This is where we would normally fetch approved memberships from an API
+  // For demo purposes, we'll simulate this with a mock approval
+  useEffect(() => {
+    // Simulate a newly approved membership after 5 seconds for demo purposes
+    const timer = setTimeout(() => {
+      const newApproval = {
+        id: subscriptions.length + 1,
+        gymName: "PowerLift Gym",
+        membershipType: "Monthly",
+        startDate: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        nextPayment: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        status: "Active",
+        location: "Eastside",
+        availablePlans: [
+          { id: 1, name: "Monthly", price: "$34.99/mo", current: true },
+          { id: 2, name: "Quarterly", price: "$29.99/mo (billed quarterly)", current: false },
+          { id: 3, name: "Annual", price: "$24.99/mo (billed annually)", current: false }
+        ]
+      };
+      
+      setSubscriptions(prev => [...prev, newApproval]);
+      
+      toast({
+        title: "Membership Approved!",
+        description: "Your PowerLift Gym membership application has been approved.",
+      });
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const handleManageSubscription = (subscription: typeof activeSubscriptions[0]) => {
     setSelectedSubscription(subscription);
@@ -73,6 +114,20 @@ const ActiveSubscriptions = () => {
     });
     
     setIsDialogOpen(false);
+    
+    // Update the subscription in state
+    setSubscriptions(subscriptions.map(sub => 
+      sub.id === selectedSubscription.id 
+        ? {
+            ...sub,
+            membershipType: planName || sub.membershipType,
+            availablePlans: sub.availablePlans.map(plan => ({
+              ...plan,
+              current: plan.id.toString() === selectedPlan
+            }))
+          }
+        : sub
+    ));
   };
 
   return (
@@ -98,29 +153,50 @@ const ActiveSubscriptions = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {activeSubscriptions.map((subscription) => (
-                <TableRow key={subscription.id}>
-                  <TableCell className="font-medium">{subscription.gymName}</TableCell>
-                  <TableCell>{subscription.membershipType}</TableCell>
-                  <TableCell>{subscription.startDate}</TableCell>
-                  <TableCell>{subscription.nextPayment}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {subscription.status}
+              {subscriptions.length > 0 ? (
+                subscriptions.map((subscription) => (
+                  <TableRow key={subscription.id}>
+                    <TableCell className="font-medium">{subscription.gymName}</TableCell>
+                    <TableCell>{subscription.membershipType}</TableCell>
+                    <TableCell>{subscription.startDate}</TableCell>
+                    <TableCell>{subscription.nextPayment}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {subscription.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>{subscription.location}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                        onClick={() => handleManageSubscription(subscription)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Manage
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center text-gray-500">
+                    You don't have any active subscriptions yet
+                  </TableCell>
+                </TableRow>
+              )}
+              {pendingSubscriptions.length > 0 && pendingSubscriptions.map((pending, idx) => (
+                <TableRow key={`pending-${idx}`}>
+                  <TableCell className="font-medium">{pending.gymName}</TableCell>
+                  <TableCell>{pending.membershipType}</TableCell>
+                  <TableCell colSpan={3} className="text-center">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      Pending Approval
                     </span>
                   </TableCell>
-                  <TableCell>{subscription.location}</TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                      onClick={() => handleManageSubscription(subscription)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Manage
-                    </Button>
-                  </TableCell>
+                  <TableCell>{pending.location}</TableCell>
+                  <TableCell>-</TableCell>
                 </TableRow>
               ))}
             </TableBody>
