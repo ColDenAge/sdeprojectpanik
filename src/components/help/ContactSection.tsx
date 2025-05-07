@@ -12,11 +12,11 @@ const ContactSection = () => {
       <CardContent>
         <div className="grid grid-cols-1 gap-8">
           {/* Dan Steven R. Leonardo */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-start gap-8">
             <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
               {/* Placeholder for profile image */}
             </div>
-            <div>
+            <div className="mt-1.5">
               <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
                 Dan Steven R. Leonardo
               </h2>
@@ -29,11 +29,11 @@ const ContactSection = () => {
           </div>
 
           {/* Denver Jay B. Palabon */}
-          <div className="flex items-center gap-8 flex-row-reverse">
+          <div className="flex items-start gap-8 flex-row-reverse">
             <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
               {/* Placeholder for profile image */}
             </div>
-            <div className="text-right">
+            <div className="mt-[13px] text-right">
               <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
                 Denver Jay B. Palabon
               </h2>
@@ -46,11 +46,11 @@ const ContactSection = () => {
           </div>
 
           {/* Jelord G. Seguis */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-start gap-8">
             <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
               {/* Placeholder for profile image */}
             </div>
-            <div>
+            <div className="mt-[17px]">
               <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
                 Jelord G. Seguis
               </h2>
