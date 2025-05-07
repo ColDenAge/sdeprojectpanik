@@ -1,4 +1,3 @@
-
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -15,14 +14,16 @@ import {
   Users,
   Mail
 } from "lucide-react";
-import { AuthContext } from "../../App";
+import { RoleContext } from "../../router/App";
+import { useAuth } from "@/context/AuthProvider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AuthNavbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setIsAuthenticated, userRole } = useContext(AuthContext);
+  const { signOut } = useAuth();
+  const { userRole } = useContext(RoleContext);
   const currentPath = location.pathname;
   const [activeTab, setActiveTab] = useState<string>(() => {
     // Determine initial active tab based on current path
@@ -30,13 +31,16 @@ const AuthNavbar: React.FC = () => {
     return dashboardPaths.includes(currentPath) ? "dashboard" : "main";
   });
 
-  const handleLogout = () => {
-    // Clear authentication state
-    setIsAuthenticated(false);
-    // Remove user role from localStorage
-    localStorage.removeItem("userRole");
-    // Navigate to home page
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Remove user role from localStorage
+      localStorage.removeItem("userRole");
+      // Navigate to home page
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   const handleTabChange = (value: string) => {

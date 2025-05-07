@@ -1,5 +1,4 @@
-
-import React, { useContext } from "react";
+import React from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../App";
+import { useAuth } from "@/context/AuthProvider";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -31,12 +30,16 @@ const Login = (): JSX.Element => {
     }
   });
   const navigate = useNavigate();
-  const { isAuthenticated } = useContext(AuthContext);
+  const { signIn } = useAuth();
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log(data);
-    // Instead of directly setting auth to true, navigate to choice page
-    navigate("/choice");
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      await signIn(data.email, data.password);
+      navigate("/choice");
+    } catch (error) {
+      console.error("Login failed:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   return (

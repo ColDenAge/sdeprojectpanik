@@ -1,10 +1,9 @@
-
 import React, { useContext } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthContext } from "../../App";
+import { RoleContext } from "../../router/App";
 
 const ClassesList: React.FC = () => {
-  const { userRole } = useContext(AuthContext);
+  const { userRole } = useContext(RoleContext);
 
   return (
     <Card className="md:col-span-2 hover:shadow-md transition-shadow">

@@ -1,13 +1,12 @@
-
 import React, { useContext } from "react";
-import { AuthContext } from "../../App";
+import { RoleContext } from "../../router/App";
 import MemberStatCards from "./MemberStatCards";
 import ManagerStatCards from "./ManagerStatCards";
 import ClassesList from "./ClassesList";
 import QuickActions from "./QuickActions";
 
 const DashboardContent: React.FC = () => {
-  const { userRole } = useContext(AuthContext);
+  const { userRole } = useContext(RoleContext);
 
   return (
     <>
