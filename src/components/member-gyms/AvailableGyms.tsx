@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Users, MapPin, CalendarIcon } from "lucide-react";
+import { Users, MapPin, CalendarIcon, CheckCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,8 +25,7 @@ const availableGyms = [
       { id: 1, name: "Yoga Basics", instructor: "Sarah Johnson", schedule: "Mon, Wed, Fri 6:00 PM", capacity: 20, enrolled: 15 },
       { id: 2, name: "HIIT Training", instructor: "Mike Thompson", schedule: "Tue, Thu 7:30 AM", capacity: 15, enrolled: 10 },
       { id: 3, name: "Spin Class", instructor: "Emily Davis", schedule: "Mon, Wed 5:30 PM", capacity: 25, enrolled: 20 }
-    ],
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+    ]
   },
   {
     id: 2,
@@ -41,8 +40,7 @@ const availableGyms = [
     classes: [
       { id: 1, name: "CrossFit", instructor: "Chris Miller", schedule: "Mon, Wed, Fri 7:00 PM", capacity: 12, enrolled: 8 },
       { id: 2, name: "Pilates", instructor: "Lisa Wong", schedule: "Tue, Thu 9:00 AM", capacity: 15, enrolled: 12 }
-    ],
-    image: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1075&q=80"
+    ]
   },
   {
     id: 3,
@@ -57,8 +55,7 @@ const availableGyms = [
     classes: [
       { id: 1, name: "Powerlifting 101", instructor: "Mark Strong", schedule: "Mon, Wed 8:00 PM", capacity: 10, enrolled: 5 },
       { id: 2, name: "Olympic Lifting", instructor: "Jen Taylor", schedule: "Tue, Thu 6:30 PM", capacity: 8, enrolled: 6 }
-    ],
-    image: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+    ]
   }
 ];
 
@@ -69,6 +66,7 @@ const AvailableGyms = () => {
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<null | any>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
+  const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
   const { toast } = useToast();
 
   const handleViewDetails = (gym: typeof availableGyms[0]) => {
@@ -95,12 +93,19 @@ const AvailableGyms = () => {
   };
 
   const confirmMembership = () => {
-    toast({
-      title: "Membership Selected",
-      description: `You have selected the ${selectedMembership?.name} membership plan.`,
-    });
+    if (selectedGym) {
+      toast({
+        title: "Membership Application Submitted",
+        description: `Your application for ${selectedMembership?.name} membership at ${selectedGym.name} has been submitted successfully.`,
+      });
+      setApplicationSuccess([...applicationSuccess, selectedGym.id]);
+    }
     setMembershipDialogOpen(false);
     setIsDialogOpen(false);
+  };
+
+  const hasApplied = (gymId: number) => {
+    return applicationSuccess.includes(gymId);
   };
 
   return (
@@ -115,13 +120,6 @@ const AvailableGyms = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {availableGyms.map((gym) => (
             <Card key={gym.id} className="overflow-hidden border border-border">
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={gym.image} 
-                  alt={gym.name} 
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-              </div>
               <CardHeader className="p-4">
                 <CardTitle className="text-lg">{gym.name}</CardTitle>
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
@@ -154,7 +152,24 @@ const AvailableGyms = () => {
                     <p className="text-sm">{gym.classes.length} classes available</p>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-border flex justify-end">
+                <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
+                  {hasApplied(gym.id) ? (
+                    <div className="flex items-center text-green-600 text-sm">
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Application Submitted
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="default" 
+                      className="bg-[#0B294B] hover:bg-[#0a2544] text-white"
+                      onClick={() => {
+                        setSelectedGym(gym);
+                        setMembershipDialogOpen(true);
+                      }}
+                    >
+                      Apply for Membership
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     onClick={() => handleViewDetails(gym)}
@@ -286,25 +301,72 @@ const AvailableGyms = () => {
       <Dialog open={membershipDialogOpen} onOpenChange={setMembershipDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Select Membership Plan</DialogTitle>
+            <DialogTitle>Apply for Membership</DialogTitle>
           </DialogHeader>
           
-          {selectedMembership && (
+          {selectedGym && selectedMembership ? (
             <div className="py-4">
-              <h3 className="font-medium text-lg">{selectedMembership.name} Plan</h3>
-              <p className="text-sm text-muted-foreground mt-2">Price: {selectedMembership.price}</p>
+              <h3 className="font-medium text-lg">{selectedGym.name}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{selectedGym.location}</p>
+              
+              <div className="my-4 p-4 border rounded-md">
+                <h4 className="font-medium">{selectedMembership.name} Plan</h4>
+                <p className="text-sm text-muted-foreground">{selectedMembership.price}</p>
+              </div>
               
               <div className="mt-6 p-4 bg-muted/30 rounded-md">
                 <p className="text-sm">
-                  By selecting this membership plan, you agree to the terms and conditions of the gym. Membership fees will be automatically charged to your payment method on file.
+                  By applying for this membership, you agree to the terms and conditions of the gym. After approval, membership fees will be automatically charged to your payment method on file.
                 </p>
               </div>
             </div>
-          )}
+          ) : selectedGym ? (
+            <div className="py-4">
+              <h3 className="font-medium text-lg">{selectedGym.name}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{selectedGym.location}</p>
+              
+              <div className="my-4">
+                <h4 className="font-medium mb-2">Select a Membership Plan:</h4>
+                <div className="space-y-3">
+                  {selectedGym.membershipOptions.map((plan) => (
+                    <div 
+                      key={plan.id}
+                      className={`p-3 border rounded-md cursor-pointer transition-colors ${
+                        selectedMembership?.id === plan.id ? 'border-[#0B294B] bg-[#0B294B]/5' : ''
+                      }`}
+                      onClick={() => setSelectedMembership(plan)}
+                    >
+                      <div className="flex justify-between">
+                        <h5 className="font-medium">{plan.name}</h5>
+                        <p className="text-sm text-muted-foreground">{plan.price}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mt-4 p-4 bg-muted/30 rounded-md">
+                <p className="text-sm">
+                  Please select a membership plan to continue with your application.
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMembershipDialogOpen(false)}>Cancel</Button>
-            <Button onClick={confirmMembership} className="bg-[#0B294B] text-white hover:bg-[#0a2544]">Confirm Selection</Button>
+            <Button variant="outline" onClick={() => {
+              setMembershipDialogOpen(false);
+              setSelectedMembership(null);
+            }}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmMembership} 
+              className="bg-[#0B294B] text-white hover:bg-[#0a2544]"
+              disabled={!selectedMembership}
+            >
+              Submit Application
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
