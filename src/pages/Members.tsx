@@ -6,6 +6,7 @@ import GymManagementHeader from "@/components/gym-management/GymManagementHeader
 import GymStatsCards from "@/components/gym-management/GymStatsCards";
 import GymManagementTabs from "@/components/gym-management/GymManagementTabs";
 import { SearchProvider } from "@/components/gym-management/SearchContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const Members = () => {
   const { userRole } = useContext(AuthContext);
@@ -17,6 +18,7 @@ const Members = () => {
         <GymStatsCards />
         <GymManagementTabs userRole={userRole} />
       </SearchProvider>
+      <Toaster />
     </DashboardLayout>
   );
 };

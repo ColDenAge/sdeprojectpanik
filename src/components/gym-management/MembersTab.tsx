@@ -122,7 +122,6 @@ const MembersTab = () => {
                 <td className="px-4 py-3 text-sm">{member.joinDate}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2">Edit</Button>
                     <Button 
                       variant="ghost" 
                       size="sm" 

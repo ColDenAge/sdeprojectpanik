@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "./SearchContext";
 import { AddEditClassDialog } from "./dialogs/AddEditClassDialog";
+import { EnrollMemberDialog } from "./dialogs/EnrollMemberDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,10 @@ const classesData = [
     schedule: "Mon, Wed, Fri 6:00 PM - 7:00 PM",
     capacity: "20",
     enrolled: "14",
+    enrolledMembers: [
+      { id: "1", name: "John Doe" },
+      { id: "2", name: "Jane Smith" }
+    ]
   },
   {
     id: "2",
@@ -33,6 +38,9 @@ const classesData = [
     schedule: "Tue, Thu 7:00 AM - 8:00 AM",
     capacity: "15",
     enrolled: "12",
+    enrolledMembers: [
+      { id: "3", name: "Robert Johnson" },
+    ]
   },
   {
     id: "3",
@@ -41,13 +49,29 @@ const classesData = [
     schedule: "Mon, Wed, Fri 8:00 AM - 9:00 AM",
     capacity: "25",
     enrolled: "22",
+    enrolledMembers: [
+      { id: "4", name: "Emily Davis" },
+      { id: "5", name: "Michael Wilson" }
+    ]
   },
+];
+
+const availableMembers = [
+  { id: "1", name: "John Doe" },
+  { id: "2", name: "Jane Smith" },
+  { id: "3", name: "Robert Johnson" },
+  { id: "4", name: "Emily Davis" },
+  { id: "5", name: "Michael Wilson" },
+  { id: "6", name: "Sarah Thompson" },
+  { id: "7", name: "David Miller" },
+  { id: "8", name: "Jennifer Martinez" },
 ];
 
 const ClassesTab = () => {
   const { searchTerm } = useSearch();
   const [classes, setClasses] = useState(classesData);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [currentClass, setCurrentClass] = useState<undefined | typeof classesData[0]>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [classToDelete, setClassToDelete] = useState<undefined | typeof classesData[0]>(undefined);
@@ -77,6 +101,11 @@ const ClassesTab = () => {
     setDeleteDialogOpen(true);
   };
 
+  const handleEnrollMembers = (cls: typeof classesData[0]) => {
+    setCurrentClass(cls);
+    setEnrollDialogOpen(true);
+  };
+
   const confirmDeleteClass = () => {
     if (classToDelete) {
       setClasses(classes.filter(cls => cls.id !== classToDelete.id));
@@ -98,14 +127,49 @@ const ClassesTab = () => {
             : item
         )
       );
+      toast({
+        title: "Class Updated",
+        description: `${values.name} has been updated.`,
+      });
     } else {
       // Add new class
       const newClass = {
         id: `${classes.length + 1}`,
         ...values,
         enrolled: "0",
+        enrolledMembers: []
       };
       setClasses([...classes, newClass]);
+      toast({
+        title: "Class Added",
+        description: `${values.name} has been added.`,
+      });
+    }
+  };
+
+  const handleSaveEnrollment = (selectedMemberIds: string[]) => {
+    if (currentClass) {
+      const updatedClasses = classes.map(cls => {
+        if (cls.id === currentClass.id) {
+          // Get all members that match the selected IDs
+          const newEnrolledMembers = availableMembers.filter(member => 
+            selectedMemberIds.includes(member.id)
+          );
+          
+          return {
+            ...cls,
+            enrolledMembers: newEnrolledMembers,
+            enrolled: `${selectedMemberIds.length}`
+          };
+        }
+        return cls;
+      });
+      
+      setClasses(updatedClasses);
+      toast({
+        title: "Enrollment Updated",
+        description: `Enrollment for ${currentClass.name} has been updated.`,
+      });
     }
   };
 
@@ -150,6 +214,15 @@ const ClassesTab = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
+                        className="h-8 text-green-600 hover:text-green-800 hover:bg-green-50 px-2"
+                        onClick={() => handleEnrollMembers(cls)}
+                      >
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Enroll
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
                         className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
                         onClick={() => handleEditClass(cls)}
                       >
@@ -185,6 +258,15 @@ const ClassesTab = () => {
         onOpenChange={setDialogOpen} 
         class={currentClass}
         onSave={handleSaveClass}
+      />
+
+      <EnrollMemberDialog
+        open={enrollDialogOpen}
+        onOpenChange={setEnrollDialogOpen}
+        class={currentClass}
+        availableMembers={availableMembers}
+        onSave={handleSaveEnrollment}
+        currentlyEnrolled={currentClass?.enrolledMembers?.map(m => m.id) || []}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
