@@ -92,70 +92,61 @@ const AuthNavbar: React.FC = () => {
       </div>
       
       {/* Tab Navigation */}
-      <div className="w-full">
-        <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
-            <TabsTrigger value="main">Main</TabsTrigger>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Navigation Links - Centered */}
       <div className="w-full flex items-center justify-center gap-4 text-lg">
-        {activeTab === "main" ? (
-          <div className="flex gap-6 items-center">
-            <>
-              <Link
-                to="/"
-                className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                  currentPath === '/' ? 'text-gray-300' : ''
-                }`}
-              >
-                <Home className="h-5 w-10" />
-                <span className="hidden md:inline">Home</span>
-              </Link>
-            
-              <Link
-                to="/features"
-                className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                  currentPath === '/features' ? 'text-gray-300' : ''
-                }`}
-              >
-                <Layers className="h-5 w-10" />
-                <span className="hidden md:inline">Features</span>
-              </Link>
-            
-              <Link
-                to="/faqs"
-                className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                  currentPath === '/faqs' ? 'text-gray-300' : ''
-                }`}
-              >
-                <FAQIcon className="h-5 w-10" />
-                <span className="hidden md:inline">FAQs</span>
-              </Link>
-            
-              <Link
-                to="/about-us"
-                className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                  currentPath === '/about-us' ? 'text-gray-300' : ''
-                }`}
-              >
-                <Users className="h-5 w-10" />
-                <span className="hidden md:inline">About Us</span>
-              </Link>
-            
-              <Link
-                to="/about-us"
-                className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                  currentPath === '/about-us' ? 'text-gray-300' : ''
-                }`}
-              >
-                <Users className="h-5 w-10" />
-                <span className="hidden md:inline">About Us</span>
-              </Link>
-            </>
+  {activeTab === "main" && (
+    <div className="flex gap-6 items-center">
+      <Link
+        to="/"
+        className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+          currentPath === '/' ? 'text-gray-300' : ''
+        }`}
+      >
+        <Home className="h-5 w-10" />
+        <span className="hidden md:inline">Home</span>
+      </Link>
+
+      <Link
+        to="/features"
+        className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+          currentPath === '/features' ? 'text-gray-300' : ''
+        }`}
+      >
+        <Layers className="h-5 w-10" />
+        <span className="hidden md:inline">Features</span>
+      </Link>
+
+      <Link
+        to="/faqs"
+        className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+          currentPath === '/faqs' ? 'text-gray-300' : ''
+        }`}
+      >
+        <FAQIcon className="h-5 w-10" />
+        <span className="hidden md:inline">FAQs</span>
+      </Link>
+
+      <Link
+        to="/about-us"
+        className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+          currentPath === '/about-us' ? 'text-gray-300' : ''
+        }`}
+      >
+        <Users className="h-5 w-10" />
+        <span className="hidden md:inline">About Us</span>
+      </Link>
+
+      <Link
+        to="/contact"
+        className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+          currentPath === '/contact' ? 'text-gray-300' : ''
+        }`}
+      >
+        <Mail className="h-5 w-10" />
+        <span className="hidden md:inline">Contact</span>
+      </Link>
+    </div>
+  )}
+</div>
         ) : (
           <>
             <Link to="/dashboard" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/dashboard' ? 'text-gray-300' : ''}`}>
