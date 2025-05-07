@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
-
-export type MembershipApplication = {
-  id: string;
-  gymId: string;
-  memberName: string;
-  membershipType: string;
-  requestDate: string;
-  status: "pending" | "approved" | "rejected";
-};
+import { MembershipApplication } from "./types/gymTypes";
 
 interface PendingApplicationsDialogProps {
   open: boolean;
