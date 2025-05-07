@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Dumbbell, BarChart, Users } from "lucide-react";
+import { Calendar, Dumbbell, Receipt, CreditCard } from "lucide-react";
 
 const MemberStatCards: React.FC = () => {
   return (
@@ -33,25 +33,25 @@ const MemberStatCards: React.FC = () => {
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-[#0B294B]">
-            Fitness Goals
+            Next Payment
           </CardTitle>
-          <BarChart className="h-4 w-4 text-[#0B294B]" />
+          <CreditCard className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">2/5</div>
-          <p className="text-xs text-gray-600">Goals completed this month</p>
+          <div className="text-2xl font-bold text-[#0B294B]">May 15</div>
+          <p className="text-xs text-gray-600">$49.99 Monthly Membership</p>
         </CardContent>
       </Card>
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-[#0B294B]">
-            Personal Trainers
+            Total Bills Paid
           </CardTitle>
-          <Users className="h-4 w-4 text-[#0B294B]" />
+          <Receipt className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">5</div>
-          <p className="text-xs text-gray-600">Available for booking</p>
+          <div className="text-2xl font-bold text-[#0B294B]">$149.97</div>
+          <p className="text-xs text-gray-600">This month</p>
         </CardContent>
       </Card>
     </div>
