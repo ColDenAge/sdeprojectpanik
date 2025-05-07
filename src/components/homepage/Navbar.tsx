@@ -7,7 +7,7 @@ const Navbar: React.FC = () => {
   const currentPath = location.pathname;
 
   return (
-    <nav className="flex items-center gap-2 text-2xl font-normal text-center justify-between max-md:max-w-full bg-[#0B294B] text-white p-4 rounded-lg">
+    <nav className="flex items-center gap-2 font-normal justify-between w-full bg-[#0B294B] text-white p-4 rounded-lg">
       <div className="flex-shrink-0">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
         <div className="mt-[-6px] text-sm font-bold">ByteMinds Systems</div>
       </div>
 
-      <div className="flex-grow flex items-center justify-center gap-3 md:gap-5 flex-wrap">
+      <div className="flex-grow flex items-center justify-center gap-3 md:gap-5 flex-wrap text-lg">
         <Link to="/" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>
           Home
         </Link>
