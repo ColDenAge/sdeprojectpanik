@@ -7,8 +7,8 @@ const Navbar: React.FC = () => {
   const currentPath = location.pathname;
 
   return (
-    <nav className="flex items-center gap-4 font-normal w-full bg-[#0B294B] text-white p-4 rounded-lg">
-      <div className="flex-shrink-0">
+    <nav className="flex items-center justify-between font-normal w-full bg-[#0B294B] text-white p-4 rounded-lg">
+      <div className="flex-shrink-0 md:w-1/4">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
           alt="ByteMinds Systems Logo"
@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
         <div className="mt-[-6px] text-sm font-bold">ByteMinds Systems</div>
       </div>
 
-      <div className="flex-grow flex items-center gap-3 md:gap-5 flex-wrap text-lg">
+      <div className="flex items-center justify-center gap-3 md:gap-5 flex-wrap text-lg md:flex-1">
         <Link to="/" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>
           Home
         </Link>
@@ -42,6 +42,8 @@ const Navbar: React.FC = () => {
           </button>
         </Link>
       </div>
+      
+      <div className="hidden md:block md:w-1/4"></div> {/* Empty div for balance */}
     </nav>
   );
 };
