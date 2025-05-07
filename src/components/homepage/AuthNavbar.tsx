@@ -1,3 +1,4 @@
+
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -56,13 +57,13 @@ const AuthNavbar: React.FC = () => {
   return (
     <nav className="flex flex-col items-center gap-4 font-normal text-center flex-wrap justify-between w-full bg-[#0B294B] text-white p-4 rounded-lg">
       <div className="w-full flex items-center justify-between">
-        <div className="flex-shrink-0 md:w-1/4">
+        <div className="flex items-center gap-2 flex-shrink-0 md:w-1/4">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
             alt="ByteMinds Systems Logo"
-            className="aspect-[1] object-contain w-[90px] self-center z-10 max-w-full"
+            className="aspect-[1] object-contain w-[60px] max-w-full"
           />
-          <div className="mt-[-9px] text-sm font-bold">ByteMinds Systems</div>
+          <div className="text-sm font-bold">ByteMinds Systems</div>
         </div>
 
         {/* Center space - for visual balance */}

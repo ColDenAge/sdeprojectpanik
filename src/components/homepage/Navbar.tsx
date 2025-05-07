@@ -8,13 +8,13 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="flex items-center justify-between font-normal w-full bg-[#0B294B] text-white p-4 rounded-lg">
-      <div className="flex-shrink-0 md:w-1/4">
+      <div className="flex items-center gap-2 flex-shrink-0 md:w-1/4">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
           alt="ByteMinds Systems Logo"
-          className="aspect-[1] object-contain w-[90px] max-w-full"
+          className="aspect-[1] object-contain w-[60px] max-w-full"
         />
-        <div className="mt-[-6px] text-sm font-bold">ByteMinds Systems</div>
+        <div className="text-sm font-bold">ByteMinds Systems</div>
       </div>
 
       <div className="flex items-center justify-between gap-4 md:flex-1">
