@@ -102,7 +102,7 @@ const AuthNavbar: React.FC = () => {
       </div>
 
       {/* Navigation Links - Centered */}
-      <div className="w-full flex items-center justify-center gap-4 text-lg flex gap-6 items-center">
+      <div className="w-full flex items-center justify-center gap-4 text-lg">
         {activeTab === "main" ? (
           <>
             <Link
