@@ -67,7 +67,7 @@ const Contact: React.FC = () => {
 
         {/* Heading Shape */}
         <div className="absolute w-[856px] h-[127px] top-0 left-0 bg-[url('/blue-shape.svg')] bg-cover">
-          <div className="absolute w-[339px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
+          <div className="absolute w-[339px] h-[89px] top-[18px] left-[396px] text-slate-800 font-bold text-5xl font-cairo">
             Contact Us
           </div>
         </div>
