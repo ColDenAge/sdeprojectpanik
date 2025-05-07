@@ -3,15 +3,44 @@ import React from "react";
 import Navbar from "@/components/homepage/Navbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Define form schema with validation rules
+const signupFormSchema = z.object({
+  fullName: z.string()
+    .min(1, "Full name is required"),
+  email: z.string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z.string()
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+    .min(1, "Please confirm your password")
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type SignupFormValues = z.infer<typeof signupFormSchema>;
 
 const SignUp = (): JSX.Element => {
-  const form = useForm();
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupFormSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    }
+  });
   const navigate = useNavigate();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: SignupFormValues) => {
     console.log(data);
     // In a real app, you would register the user here
     // For now, we'll just navigate to the choice page
@@ -48,6 +77,7 @@ const SignUp = (): JSX.Element => {
                       <FormControl>
                         <Input placeholder="Enter your full name" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />
@@ -61,6 +91,7 @@ const SignUp = (): JSX.Element => {
                       <FormControl>
                         <Input type="email" placeholder="Enter your email" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />
@@ -74,6 +105,7 @@ const SignUp = (): JSX.Element => {
                       <FormControl>
                         <Input type="password" placeholder="Create a password" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />
@@ -87,6 +119,7 @@ const SignUp = (): JSX.Element => {
                       <FormControl>
                         <Input type="password" placeholder="Confirm your password" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />

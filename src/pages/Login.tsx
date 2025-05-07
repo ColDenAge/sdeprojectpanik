@@ -4,17 +4,36 @@ import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../App";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Define form schema with validation rules
+const loginFormSchema = z.object({
+  email: z.string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z.string()
+    .min(1, "Password is required")
+});
+
+type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 const Login = (): JSX.Element => {
-  const form = useForm();
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(AuthContext);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: LoginFormValues) => {
     console.log(data);
     // Instead of directly setting auth to true, navigate to choice page
     navigate("/choice");
@@ -50,6 +69,7 @@ const Login = (): JSX.Element => {
                       <FormControl>
                         <Input type="email" placeholder="Enter your email" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />
@@ -63,6 +83,7 @@ const Login = (): JSX.Element => {
                       <FormControl>
                         <Input type="password" placeholder="Enter your password" {...field} />
                       </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
                     </FormItem>
                   )}
                 />
