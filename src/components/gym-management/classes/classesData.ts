@@ -48,4 +48,8 @@ export const availableMembers = [
   { id: "6", name: "Sarah Thompson" },
   { id: "7", name: "David Miller" },
   { id: "8", name: "Jennifer Martinez" },
+  { id: "9", name: "Thomas Anderson" },
+  { id: "10", name: "Lisa Garcia" },
+  { id: "11", name: "Kevin Brown" },
+  { id: "12", name: "Amanda Wright" }
 ];

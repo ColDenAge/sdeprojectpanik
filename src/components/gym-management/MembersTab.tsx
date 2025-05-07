@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "./SearchContext";
@@ -14,6 +14,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 const membersData = [
   {
@@ -94,33 +102,33 @@ const MembersTab = () => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b bg-muted/30">
-            <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-            <th className="px-4 py-3 text-left text-sm font-medium">Membership</th>
-            <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-            <th className="px-4 py-3 text-left text-sm font-medium">Location</th>
-            <th className="px-4 py-3 text-left text-sm font-medium">Join Date</th>
-            <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/30">
+            <TableHead>Name</TableHead>
+            <TableHead>Membership</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Join Date</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {filteredMembers.length > 0 ? (
             filteredMembers.map((member, i) => (
-              <tr key={i} className="border-b hover:bg-muted/30">
-                <td className="px-4 py-3 text-sm">{member.name}</td>
-                <td className="px-4 py-3 text-sm">{member.membership}</td>
-                <td className="px-4 py-3 text-sm">
+              <TableRow key={i} className="hover:bg-muted/30">
+                <TableCell>{member.name}</TableCell>
+                <TableCell>{member.membership}</TableCell>
+                <TableCell>
                   <Badge
                     variant={member.status === "Active" ? "success" : "destructive"}
                   >
                     {member.status}
                   </Badge>
-                </td>
-                <td className="px-4 py-3 text-sm">{member.location}</td>
-                <td className="px-4 py-3 text-sm">{member.joinDate}</td>
-                <td className="px-4 py-3 text-sm">
+                </TableCell>
+                <TableCell>{member.location}</TableCell>
+                <TableCell>{member.joinDate}</TableCell>
+                <TableCell>
                   <div className="flex space-x-2">
                     <Button 
                       variant="ghost" 
@@ -131,18 +139,18 @@ const MembersTab = () => {
                       Delete
                     </Button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-gray-500">
                 No members match your search
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

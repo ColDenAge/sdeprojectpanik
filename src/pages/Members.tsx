@@ -17,8 +17,8 @@ const Members = () => {
         <GymManagementHeader />
         <GymStatsCards />
         <GymManagementTabs userRole={userRole} />
+        <Toaster />
       </SearchProvider>
-      <Toaster />
     </DashboardLayout>
   );
 };
