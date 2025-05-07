@@ -16,7 +16,7 @@ const Members = () => {
         <GymManagementHeader />
       </SearchProvider>
       <GymStatsCards />
-      <GymManagementTabs />
+      <GymManagementTabs userRole={userRole} />
     </DashboardLayout>
   );
 };

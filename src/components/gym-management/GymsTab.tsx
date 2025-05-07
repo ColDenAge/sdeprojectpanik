@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Settings } from "lucide-react";
+import { Edit, Settings, Plus } from "lucide-react";
 import { useSearch } from "./SearchContext";
 import { AddEditGymDialog } from "./dialogs/AddEditGymDialog";
 
@@ -36,7 +36,7 @@ const initialGymsData = [
   },
 ];
 
-const GymsTab = () => {
+const GymsTab = ({ userRole }: { userRole?: string }) => {
   const { searchTerm } = useSearch();
   const [gyms, setGyms] = useState(initialGymsData);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,6 +57,11 @@ const GymsTab = () => {
     setDialogOpen(true);
   };
 
+  const handleAddGym = () => {
+    setCurrentGym(undefined);
+    setDialogOpen(true);
+  };
+
   const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string }) => {
     if (currentGym) {
       // Edit existing gym
@@ -67,11 +72,33 @@ const GymsTab = () => {
             : item
         )
       );
+    } else {
+      // Add new gym
+      const newGym = {
+        id: (gyms.length + 1).toString(),
+        ...values,
+        members: 0,
+        status: "Active",
+      };
+      setGyms([...gyms, newGym]);
     }
   };
 
+  const isManager = userRole === "manager";
+
   return (
     <div className="overflow-x-auto">
+      {isManager && (
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={handleAddGym}
+            className="bg-[#0B294B] text-white rounded-lg flex items-center gap-2 hover:bg-[#0a2544] transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Create New Gym</span>
+          </Button>
+        </div>
+      )}
       <table className="w-full">
         <thead>
           <tr className="border-b bg-muted/30">

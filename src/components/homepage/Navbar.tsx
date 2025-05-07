@@ -7,17 +7,17 @@ const Navbar: React.FC = () => {
   const currentPath = location.pathname;
 
   return (
-    <nav className="flex items-center gap-3 text-2xl font-normal text-center justify-between max-md:max-w-full bg-[#0B294B] text-white p-4 rounded-lg">
-      <div className="ml-auto flex flex-col items-center font-bold">
+    <nav className="flex items-center gap-2 text-2xl font-normal text-center justify-between max-md:max-w-full bg-[#0B294B] text-white p-4 rounded-lg">
+      <div className="flex-shrink-0">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
           alt="ByteMinds Systems Logo"
-          className="aspect-[1] object-contain w-[104px] max-w-full"
+          className="aspect-[1] object-contain w-[90px] max-w-full"
         />
-        <div className="mt-[-9px]">ByteMinds Systems</div>
+        <div className="mt-[-6px] text-sm font-bold">ByteMinds Systems</div>
       </div>
 
-      <div className="flex-grow flex items-center justify-center flex-wrap gap-4 md:gap-6">
+      <div className="flex-grow flex items-center justify-center gap-3 md:gap-5 flex-wrap">
         <Link to="/" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>
           Home
         </Link>
@@ -38,9 +38,9 @@ const Navbar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="ml-2">
+      <div className="flex-shrink-0">
         <Link to="/signup">
-          <button className="bg-white text-[#0B294B] py-2 px-6 rounded-[10px] hover:bg-gray-100 transition-colors">
+          <button className="bg-white text-[#0B294B] py-2 px-4 rounded-[10px] hover:bg-gray-100 transition-colors">
             <div className="text-center text-lg font-medium">Sign Up</div>
           </button>
         </Link>
