@@ -107,7 +107,7 @@ const AuthNavbar: React.FC = () => {
           <>
             <Link
               to="/"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-10 ${
                 currentPath === '/' ? 'text-gray-300' : ''
               }`}
             >
@@ -117,7 +117,7 @@ const AuthNavbar: React.FC = () => {
             
             <Link
               to="/features"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-10 ${
                 currentPath === '/features' ? 'text-gray-300' : ''
               }`}
             >
@@ -127,7 +127,7 @@ const AuthNavbar: React.FC = () => {
             
             <Link
               to="/faqs"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-10 ${
                 currentPath === '/faqs' ? 'text-gray-300' : ''
               }`}
             >
@@ -137,7 +137,7 @@ const AuthNavbar: React.FC = () => {
             
             <Link
               to="/about-us"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-10 ${
                 currentPath === '/about-us' ? 'text-gray-300' : ''
               }`}
             >
@@ -147,7 +147,7 @@ const AuthNavbar: React.FC = () => {
             
             <Link
               to="/about-us"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
+              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-10 ${
                 currentPath === '/about-us' ? 'text-gray-300' : ''
               }`}
             >
