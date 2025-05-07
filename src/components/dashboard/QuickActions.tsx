@@ -57,19 +57,22 @@ const QuickActions: React.FC = () => {
         <div className="space-y-2">
           {userRole === "member" ? (
             <>
-              <button className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                Book a Class
-              </button>
-              <button className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+              <button 
+                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => handleNavigation("/gyms")}
+              >
                 View Schedule
               </button>
-              <button className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+              <button 
+                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => handleNavigation("/settings")}
+              >
                 Update Profile
               </button>
-              <button className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                Track Progress
-              </button>
-              <button className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+              <button 
+                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => handleNavigation("/contact")}
+              >
                 Contact Support
               </button>
             </>
