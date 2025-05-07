@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Phone, Mail, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ContactSection = () => {
   return (
@@ -10,35 +10,62 @@ const ContactSection = () => {
         <CardTitle>Contact Support</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="flex flex-col items-center p-6 text-center">
-            <Phone className="h-10 w-10 text-[#0B294B] mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Phone Support</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Available Monday-Friday, 9AM-5PM
-            </p>
-            <p className="font-medium">+1 (555) 123-4567</p>
-          </Card>
+        <div className="grid grid-cols-1 gap-8">
+          {/* Dan Steven R. Leonardo */}
+          <div className="flex items-start gap-8">
+            <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
+              {/* Placeholder for profile image */}
+            </div>
+            <div className="mt-1.5">
+              <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
+                Dan Steven R. Leonardo
+              </h2>
+              <p className="text-[#0b294b] text-lg leading-relaxed font-cairo">
+                <strong>Gmail:</strong> leonardo.dansteven04@gmail.com<br />
+                <strong>Contact No:</strong> +63 951 939 3066<br />
+                <strong>Blog:</strong> http://www.tumblr.com/systemforge
+              </p>
+            </div>
+          </div>
 
-          <Card className="flex flex-col items-center p-6 text-center">
-            <Mail className="h-10 w-10 text-[#0B294B] mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Email Support</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              We usually respond within 24 hours
-            </p>
-            <p className="font-medium">support@byteminds.com</p>
-          </Card>
+          {/* Denver Jay B. Palabon */}
+          <div className="flex items-start gap-8 flex-row-reverse">
+            <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
+              {/* Placeholder for profile image */}
+            </div>
+            <div className="mt-[13px] text-right">
+              <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
+                Denver Jay B. Palabon
+              </h2>
+              <p className="text-[#0b294b] text-lg leading-relaxed font-cairo">
+                <strong>Gmail:</strong> palabon.denverjay@gmail.com<br />
+                <strong>Contact No:</strong> +63 975 909 0034<br />
+                <strong>Blog:</strong> https://www.tumblr.com/blog/gymprojectsystem
+              </p>
+            </div>
+          </div>
 
-          <Card className="flex flex-col items-center p-6 text-center">
-            <MessageCircle className="h-10 w-10 text-[#0B294B] mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Live Chat</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Available 24/7 for urgent issues
-            </p>
-            <button className="bg-[#0B294B] text-white px-4 py-2 rounded-lg hover:bg-[#0a2544] transition-colors">
-              Start Chat
-            </button>
-          </Card>
+          {/* Jelord G. Seguis */}
+          <div className="flex items-start gap-8">
+            <div className="w-[150px] h-[150px] rounded-full bg-[#FFFFFF] overflow-hidden shrink-0">
+              {/* Placeholder for profile image */}
+            </div>
+            <div className="mt-[17px]">
+              <h2 className="font-bold text-[#0b294b] text-3xl font-cairo mb-2">
+                Jelord G. Seguis
+              </h2>
+              <p className="text-[#0b294b] text-lg leading-relaxed font-cairo">
+                <strong>Gmail:</strong> seguisjelord@gmail.com<br />
+                <strong>Contact No:</strong> +63 963 956 8548
+              </p>
+            </div>
+          </div>
+          
+          <div className="text-center mt-4">
+            <Link to="/contact" className="inline-block bg-[#0B294B] text-white px-6 py-2 rounded-lg hover:bg-[#0a2544] transition-colors">
+              View Contact Page
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>
