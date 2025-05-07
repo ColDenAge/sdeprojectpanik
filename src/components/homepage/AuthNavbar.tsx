@@ -104,7 +104,7 @@ const AuthNavbar: React.FC = () => {
       {/* Navigation Links - Centered */}
       <div className="w-full flex items-center justify-center gap-4 text-lg">
         {activeTab === "main" ? (
-          <>
+          <div className="flex gap-6 items-center">
             <Link
               to="/"
               className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -114,7 +114,7 @@ const AuthNavbar: React.FC = () => {
               <Home className="h-5 w-10" />
               <span className="hidden md:inline">Home</span>
             </Link>
-            
+          
             <Link
               to="/features"
               className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -124,7 +124,7 @@ const AuthNavbar: React.FC = () => {
               <Layers className="h-5 w-10" />
               <span className="hidden md:inline">Features</span>
             </Link>
-            
+          
             <Link
               to="/faqs"
               className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -134,7 +134,7 @@ const AuthNavbar: React.FC = () => {
               <FAQIcon className="h-5 w-10" />
               <span className="hidden md:inline">FAQs</span>
             </Link>
-            
+          
             <Link
               to="/about-us"
               className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -144,19 +144,19 @@ const AuthNavbar: React.FC = () => {
               <Users className="h-5 w-10" />
               <span className="hidden md:inline">About Us</span>
             </Link>
-            
+          
             <Link
-              to="/about-us"
+              to="/contact"
               className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/about-us' ? 'text-gray-300' : ''
+                currentPath === '/contact' ? 'text-gray-300' : ''
               }`}
             >
-              <Users className="h-5 w-10" />
-              <span className="hidden md:inline">About Us</span>
+              <Mail className="h-5 w-10" />
+              <span className="hidden md:inline">Contact</span>
             </Link>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="flex gap-6 items-center">
             <Link to="/dashboard" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/dashboard' ? 'text-gray-300' : ''}`}>
               <LayoutDashboard className="h-5 w-10" />
               <span className="hidden md:inline">Dashboard</span>
@@ -181,7 +181,7 @@ const AuthNavbar: React.FC = () => {
               <HelpCircle className="h-5 w-10" />
               <span className="hidden md:inline">Help</span>
             </Link>
-          </>
+          </div>
         )}
       </div>
     </nav>
