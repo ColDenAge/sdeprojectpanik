@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
         <div className="mt-[-6px] text-sm font-bold">ByteMinds Systems</div>
       </div>
 
-      <div className="flex items-center justify-center gap-3 md:gap-5 flex-wrap text-lg md:flex-1">
+      <div className="flex items-center justify-between gap-4 md:flex-1">
         <Link to="/" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>
           Home
         </Link>
@@ -42,6 +42,7 @@ const Navbar: React.FC = () => {
           </button>
         </Link>
       </div>
+
       
       <div className="hidden md:block md:w-1/4"></div> {/* Empty div for balance */}
     </nav>
