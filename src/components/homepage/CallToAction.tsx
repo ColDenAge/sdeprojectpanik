@@ -1,4 +1,7 @@
-import React from "react";
+
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../App";
 
 interface CallToActionProps {
   title: string;
@@ -11,6 +14,17 @@ const CallToAction: React.FC<CallToActionProps> = ({
   buttonText,
   imageSrc,
 }) => {
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
+
   return (
     <section className="bg-white flex w-full flex-col overflow-hidden items-center justify-center px-[70px] py-[216px] max-md:max-w-full max-md:px-5 max-md:py-[100px]">
       <div className="mb-[-46px] w-full max-w-[1476px] ml-[25px] max-md:max-w-full max-md:mb-2.5">
@@ -20,7 +34,10 @@ const CallToAction: React.FC<CallToActionProps> = ({
               <h2 className="text-[rgba(11,41,75,1)] text-5xl font-bold max-md:max-w-full max-md:text-[40px]">
                 {title}
               </h2>
-              <button className="bg-[rgba(11,41,75,1)] self-center w-[270px] max-w-full text-[32px] text-white font-medium mt-9 px-[52px] py-6 rounded-[10px] max-md:px-5">
+              <button 
+                className="bg-[rgba(11,41,75,1)] self-center w-[270px] max-w-full text-[32px] text-white font-medium mt-9 px-[52px] py-6 rounded-[10px] max-md:px-5"
+                onClick={handleGetStarted}
+              >
                 {buttonText}
               </button>
             </div>

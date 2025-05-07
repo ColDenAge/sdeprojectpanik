@@ -1,6 +1,20 @@
-import React from "react";
+
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../App";
 
 const HeroSection: React.FC = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
+
   return (
     <section className="flex w-[1197px] max-w-full flex-col ml-[69px] mt-[158px] max-md:mt-10">
       <h1 className="text-5xl font-normal max-md:text-[40px]">GymWatch</h1>
@@ -11,7 +25,10 @@ const HeroSection: React.FC = () => {
         Automated membership tracker service, membership management, membership
         enrollment, and marketing features.
       </p>
-      <button className="bg-[rgba(11,41,75,1)] text-[32px] font-medium text-center ml-[114px] mt-11 px-[53px] py-6 rounded-[10px] max-md:ml-2.5 max-md:mt-10 max-md:px-5">
+      <button 
+        className="bg-[rgba(11,41,75,1)] text-[32px] font-medium text-center ml-[114px] mt-11 px-[53px] py-6 rounded-[10px] max-md:ml-2.5 max-md:mt-10 max-md:px-5"
+        onClick={handleGetStarted}
+      >
         Get Started
       </button>
       <div className="bg-[rgba(217,217,217,1)] flex w-[844px] max-w-full flex-col text-black mt-[230px] pt-[39px] pb-[69px] px-20 max-md:mt-10 max-md:px-5">
