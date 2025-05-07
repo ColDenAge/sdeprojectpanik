@@ -9,7 +9,8 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Receipt, Download } from "lucide-react";
+import { Receipt, Download, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for billing history
 const billingHistory = [
@@ -44,13 +45,53 @@ const billingHistory = [
 ];
 
 const BillingHistory = () => {
+  const { toast } = useToast();
+
+  const handleDownloadPDF = (invoiceId: number, date: string) => {
+    // In a real application, this would generate and download a PDF
+    toast({
+      title: "Downloading Invoice PDF",
+      description: `Your invoice from ${date} is being downloaded.`,
+    });
+    
+    // Simulate download delay
+    setTimeout(() => {
+      toast({
+        title: "Download Complete",
+        description: "Your invoice PDF has been downloaded successfully.",
+      });
+    }, 1500);
+  };
+
+  const handleDownloadAllReceipts = () => {
+    toast({
+      title: "Downloading All Receipts",
+      description: "Your receipts are being prepared for download as a ZIP file.",
+    });
+    
+    // Simulate download delay
+    setTimeout(() => {
+      toast({
+        title: "Download Complete",
+        description: "All your receipts have been downloaded successfully.",
+      });
+    }, 2000);
+  };
+
   return (
     <Card className="mb-8">
-      <CardHeader className="bg-muted/50">
+      <CardHeader className="bg-muted/50 flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Receipt className="h-5 w-5" />
           Billing History
         </CardTitle>
+        <button
+          onClick={handleDownloadAllReceipts}
+          className="flex items-center gap-1 text-sm text-[#0B294B] hover:text-[#0a2544] transition-colors"
+        >
+          <FileText className="h-4 w-4" />
+          Download All Receipts
+        </button>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -76,13 +117,16 @@ const BillingHistory = () => {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <button 
-                      className="inline-flex items-center text-[#0B294B] hover:text-[#0a2544] transition-colors"
-                      aria-label="Download receipt"
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      PDF
-                    </button>
+                    <div className="flex justify-end space-x-2">
+                      <button 
+                        onClick={() => handleDownloadPDF(invoice.id, invoice.date)}
+                        className="inline-flex items-center text-[#0B294B] hover:text-[#0a2544] transition-colors"
+                        aria-label="Download receipt"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        PDF
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
