@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +50,8 @@ const initialGymsData = [
   },
 ];
 
-// Example mock data for pending applications
-const mockApplicationsData = {
+// Example mock data for pending applications, with correct status types
+const mockApplicationsData: Record<string, MembershipApplication[]> = {
   "1": [
     {
       id: "a1",
@@ -60,7 +59,7 @@ const mockApplicationsData = {
       memberName: "John Smith",
       membershipType: "Premium",
       requestDate: "May 6, 2025",
-      status: "pending",
+      status: "pending", // Using the literal type instead of string
     },
     {
       id: "a2",
@@ -68,7 +67,7 @@ const mockApplicationsData = {
       memberName: "Alice Johnson",
       membershipType: "Standard",
       requestDate: "May 7, 2025",
-      status: "pending",
+      status: "pending", // Using the literal type instead of string
     },
   ],
   "3": [
@@ -78,7 +77,7 @@ const mockApplicationsData = {
       memberName: "Bob Williams",
       membershipType: "Standard",
       requestDate: "May 5, 2025",
-      status: "pending",
+      status: "pending", // Using the literal type instead of string
     },
   ],
 };
