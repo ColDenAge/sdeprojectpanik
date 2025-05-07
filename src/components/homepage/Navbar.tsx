@@ -6,6 +6,11 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  // Function to determine if a link is active
+  const isActive = (path: string) => {
+    return currentPath === path;
+  };
+
   return (
     <nav className="flex items-center justify-between font-normal w-full bg-[#0B294B] text-white p-4 rounded-lg">
       <div className="flex items-center gap-2 flex-shrink-0 md:w-1/4">
@@ -18,22 +23,64 @@ const Navbar: React.FC = () => {
       </div>
 
       <div className="flex items-center justify-between gap-4 md:flex-1">
-        <Link to="/" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           Home
         </Link>
-        <Link to="/features" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/features' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/features" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/features') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           Features
         </Link>
-        <Link to="/faqs" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/faqs' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/faqs" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/faqs') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           FAQs
         </Link>
-        <Link to="/about-us" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/about-us' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/about-us" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/about-us') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           About Us
         </Link>
-        <Link to="/contact" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/contact' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/contact" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/contact') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           Contact
         </Link>
-        <Link to="/login" className={`text-white hover:text-gray-300 transition-colors ${currentPath === '/login' ? 'text-gray-300' : ''}`}>
+        <Link 
+          to="/login" 
+          className={`hover:text-gray-300 transition-colors ${
+            isActive('/login') 
+              ? 'text-white font-medium border-b-2 border-white pb-1' 
+              : 'text-gray-300'
+          }`}
+        >
           Login
         </Link>
         <Link to="/signup">

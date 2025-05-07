@@ -54,6 +54,11 @@ const AuthNavbar: React.FC = () => {
     return userRole === "member" ? "My Gyms" : "Gym Management";
   };
 
+  // Function to check if a link is active
+  const isActive = (path: string) => {
+    return currentPath === path;
+  };
+
   return (
     <nav className="flex flex-col items-center gap-4 font-normal text-center flex-wrap justify-between w-full bg-[#0B294B] text-white p-4 rounded-lg">
       <div className="w-full flex items-center justify-between">
@@ -95,8 +100,18 @@ const AuthNavbar: React.FC = () => {
       <div className="w-full">
         <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
-            <TabsTrigger value="main">Main</TabsTrigger>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger 
+              value="main" 
+              className={activeTab === "main" ? "bg-blue-500 text-white" : ""}
+            >
+              Main
+            </TabsTrigger>
+            <TabsTrigger 
+              value="dashboard"
+              className={activeTab === "dashboard" ? "bg-blue-500 text-white" : ""}
+            >
+              Dashboard
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -107,8 +122,8 @@ const AuthNavbar: React.FC = () => {
           <div className="flex gap-6 items-center">
             <Link
               to="/"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/' ? 'text-gray-300' : ''
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
             >
               <Home className="h-5 w-10" />
@@ -117,8 +132,8 @@ const AuthNavbar: React.FC = () => {
           
             <Link
               to="/features"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/features' ? 'text-gray-300' : ''
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/features') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
             >
               <Layers className="h-5 w-10" />
@@ -127,8 +142,8 @@ const AuthNavbar: React.FC = () => {
           
             <Link
               to="/faqs"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/faqs' ? 'text-gray-300' : ''
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/faqs') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
             >
               <FAQIcon className="h-5 w-10" />
@@ -137,8 +152,8 @@ const AuthNavbar: React.FC = () => {
           
             <Link
               to="/about-us"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/about-us' ? 'text-gray-300' : ''
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/about-us') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
             >
               <Users className="h-5 w-10" />
@@ -147,8 +162,8 @@ const AuthNavbar: React.FC = () => {
           
             <Link
               to="/contact"
-              className={`text-white hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                currentPath === '/contact' ? 'text-gray-300' : ''
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/contact') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
             >
               <Mail className="h-5 w-10" />
@@ -157,27 +172,52 @@ const AuthNavbar: React.FC = () => {
           </div>
         ) : (
           <div className="flex gap-6 items-center">
-            <Link to="/dashboard" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/dashboard' ? 'text-gray-300' : ''}`}>
+            <Link 
+              to="/dashboard" 
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/dashboard') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
+              }`}
+            >
               <LayoutDashboard className="h-5 w-10" />
               <span className="hidden md:inline">Dashboard</span>
             </Link>
             
-            <Link to="/gyms" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/gyms' ? 'text-gray-300' : ''}`}>
+            <Link 
+              to="/gyms" 
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/gyms') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
+              }`}
+            >
               <Dumbbell className="h-5 w-10" />
               <span className="hidden md:inline">{getGymsLabel()}</span>
             </Link>
             
-            <Link to="/billings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/billings' ? 'text-gray-300' : ''}`}>
+            <Link 
+              to="/billings" 
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/billings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
+              }`}
+            >
               <Wallet className="h-5 w-10" />
               <span className="hidden md:inline">Billings</span>
             </Link>
             
-            <Link to="/settings" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/settings' ? 'text-gray-300' : ''}`}>
+            <Link 
+              to="/settings" 
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/settings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
+              }`}
+            >
               <Settings className="h-5 w-10" />
               <span className="hidden md:inline">Account Settings</span>
             </Link>
             
-            <Link to="/help" className={`text-white self-stretch my-auto hover:text-gray-300 transition-colors flex items-center gap-2 ${currentPath === '/help' ? 'text-gray-300' : ''}`}>
+            <Link 
+              to="/help" 
+              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
+                isActive('/help') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
+              }`}
+            >
               <HelpCircle className="h-5 w-10" />
               <span className="hidden md:inline">Help</span>
             </Link>
