@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { UserCheck, Edit } from "lucide-react";
+import { UserCheck, Edit, Eye } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Gym } from "./types/gymTypes";
+import GymDetailsDialog from "./GymDetailsDialog";
 
 // Mock data for the user's gym memberships
 const activeSubscriptions = [
@@ -48,12 +50,50 @@ const activeSubscriptions = [
   }
 ];
 
+// Mock gym data for subscriptions
+const subscriptionGyms = [
+  {
+    id: 1,
+    name: "FitLife Downtown",
+    location: "Downtown",
+    amenities: ["Pool", "Sauna", "24/7 Access", "Personal Training", "Group Classes"],
+    membershipOptions: [
+      { id: 1, name: "Standard", price: "$29.99/month" },
+      { id: 2, name: "Premium", price: "$49.99/month" },
+      { id: 3, name: "Premium Plus", price: "$69.99/month" }
+    ],
+    classes: [
+      { id: 1, name: "Morning Yoga", instructor: "Jane Smith", schedule: "Mon, Wed, Fri 7:00 AM", capacity: 20, enrolled: 12 },
+      { id: 2, name: "HIIT Challenge", instructor: "Mike Johnson", schedule: "Tue, Thu 6:00 PM", capacity: 15, enrolled: 10 },
+      { id: 3, name: "Spin Class", instructor: "Sarah Williams", schedule: "Mon, Wed 5:30 PM", capacity: 12, enrolled: 8 }
+    ]
+  },
+  {
+    id: 2,
+    name: "Elite Fitness Center",
+    location: "Westside",
+    amenities: ["Weight Room", "Cardio Theater", "Basketball Court", "Nutritional Counseling"],
+    membershipOptions: [
+      { id: 1, name: "Basic", price: "$19.99/month" },
+      { id: 2, name: "Standard", price: "$39.99/month" },
+      { id: 3, name: "Premium", price: "$59.99/month" }
+    ],
+    classes: [
+      { id: 1, name: "Power Lifting", instructor: "Chris Peterson", schedule: "Tue, Thu, Sat 8:00 AM", capacity: 10, enrolled: 7 },
+      { id: 2, name: "CrossFit", instructor: "Alex Turner", schedule: "Mon, Wed, Fri 6:00 PM", capacity: 12, enrolled: 11 },
+      { id: 4, name: "Zumba", instructor: "Lisa Rodriguez", schedule: "Mon, Thu 7:00 PM", capacity: 25, enrolled: 18 }
+    ]
+  }
+];
+
 const ActiveSubscriptions = () => {
   const [subscriptions, setSubscriptions] = useState(activeSubscriptions);
   const [selectedSubscription, setSelectedSubscription] = useState<null | typeof activeSubscriptions[0]>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [pendingSubscriptions, setPendingSubscriptions] = useState<any[]>([]);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
   const { toast } = useToast();
 
   // This is where we would normally fetch approved memberships from an API
@@ -85,6 +125,23 @@ const ActiveSubscriptions = () => {
       };
       
       setSubscriptions(prev => [...prev, newApproval]);
+      
+      // Also add the gym data
+      subscriptionGyms.push({
+        id: 3,
+        name: "PowerLift Gym",
+        location: "Eastside",
+        amenities: ["Powerlifting Equipment", "Olympic Lifting Area", "Strongman Equipment", "24/7 Access"],
+        membershipOptions: [
+          { id: 1, name: "Monthly", price: "$34.99/month" },
+          { id: 2, name: "Quarterly", price: "$29.99/month (billed quarterly)" },
+          { id: 3, name: "Annual", price: "$24.99/month (billed annually)" }
+        ],
+        classes: [
+          { id: 1, name: "Beginner Strength", instructor: "David Strong", schedule: "Mon, Wed 10:00 AM", capacity: 8, enrolled: 4 },
+          { id: 2, name: "Advanced Lifting", instructor: "Maria Power", schedule: "Tue, Thu 5:00 PM", capacity: 6, enrolled: 5 }
+        ]
+      });
       
       toast({
         title: "Membership Approved!",
@@ -130,6 +187,44 @@ const ActiveSubscriptions = () => {
     ));
   };
 
+  const handleViewGymDetails = (subscription: typeof activeSubscriptions[0]) => {
+    const gym = subscriptionGyms.find(gym => gym.name === subscription.gymName);
+    if (gym) {
+      setSelectedGym(gym);
+      setIsDetailsDialogOpen(true);
+    }
+  };
+
+  const handleEnrollClass = (classItem: any) => {
+    if (selectedGym) {
+      // Find the gym and update the class
+      const updatedGym = {...selectedGym};
+      const classIndex = updatedGym.classes.findIndex(c => c.id === classItem.id);
+      
+      if (classIndex !== -1 && updatedGym.classes[classIndex].enrolled < updatedGym.classes[classIndex].capacity) {
+        updatedGym.classes[classIndex].enrolled += 1;
+        setSelectedGym(updatedGym);
+        
+        // Update in the subscriptionGyms array as well
+        const gymIndex = subscriptionGyms.findIndex(g => g.id === updatedGym.id);
+        if (gymIndex !== -1) {
+          subscriptionGyms[gymIndex] = updatedGym;
+        }
+        
+        toast({
+          title: "Enrolled Successfully",
+          description: `You have enrolled in ${classItem.name}.`,
+        });
+      } else {
+        toast({
+          title: "Enrollment Failed",
+          description: "This class is already at capacity.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   return (
     <Card className="mb-8">
       <CardHeader className="bg-muted/50">
@@ -167,15 +262,26 @@ const ActiveSubscriptions = () => {
                     </TableCell>
                     <TableCell>{subscription.location}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                        onClick={() => handleManageSubscription(subscription)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Manage
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                          onClick={() => handleViewGymDetails(subscription)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
+                          onClick={() => handleManageSubscription(subscription)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Manage
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -256,6 +362,14 @@ const ActiveSubscriptions = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Gym Details Dialog */}
+      <GymDetailsDialog 
+        isOpen={isDetailsDialogOpen} 
+        onClose={() => setIsDetailsDialogOpen(false)}
+        gym={selectedGym}
+        onEnrollClass={handleEnrollClass}
+      />
     </Card>
   );
 };
