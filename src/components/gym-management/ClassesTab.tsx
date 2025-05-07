@@ -1,80 +1,23 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, UserPlus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
 import { useSearch } from "./SearchContext";
 import { AddEditClassDialog } from "./dialogs/AddEditClassDialog";
 import { EnrollMemberDialog } from "./dialogs/EnrollMemberDialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-
-const classesData = [
-  {
-    id: "1",
-    name: "Yoga Basics",
-    instructor: "Sarah Johnson",
-    schedule: "Mon, Wed, Fri 6:00 PM - 7:00 PM",
-    capacity: "20",
-    enrolled: "14",
-    enrolledMembers: [
-      { id: "1", name: "John Doe" },
-      { id: "2", name: "Jane Smith" }
-    ]
-  },
-  {
-    id: "2",
-    name: "HIIT Workout",
-    instructor: "Michael Torres",
-    schedule: "Tue, Thu 7:00 AM - 8:00 AM",
-    capacity: "15",
-    enrolled: "12",
-    enrolledMembers: [
-      { id: "3", name: "Robert Johnson" },
-    ]
-  },
-  {
-    id: "3",
-    name: "Spinning",
-    instructor: "Jessica Smith",
-    schedule: "Mon, Wed, Fri 8:00 AM - 9:00 AM",
-    capacity: "25",
-    enrolled: "22",
-    enrolledMembers: [
-      { id: "4", name: "Emily Davis" },
-      { id: "5", name: "Michael Wilson" }
-    ]
-  },
-];
-
-const availableMembers = [
-  { id: "1", name: "John Doe" },
-  { id: "2", name: "Jane Smith" },
-  { id: "3", name: "Robert Johnson" },
-  { id: "4", name: "Emily Davis" },
-  { id: "5", name: "Michael Wilson" },
-  { id: "6", name: "Sarah Thompson" },
-  { id: "7", name: "David Miller" },
-  { id: "8", name: "Jennifer Martinez" },
-];
+import ClassesTable from "./classes/ClassesTable";
+import DeleteClassDialog from "./classes/DeleteClassDialog";
+import { initialClassesData, availableMembers } from "./classes/classesData";
 
 const ClassesTab = () => {
   const { searchTerm } = useSearch();
-  const [classes, setClasses] = useState(classesData);
+  const [classes, setClasses] = useState(initialClassesData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
-  const [currentClass, setCurrentClass] = useState<undefined | typeof classesData[0]>(undefined);
+  const [currentClass, setCurrentClass] = useState<undefined | typeof initialClassesData[0]>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [classToDelete, setClassToDelete] = useState<undefined | typeof classesData[0]>(undefined);
+  const [classToDelete, setClassToDelete] = useState<undefined | typeof initialClassesData[0]>(undefined);
   const { toast } = useToast();
 
   const filteredClasses = classes.filter((cls) => {
@@ -91,17 +34,17 @@ const ClassesTab = () => {
     setDialogOpen(true);
   };
 
-  const handleEditClass = (cls: typeof classesData[0]) => {
+  const handleEditClass = (cls: typeof initialClassesData[0]) => {
     setCurrentClass(cls);
     setDialogOpen(true);
   };
 
-  const handleDeleteClass = (cls: typeof classesData[0]) => {
+  const handleDeleteClass = (cls: typeof initialClassesData[0]) => {
     setClassToDelete(cls);
     setDeleteDialogOpen(true);
   };
 
-  const handleEnrollMembers = (cls: typeof classesData[0]) => {
+  const handleEnrollMembers = (cls: typeof initialClassesData[0]) => {
     setCurrentClass(cls);
     setEnrollDialogOpen(true);
   };
@@ -186,72 +129,12 @@ const ClassesTab = () => {
         </Button>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-left text-sm font-medium">Class Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Instructor</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Schedule</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Enrollment</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClasses.length > 0 ? (
-              filteredClasses.map((cls, i) => (
-                <tr key={i} className="border-b hover:bg-muted/30">
-                  <td className="px-4 py-3 text-sm">{cls.name}</td>
-                  <td className="px-4 py-3 text-sm">{cls.instructor}</td>
-                  <td className="px-4 py-3 text-sm">{cls.schedule}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <Badge variant={parseInt(cls.enrolled) >= parseInt(cls.capacity) ? "destructive" : "success"}>
-                      {cls.enrolled}/{cls.capacity}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-green-600 hover:text-green-800 hover:bg-green-50 px-2"
-                        onClick={() => handleEnrollMembers(cls)}
-                      >
-                        <UserPlus className="h-4 w-4 mr-1" />
-                        Enroll
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                        onClick={() => handleEditClass(cls)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
-                        onClick={() => handleDeleteClass(cls)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
-                  No classes match your search
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ClassesTable 
+        filteredClasses={filteredClasses}
+        onEditClass={handleEditClass}
+        onDeleteClass={handleDeleteClass}
+        onEnrollMembers={handleEnrollMembers}
+      />
 
       <AddEditClassDialog 
         open={dialogOpen} 
@@ -269,26 +152,12 @@ const ClassesTab = () => {
         currentlyEnrolled={currentClass?.enrolledMembers?.map(m => m.id) || []}
       />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this class?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the class
-              {classToDelete && ` "${classToDelete.name}"`} and remove its data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteClass}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteClassDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        classToDelete={classToDelete}
+        onConfirmDelete={confirmDeleteClass}
+      />
     </div>
   );
 };
