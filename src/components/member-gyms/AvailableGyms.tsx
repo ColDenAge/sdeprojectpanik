@@ -11,6 +11,7 @@ import GymCard from "./GymCard";
 import GymDetailsContent from "./GymDetailsContent";
 import EnrollClassDialog from "./EnrollClassDialog";
 import MembershipApplicationDialog from "./MembershipApplicationDialog";
+import AmenityFilters, { getUniqueAmenities } from "./AmenityFilters";
 
 // Import data and types
 import { availableGyms, gymIdMapping } from "./data/gymData";
@@ -25,12 +26,39 @@ const AvailableGyms = () => {
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
   const [applications, setApplications] = useState<Record<string, any[]>>({});
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [filteredGyms, setFilteredGyms] = useState<Gym[]>(availableGyms);
   const { toast } = useToast();
+
+  // Get unique amenities from all gyms
+  const uniqueAmenities = getUniqueAmenities(availableGyms);
 
   // Mock user data
   const currentUser = {
     name: "Alex Johnson",
     id: "user123"
+  };
+
+  // Filter gyms whenever selectedAmenities changes
+  useEffect(() => {
+    if (selectedAmenities.length === 0) {
+      setFilteredGyms(availableGyms);
+    } else {
+      const filtered = availableGyms.filter(gym => {
+        return selectedAmenities.every(amenity => gym.amenities.includes(amenity));
+      });
+      setFilteredGyms(filtered);
+    }
+  }, [selectedAmenities]);
+
+  const handleAmenityChange = (amenity: string) => {
+    setSelectedAmenities(prev => {
+      if (prev.includes(amenity)) {
+        return prev.filter(a => a !== amenity);
+      } else {
+        return [...prev, amenity];
+      }
+    });
   };
 
   const handleViewDetails = (gym: Gym) => {
@@ -119,16 +147,38 @@ const AvailableGyms = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
+        {/* Amenity Filters */}
+        <div className="mb-6">
+          <AmenityFilters 
+            amenities={uniqueAmenities}
+            selectedAmenities={selectedAmenities}
+            onAmenityChange={handleAmenityChange}
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableGyms.map((gym) => (
-            <GymCard 
-              key={gym.id}
-              gym={gym}
-              hasApplied={hasApplied(gym.id)}
-              onViewDetails={handleViewDetails}
-              onApplyMembership={handleApplyMembership}
-            />
-          ))}
+          {filteredGyms.length > 0 ? (
+            filteredGyms.map((gym) => (
+              <GymCard 
+                key={gym.id}
+                gym={gym}
+                hasApplied={hasApplied(gym.id)}
+                onViewDetails={handleViewDetails}
+                onApplyMembership={handleApplyMembership}
+              />
+            ))
+          ) : (
+            <div className="col-span-3 py-8 text-center">
+              <p className="text-muted-foreground">No gyms match your selected filters.</p>
+              <Button 
+                variant="outline" 
+                className="mt-2"
+                onClick={() => setSelectedAmenities([])}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
 
