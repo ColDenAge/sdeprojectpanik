@@ -6,6 +6,7 @@ import MemberGymStats from "@/components/member-gyms/MemberGymStats";
 import ActiveSubscriptions from "@/components/member-gyms/ActiveSubscriptions";
 import RecentActivities from "@/components/member-gyms/RecentActivities";
 import AvailableGyms from "@/components/member-gyms/AvailableGyms";
+import ClassSchedules from "@/components/member-gyms/ClassSchedules";
 import { Toaster } from "@/components/ui/toaster";
 
 const MemberGyms = () => {
@@ -14,6 +15,7 @@ const MemberGyms = () => {
       <GymPageHeader />
       <MemberGymStats />
       <ActiveSubscriptions />
+      <ClassSchedules />
       <RecentActivities />
       <AvailableGyms />
       <Toaster />
