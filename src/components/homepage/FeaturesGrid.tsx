@@ -1,4 +1,3 @@
-
 import React from "react";
 
 interface FeatureItem {
@@ -11,7 +10,6 @@ interface FeaturesGridProps {
   rightTitle: string;
   rightDescription: string;
   rightImageSrc: string;
-  className?: string;
 }
 
 const FeaturesGrid: React.FC<FeaturesGridProps> = ({
@@ -19,10 +17,9 @@ const FeaturesGrid: React.FC<FeaturesGridProps> = ({
   rightTitle,
   rightDescription,
   rightImageSrc,
-  className = "",
 }) => {
   return (
-    <section className={`bg-[rgba(217,217,217,1)] flex w-full flex-col overflow-hidden items-stretch mt-[75px] pt-[150px] max-md:max-w-full max-md:mt-10 max-md:pt-[100px] ${className}`}>
+    <section className="bg-[rgba(217,217,217,1)] flex w-full flex-col overflow-hidden items-stretch mt-[75px] pt-[150px] max-md:max-w-full max-md:mt-10 max-md:pt-[100px]">
       <div className="self-center z-10 w-full max-w-[1404px] max-md:max-w-full">
         <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
           <div className="w-[45%] max-md:w-full max-md:ml-0">

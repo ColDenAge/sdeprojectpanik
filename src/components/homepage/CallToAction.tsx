@@ -7,14 +7,12 @@ interface CallToActionProps {
   title: string;
   buttonText: string;
   imageSrc: string;
-  className?: string;
 }
 
 const CallToAction: React.FC<CallToActionProps> = ({
   title,
   buttonText,
   imageSrc,
-  className = "",
 }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -28,7 +26,7 @@ const CallToAction: React.FC<CallToActionProps> = ({
   };
 
   return (
-    <section className={`bg-white flex w-full flex-col overflow-hidden items-center justify-center px-[70px] py-[216px] max-md:max-w-full max-md:px-5 max-md:py-[100px] ${className}`}>
+    <section className="bg-white flex w-full flex-col overflow-hidden items-center justify-center px-[70px] py-[216px] max-md:max-w-full max-md:px-5 max-md:py-[100px]">
       <div className="mb-[-46px] w-full max-w-[1476px] ml-[25px] max-md:max-w-full max-md:mb-2.5">
         <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
           <div className="w-[44%] max-md:w-full max-md:ml-0">

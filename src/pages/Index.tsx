@@ -34,7 +34,6 @@ const Index: React.FC = () => {
         imageSrc="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9baccccdb853220625b2565728b74b88c2376fb0?placeholderIfAbsent=true"
         imageAlt="Gym management process"
         imageSecondary="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/ade4876cb50e35bf3ff8b3e87e33fb953f3355a1?placeholderIfAbsent=true"
-        className="my-16 md:my-24"
       />
 
       {/* Billings Section */}
@@ -45,7 +44,6 @@ const Index: React.FC = () => {
         imageAlt="Payment information"
         imageSecondary="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/1a7551a83d87357f5dd952742ac1442f34334fb0?placeholderIfAbsent=true"
         reversed={true}
-        className="my-16 md:my-24"
       />
 
       {/* Reviewing Missed Billings */}
@@ -53,7 +51,6 @@ const Index: React.FC = () => {
         title="Reviewing your missed billings"
         description="Able to review and track all the missed out deadlines and due payments, allowing you to further manage your bills and track your progress in the program you admitted to."
         imageSrc="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/c200d4069c2e467fbb13c3474c5ff3d15a05750a?placeholderIfAbsent=true"
-        className="my-16 md:my-24 mx-4 md:mx-8 lg:mx-16"
       />
 
       {/* Features Grid */}
@@ -73,7 +70,6 @@ const Index: React.FC = () => {
         rightTitle="Communication"
         rightDescription="Chat and communicate with the respective gyms, programs, or mentors you're aligned with or subscribed to. Set appointments, or meetings with the people."
         rightImageSrc="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/ccdf4d564d37e1a45ef3ff19949250660fd92a9b?placeholderIfAbsent=true"
-        className="mt-16 md:mt-24"
       />
 
       {/* Call to Action */}
@@ -81,7 +77,6 @@ const Index: React.FC = () => {
         title="Ready to start your program?"
         buttonText="Get Started"
         imageSrc="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/d489859c03ed768e25e5fb523cad2b80e1ebdd35?placeholderIfAbsent=true"
-        className="mt-16 md:mt-24"
       />
     </main>
   );
