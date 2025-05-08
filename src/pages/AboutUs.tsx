@@ -15,10 +15,8 @@ const AboutUs = () => {
 
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
-        <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
-            About Us
-          </div>
+        <div className="flex justify-center items-center mb-12 mt-8">
+          <h1 className="text-black font-bold text-5xl font-cairo">About Us</h1>
         </div>
 
         <div className="max-w-4xl mx-auto px-4">
@@ -27,6 +25,11 @@ const AboutUs = () => {
             <p className="text-gray-700 mb-6">
               ByteMinds Systems is dedicated to revolutionizing the fitness industry through innovative technology solutions. 
               Our mission is to empower gym owners and members with tools that make fitness management seamless and enjoyable.
+            </p>
+
+            <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Our Mission</h3>
+            <p className="text-gray-700 mb-6">
+              At ByteMinds Systems, our mission is to make gym management easier and more efficient through easy-to-use technology. We aim to help gym owners and members by providing tools that make daily tasks simple, improve communication, and support fitness goals. Our platform also allows gym owners to easily check when memberships expire and see how many members are registered, giving them better control over their gym operations.
             </p>
 
             <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Our Vision</h3>
@@ -54,6 +57,25 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
+      {/* Footer */}
+      <footer className="bg-[#0B294B] text-white mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center">
+          <div className="flex flex-col items-center mb-6">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
+              alt="ByteMinds Systems Logo"
+              className="w-14 h-14 mb-2"
+            />
+            <span className="font-bold text-lg">ByteMinds Systems</span>
+          </div>
+          <div className="flex space-x-8">
+            <a href="/about-us" className="hover:underline">About Us</a>
+            <a href="/features" className="hover:underline">Features</a>
+            <a href="/faqs" className="hover:underline">FAQs</a>
+            <a href="/contact" className="hover:underline">Contact</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

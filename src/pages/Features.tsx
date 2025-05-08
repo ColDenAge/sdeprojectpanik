@@ -72,10 +72,8 @@ const Features = () => {
 
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
-        <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
-            Features
-          </div>
+        <div className="flex justify-center items-center mb-12 mt-8">
+          <h1 className="text-black font-bold text-5xl font-cairo">Features</h1>
         </div>
 
         <div className="max-w-6xl mx-auto px-4">
@@ -92,6 +90,25 @@ const Features = () => {
           </div>
         </div>
       </div>
+      {/* Footer */}
+      <footer className="bg-[#0B294B] text-white mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center">
+          <div className="flex flex-col items-center mb-6">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
+              alt="ByteMinds Systems Logo"
+              className="w-14 h-14 mb-2"
+            />
+            <span className="font-bold text-lg">ByteMinds Systems</span>
+          </div>
+          <div className="flex space-x-8">
+            <a href="/about-us" className="hover:underline">About Us</a>
+            <a href="/features" className="hover:underline">Features</a>
+            <a href="/faqs" className="hover:underline">FAQs</a>
+            <a href="/contact" className="hover:underline">Contact</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
