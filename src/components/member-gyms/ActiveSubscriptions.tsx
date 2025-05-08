@@ -57,7 +57,6 @@ const ActiveSubscriptions = () => {
         isOpen={isDetailsDialogOpen} 
         onClose={() => setIsDetailsDialogOpen(false)}
         gym={selectedGym}
-        onEnrollClass={handleEnrollClass}
       />
     </Card>
   );
