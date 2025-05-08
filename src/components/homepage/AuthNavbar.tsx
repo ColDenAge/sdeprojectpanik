@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  Home, 
-  LayoutDashboard, 
-  Dumbbell, 
-  Wallet, 
-  Settings, 
-  HelpCircle, 
-  LogOut, 
+import {
+  Home,
+  LayoutDashboard,
+  Dumbbell,
+  Wallet,
+  Settings,
+  HelpCircle,
+  LogOut,
   User,
   Layers,
   HelpCircle as FAQIcon,
@@ -58,6 +58,11 @@ const AuthNavbar: React.FC = () => {
     return userRole === "member" ? "My Gyms" : "Gym Management";
   };
 
+  // Get the appropriate label for the role
+  const getRoleLabel = () => {
+    return userRole === "member" ? "Gym Member" : "Gym Manager";
+  };
+
   // Function to check if a link is active
   const isActive = (path: string) => {
     return currentPath === path;
@@ -80,17 +85,17 @@ const AuthNavbar: React.FC = () => {
 
         {/* User Controls */}
         <div className="flex items-center gap-4 md:w-1/4 justify-end">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-[110px]">
             <Avatar className="hover:bg-[#0a2544] bg-transparent cursor-pointer">
               <AvatarFallback>
                 <User className="h-6 w-6" />
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm hidden md:inline-block">
-              {userRole === "member" ? "Gym Member" : "Gym Manager"}
+            <span className="text-sm hidden md:inline-block min-w-[90px] text-left">
+              {getRoleLabel()}
             </span>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="hover:bg-[#0a2544] rounded-full p-2 flex items-center gap-2"
           >
@@ -99,18 +104,17 @@ const AuthNavbar: React.FC = () => {
           </button>
         </div>
       </div>
-      
       {/* Tab Navigation */}
       <div className="w-full">
         <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
-            <TabsTrigger 
-              value="main" 
+            <TabsTrigger
+              value="main"
               className={activeTab === "main" ? "bg-blue-500 text-white" : ""}
             >
               Main
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="dashboard"
               className={activeTab === "dashboard" ? "bg-blue-500 text-white" : ""}
             >
@@ -119,7 +123,6 @@ const AuthNavbar: React.FC = () => {
           </TabsList>
         </Tabs>
       </div>
-
       {/* Navigation Links - Centered */}
       <div className="w-full flex items-center justify-center gap-4 text-lg">
         {activeTab === "main" ? (
@@ -133,7 +136,6 @@ const AuthNavbar: React.FC = () => {
               <Home className="h-5 w-10" />
               <span className="hidden md:inline">Home</span>
             </Link>
-          
             <Link
               to="/features"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -143,7 +145,6 @@ const AuthNavbar: React.FC = () => {
               <Layers className="h-5 w-10" />
               <span className="hidden md:inline">Features</span>
             </Link>
-          
             <Link
               to="/faqs"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -153,7 +154,6 @@ const AuthNavbar: React.FC = () => {
               <FAQIcon className="h-5 w-10" />
               <span className="hidden md:inline">FAQs</span>
             </Link>
-          
             <Link
               to="/about-us"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -163,7 +163,6 @@ const AuthNavbar: React.FC = () => {
               <Users className="h-5 w-10" />
               <span className="hidden md:inline">About Us</span>
             </Link>
-          
             <Link
               to="/contact"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
@@ -176,8 +175,8 @@ const AuthNavbar: React.FC = () => {
           </div>
         ) : (
           <div className="flex gap-6 items-center">
-            <Link 
-              to="/dashboard" 
+            <Link
+              to="/dashboard"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
                 isActive('/dashboard') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
@@ -185,9 +184,8 @@ const AuthNavbar: React.FC = () => {
               <LayoutDashboard className="h-5 w-10" />
               <span className="hidden md:inline">Dashboard</span>
             </Link>
-            
-            <Link 
-              to="/gyms" 
+            <Link
+              to="/gyms"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
                 isActive('/gyms') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
@@ -195,9 +193,8 @@ const AuthNavbar: React.FC = () => {
               <Dumbbell className="h-5 w-10" />
               <span className="hidden md:inline">{getGymsLabel()}</span>
             </Link>
-            
-            <Link 
-              to="/billings" 
+            <Link
+              to="/billings"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
                 isActive('/billings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
@@ -205,9 +202,8 @@ const AuthNavbar: React.FC = () => {
               <Wallet className="h-5 w-10" />
               <span className="hidden md:inline">Billings</span>
             </Link>
-            
-            <Link 
-              to="/settings" 
+            <Link
+              to="/settings"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
                 isActive('/settings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
@@ -215,9 +211,8 @@ const AuthNavbar: React.FC = () => {
               <Settings className="h-5 w-10" />
               <span className="hidden md:inline">Account Settings</span>
             </Link>
-            
-            <Link 
-              to="/help" 
+            <Link
+              to="/help"
               className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
                 isActive('/help') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
               }`}
