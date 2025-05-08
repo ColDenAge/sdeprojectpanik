@@ -9,14 +9,12 @@ import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
 interface GymDetailsContentProps {
   gym: Gym;
   hasApplied: boolean;
-  onEnrollClass: (gymClass: GymClass) => void;
   onSelectMembership: (membership: MembershipOption) => void;
 }
 
 const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
   gym,
   hasApplied,
-  onEnrollClass,
   onSelectMembership
 }) => {
   return (
@@ -41,14 +39,9 @@ const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
                   </p>
                   <p className="text-sm mt-1">Availability: {cls.enrolled}/{cls.capacity}</p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="text-[#0B294B] border-[#0B294B] hover:bg-[#0B294B]/10"
-                  disabled={cls.enrolled >= cls.capacity}
-                  onClick={() => onEnrollClass(cls)}
-                >
-                  {cls.enrolled >= cls.capacity ? "Full" : "Enroll"}
-                </Button>
+                <p className="text-sm italic text-muted-foreground">
+                  Apply for membership to enroll
+                </p>
               </div>
             </div>
           ))}

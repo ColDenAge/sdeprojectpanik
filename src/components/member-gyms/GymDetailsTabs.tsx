@@ -1,17 +1,15 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon } from "lucide-react";
-import { Gym, GymClass } from "./types/gymTypes";
+import { Gym } from "./types/gymTypes";
 
 interface GymDetailsTabsProps {
   gym: Gym;
-  onEnrollClass: (classItem: GymClass) => void;
 }
 
-const GymDetailsTabs: React.FC<GymDetailsTabsProps> = ({ gym, onEnrollClass }) => {
+const GymDetailsTabs: React.FC<GymDetailsTabsProps> = ({ gym }) => {
   return (
     <Tabs defaultValue="classes" className="h-full flex flex-col">
       <TabsList className="grid w-full grid-cols-2">
@@ -35,14 +33,9 @@ const GymDetailsTabs: React.FC<GymDetailsTabsProps> = ({ gym, onEnrollClass }) =
                     Availability: {cls.enrolled}/{cls.capacity}
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="text-[#0B294B] border-[#0B294B] hover:bg-[#0B294B]/10"
-                  disabled={cls.enrolled >= cls.capacity}
-                  onClick={() => onEnrollClass(cls)}
-                >
-                  {cls.enrolled >= cls.capacity ? "Full" : "Enroll"}
-                </Button>
+                <p className="text-sm italic text-muted-foreground">
+                  Apply for membership to enroll
+                </p>
               </div>
             </div>
           ))}

@@ -9,18 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 // Import components
 import GymCard from "./GymCard";
 import GymDetailsContent from "./GymDetailsContent";
-import EnrollClassDialog from "./EnrollClassDialog";
 import MembershipApplicationDialog from "./MembershipApplicationDialog";
 
 // Import data and types
 import { availableGyms, gymIdMapping } from "./data/gymData";
-import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
+import { Gym, MembershipOption } from "./types/gymTypes";
 
 const AvailableGyms = () => {
   const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<null | GymClass>(null);
-  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<null | MembershipOption>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
@@ -36,19 +33,6 @@ const AvailableGyms = () => {
   const handleViewDetails = (gym: Gym) => {
     setSelectedGym(gym);
     setIsDialogOpen(true);
-  };
-
-  const handleEnrollClass = (gymClass: GymClass) => {
-    setSelectedClass(gymClass);
-    setEnrollDialogOpen(true);
-  };
-
-  const confirmEnrollment = () => {
-    toast({
-      title: "Enrolled Successfully",
-      description: `You have been enrolled in ${selectedClass?.name} class.`,
-    });
-    setEnrollDialogOpen(false);
   };
 
   const handleSelectMembership = (membership: MembershipOption) => {
@@ -143,7 +127,6 @@ const AvailableGyms = () => {
             <GymDetailsContent 
               gym={selectedGym}
               hasApplied={hasApplied(selectedGym.id)}
-              onEnrollClass={handleEnrollClass}
               onSelectMembership={handleSelectMembership}
             />
           )}
@@ -153,14 +136,6 @@ const AvailableGyms = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Class Enrollment Dialog */}
-      <EnrollClassDialog 
-        open={enrollDialogOpen}
-        selectedClass={selectedClass}
-        onClose={() => setEnrollDialogOpen(false)}
-        onConfirm={confirmEnrollment}
-      />
 
       {/* Membership Selection Dialog */}
       <MembershipApplicationDialog 
