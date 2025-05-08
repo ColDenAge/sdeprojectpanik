@@ -1,5 +1,5 @@
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../App";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useContext, useState } from "react";
 
 // Define form schema with validation rules
 const loginFormSchema = z.object({
@@ -33,12 +32,8 @@ const Login = (): JSX.Element => {
   });
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(AuthContext);
-
-  const onSubmit = (data: LoginFormValues) => {
-    console.log(data);
-    // Instead of directly setting auth to true, navigate to choice page
-    navigate("/choice");
   const [authError, setAuthError] = useState("");
+
   const onSubmit = (data: LoginFormValues) => {
     console.log(data);
 
@@ -52,7 +47,6 @@ const Login = (): JSX.Element => {
     } else {
       setAuthError("Invalid login, please try again.");
     }
-  };
   };
 
   return (
@@ -103,6 +97,10 @@ const Login = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
+                
+                {authError && (
+                  <div className="text-red-500 text-sm">{authError}</div>
+                )}
                 
                 <div className="flex justify-end">
                   <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
