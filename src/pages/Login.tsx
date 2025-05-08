@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../App";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useContext, useState } from "react";
 
 // Define form schema with validation rules
 const loginFormSchema = z.object({
@@ -37,6 +38,21 @@ const Login = (): JSX.Element => {
     console.log(data);
     // Instead of directly setting auth to true, navigate to choice page
     navigate("/choice");
+  const [authError, setAuthError] = useState("");
+  const onSubmit = (data: LoginFormValues) => {
+    console.log(data);
+
+    // Simulate valid credentials
+    const validEmail = "test@example.com";
+    const validPassword = "password123";
+
+    if (data.email === validEmail && data.password === validPassword) {
+      setAuthError("");
+      navigate("/choice");
+    } else {
+      setAuthError("Invalid login, please try again.");
+    }
+  };
   };
 
   return (
