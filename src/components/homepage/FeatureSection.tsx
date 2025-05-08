@@ -1,3 +1,4 @@
+
 import React from "react";
 
 interface FeatureSectionProps {
@@ -9,6 +10,7 @@ interface FeatureSectionProps {
   reversed?: boolean;
   backgroundColor?: string;
   textColor?: string;
+  className?: string;
 }
 
 const FeatureSection: React.FC<FeatureSectionProps> = ({
@@ -20,6 +22,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   reversed = false,
   backgroundColor = "rgba(217,217,217,1)",
   textColor = "rgba(11,41,75,1)",
+  className = "",
 }) => {
   const textContent = (
     <div className={`flex flex-col self-stretch items-stretch text-[${textColor}] my-auto max-md:max-w-full max-md:mt-10`}>
@@ -55,7 +58,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
         reversed ? "pr-20" : "pl-20"
       } pt-[229px] max-md:max-w-full max-md:${
         reversed ? "pr-5" : "pl-5"
-      } max-md:pt-[100px]`}
+      } max-md:pt-[100px] ${className}`}
     >
       <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
         {reversed ? (

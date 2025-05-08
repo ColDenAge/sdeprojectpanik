@@ -1,3 +1,4 @@
+
 import React from "react";
 
 interface InfoBoxProps {
@@ -6,6 +7,7 @@ interface InfoBoxProps {
   imageSrc?: string;
   backgroundColor?: string;
   textColor?: string;
+  className?: string;
 }
 
 const InfoBox: React.FC<InfoBoxProps> = ({
@@ -14,10 +16,11 @@ const InfoBox: React.FC<InfoBoxProps> = ({
   imageSrc,
   backgroundColor = "rgba(217,217,217,1)",
   textColor = "rgba(11,41,75,1)",
+  className = "",
 }) => {
   return (
     <div
-      className={`bg-[${backgroundColor}] self-center flex w-[1388px] max-w-full flex-col items-center text-[${textColor}] justify-center mt-[75px] px-20 py-[69px] rounded-[25px] max-md:mt-10 max-md:px-5`}
+      className={`bg-[${backgroundColor}] self-center flex w-[1388px] max-w-full flex-col items-center text-[${textColor}] justify-center mt-[75px] px-20 py-[69px] rounded-[25px] max-md:mt-10 max-md:px-5 ${className}`}
     >
       <div className="flex w-[826px] max-w-full flex-col">
         <h2 className="text-5xl font-bold max-md:max-w-full max-md:text-[40px]">
