@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
+import {
   User,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -25,9 +26,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log("Auth state changed:", firebaseUser ? "User logged in" : "No user");
       setUser(firebaseUser);
       setLoading(false);
     });
@@ -35,30 +38,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      console.log("Attempting to sign in:", email);
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log("Sign in successful");
+      toast({
+        title: "Success",
+        description: "Logged in successfully!",
+      });
+    } catch (error: any) {
+      console.error("Error in signIn:", error);
+      throw error;
+    }
   };
 
   const signUp = async (email: string, password: string, role: string) => {
-    // Create user in Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    // Create user document in Firestore
-    const userDoc = doc(db, "users", userCredential.user.uid);
-    await setDoc(userDoc, {
-      email,
-      role,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    // Update user profile
-    await updateProfile(userCredential.user, { displayName: role });
+    try {
+      console.log("Starting sign up process for:", email);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("User created in Firebase Auth");
+      const userDoc = doc(db, "users", userCredential.user.uid);
+      await setDoc(userDoc, {
+        email,
+        role,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      console.log("User document created in Firestore");
+      await updateProfile(userCredential.user, { displayName: role });
+      console.log("User profile updated");
+      toast({
+        title: "Success",
+        description: "Account created successfully!",
+      });
+    } catch (error: any) {
+      console.error("Error in signUp:", error);
+      throw error;
+    }
   };
 
   const signOut = async () => {
-    await firebaseSignOut(auth);
+    try {
+      console.log("Attempting to log out");
+      await firebaseSignOut(auth);
+      console.log("Logout successful");
+      toast({
+        title: "Success",
+        description: "Logged out successfully!",
+      });
+    } catch (error: any) {
+      console.error("Error in logout:", error);
+      throw error;
+    }
   };
 
   const resetPassword = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
+    try {
+      console.log("Attempting to reset password for:", email);
+      await sendPasswordResetEmail(auth, email);
+      console.log("Password reset email sent");
+      toast({
+        title: "Success",
+        description: "Password reset email sent!",
+      });
+    } catch (error: any) {
+      console.error("Error in resetPassword:", error);
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
