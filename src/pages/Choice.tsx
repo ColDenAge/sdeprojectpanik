@@ -14,7 +14,7 @@ const Choice = () => {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full bg-gray-100">
       <div className="w-full px-6 py-4">
         {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
@@ -27,8 +27,8 @@ const Choice = () => {
 
         <div className="max-w-4xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div 
-              className="bg-white rounded-lg shadow-lg p-8 cursor-pointer hover:shadow-xl transition-shadow"
+            <div
+              className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-start cursor-pointer hover:shadow-xl transition-shadow"
               onClick={() => handleChoice("gym_owner")}
             >
               <h2 className="text-3xl font-bold text-[#0B294B] mb-4">Gym Owner</h2>
@@ -36,17 +36,23 @@ const Choice = () => {
                 Manage your gym operations efficiently with our comprehensive management tools.
                 Track memberships, handle payments, and streamline your business processes.
               </p>
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
+              <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
                 <li>Member management</li>
                 <li>Payment processing</li>
                 <li>Class scheduling</li>
                 <li>Equipment tracking</li>
                 <li>Business analytics</li>
               </ul>
+              <button
+                className="mt-auto w-full bg-[#0B294B] hover:bg-[#0a2544] text-white font-semibold py-2 px-4 rounded transition-colors"
+                onClick={e => { e.stopPropagation(); handleChoice("gym_owner"); }}
+              >
+                Join as Gym Owner
+              </button>
             </div>
 
-            <div 
-              className="bg-white rounded-lg shadow-lg p-8 cursor-pointer hover:shadow-xl transition-shadow"
+            <div
+              className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-start cursor-pointer hover:shadow-xl transition-shadow"
               onClick={() => handleChoice("member")}
             >
               <h2 className="text-3xl font-bold text-[#0B294B] mb-4">Gym Member</h2>
@@ -54,13 +60,19 @@ const Choice = () => {
                 Access your gym membership details, book classes, and manage your fitness journey
                 all in one place.
               </p>
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
+              <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
                 <li>Class bookings</li>
                 <li>Membership details</li>
                 <li>Payment history</li>
                 <li>Fitness tracking</li>
                 <li>Progress monitoring</li>
               </ul>
+              <button
+                className="mt-auto w-full bg-[#0B294B] hover:bg-[#0a2544] text-white font-semibold py-2 px-4 rounded transition-colors"
+                onClick={e => { e.stopPropagation(); handleChoice("member"); }}
+              >
+                Join as Gym Member
+              </button>
             </div>
           </div>
         </div>

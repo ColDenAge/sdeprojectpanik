@@ -91,16 +91,14 @@ const SignUp = (): JSX.Element => {
 
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
-        <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
-            Sign Up
-          </div>
+        <div className="flex justify-center items-center mb-12 mt-8">
+          <h1 className="text-black font-bold text-5xl font-cairo">Sign up</h1>
         </div>
 
         <div className="flex justify-center">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-[#0B294B] mb-6 text-center">Create Your Account</h2>
-            
+
             {role && (
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
                 <p className="text-blue-800">
@@ -108,7 +106,7 @@ const SignUp = (): JSX.Element => {
                 </p>
               </div>
             )}
-            
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -118,10 +116,10 @@ const SignUp = (): JSX.Element => {
                     <FormItem>
                       <FormLabel className="text-[#0B294B]">Email</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder="Enter your email" 
-                          {...field} 
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          {...field}
                           autoComplete="email"
                         />
                       </FormControl>
@@ -129,7 +127,7 @@ const SignUp = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -137,10 +135,10 @@ const SignUp = (): JSX.Element => {
                     <FormItem>
                       <FormLabel className="text-[#0B294B]">Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Enter your password" 
-                          {...field} 
+                        <Input
+                          type="password"
+                          placeholder="Enter your password"
+                          {...field}
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -148,7 +146,7 @@ const SignUp = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="confirmPassword"
@@ -156,10 +154,10 @@ const SignUp = (): JSX.Element => {
                     <FormItem>
                       <FormLabel className="text-[#0B294B]">Confirm Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Confirm your password" 
-                          {...field} 
+                        <Input
+                          type="password"
+                          placeholder="Confirm your password"
+                          {...field}
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -167,9 +165,9 @@ const SignUp = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-[#0B294B] hover:bg-[#0a2544]"
                   disabled={form.formState.isSubmitting}
                 >
@@ -177,7 +175,7 @@ const SignUp = (): JSX.Element => {
                 </Button>
               </form>
             </Form>
-            
+
             <div className="text-center mt-6">
               <p className="text-[#0B294B]">
                 Already have an account?{" "}
