@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import FeaturesHeader from "@/components/features/FeaturesHeader";
-import FeatureSection from "@/components/features/FeatureSection";
 import MembershipSection from "@/components/features/MembershipSection";
 import BusinessSection from "@/components/features/BusinessSection";
 import BookingSection from "@/components/features/BookingSection";
@@ -19,13 +18,16 @@ const Features = () => {
         {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
       
-      <div className="max-w-7xl mx-auto pb-20">
-        <FeaturesHeader />
-        {/* Note: The features components like MembershipSection already use FeatureSection internally */}
-        <MembershipSection />
-        <BusinessSection />
-        <BookingSection />
-        <BillingSection />
+      <div className="max-w-7xl mx-auto pb-20 flex flex-col items-center">
+        <div className="text-center w-full max-w-[1000px] mx-auto">
+          <FeaturesHeader />
+        </div>
+        <div className="w-full flex flex-col items-center">
+          <MembershipSection />
+          <BusinessSection />
+          <BookingSection />
+          <BillingSection />
+        </div>
       </div>
     </div>
   );
