@@ -10,6 +10,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 
+// Test commit to verify push
+
 // Define form schema with validation rules
 const signUpFormSchema = z.object({
   email: z.string()
