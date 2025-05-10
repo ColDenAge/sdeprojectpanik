@@ -1,4 +1,3 @@
-
 export interface Gym {
   id: string;
   name: string;
@@ -8,6 +7,7 @@ export interface Gym {
   members: number;
   status: string;
   pendingApplications: number;
+  activeMembers: string[];
 }
 
 export type MembershipApplicationStatus = "pending" | "approved" | "rejected";

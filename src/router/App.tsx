@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { AuthProvider, useAuth } from "@/context/AuthProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -25,6 +25,8 @@ import ManagerBillings from "../pages/ManagerBillings";
 import AccountSettings from "../pages/AccountSettings";
 import Help from "../pages/Help";
 import NotFound from "../pages/NotFound";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,8 +77,44 @@ const RoleBasedRoute = ({ path, memberComponent, managerComponent }: {
   return userRole === "member" ? memberComponent : managerComponent;
 };
 
+// Add RoleRedirector component
+const RoleRedirector = () => {
+  const { user } = useAuth();
+  const { userRole, setUserRole } = useContext(RoleContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) return;
+    if (userRole) return;
+    const fetchRole = async () => {
+      let docRef = doc(db, "gym_owners", user.uid);
+      let docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setUserRole("manager");
+        localStorage.setItem("userRole", "manager");
+        navigate("/dashboard");
+        return;
+      }
+      docRef = doc(db, "gym_members", user.uid);
+      docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setUserRole("member");
+        localStorage.setItem("userRole", "member");
+        navigate("/dashboard");
+        return;
+      }
+      navigate("/choice");
+    };
+    fetchRole();
+  }, [user, userRole, setUserRole, navigate]);
+
+  return null;
+};
+
 const App = () => {
   const [userRole, setUserRole] = useState("");
+  // const { user } = useAuth();
+  // const navigate = useNavigate();
 
   // Check localStorage on initial load
   useEffect(() => {
@@ -95,6 +133,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <RoleRedirector />
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Index />} />

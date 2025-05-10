@@ -58,21 +58,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("User created in Firebase Auth");
 
-      // Create user document in Firestore
-      const userDoc = doc(db, "users", userCredential.user.uid);
-      await setDoc(userDoc, {
-        email,
-        role: role || null, // Store role as null if not provided
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+      // Update user profile
+      await updateProfile(userCredential.user, {
+        displayName: role
       });
-      console.log("User document created in Firestore");
-
-      // Only update profile if role is provided
-      if (role) {
-        await updateProfile(userCredential.user, { displayName: role });
-        console.log("User profile updated with role");
-      }
+      console.log("User profile updated");
 
       toast({
         title: "Success",

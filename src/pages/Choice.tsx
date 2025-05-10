@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/homepage/Navbar";
 import { RoleContext } from "../router/App";
 import { useAuth } from "@/context/AuthProvider";
+import { doc, setDoc, collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const Choice = () => {
   const navigate = useNavigate();
@@ -16,13 +18,67 @@ const Choice = () => {
     }
   }, [user, navigate]);
 
-  const handleChoice = (role: string) => {
-    // Set the role in context and localStorage
+  const handleChoice = async (role: string) => {
+    if (!user) return;
+    const roleLower = role.toLowerCase();
+    let collectionName = "";
+    if (roleLower.includes("owner") || roleLower.includes("manager")) {
+      collectionName = "gym_owners";
+    } else if (roleLower.includes("member")) {
+      collectionName = "gym_members";
+    } else {
+      // fallback: do nothing or handle error
+      return;
+    }
+    const userDoc = doc(db, collectionName, user.uid);
+    const userData = {
+      email: user.email,
+      role,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...(collectionName === "gym_members"
+        ? {
+            membershipStatus: "active",
+            enrolledGyms: [],
+            membershipHistory: [],
+            fitnessGoals: [],
+            attendanceHistory: []
+          }
+        : {
+            gyms: [],
+            totalMembers: 0,
+            subscriptionStatus: "active",
+            businessDetails: {
+              name: "",
+              address: "",
+              contactNumber: "",
+              operatingHours: {}
+            }
+          })
+    };
+    await setDoc(userDoc, userData);
     setUserRole(role);
     localStorage.setItem("userRole", role);
-    // Navigate to dashboard
     navigate("/dashboard");
   };
+
+  async function createGym(name: string, ownerId: string) {
+    await addDoc(collection(db, "gyms"), {
+      name,
+      ownerId,
+      activeMembers: []
+    });
+  }
+
+  async function getGymsForOwner(ownerUid: string) {
+    const gymsRef = collection(db, "gyms");
+    const q = query(gymsRef, where("ownerId", "==", ownerUid));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
 
   return (
     <div className="min-h-screen w-full bg-gray-100">

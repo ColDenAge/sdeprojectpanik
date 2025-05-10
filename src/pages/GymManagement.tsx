@@ -15,15 +15,30 @@ import ClassesTab from "@/components/gym-management/ClassesTab";
 import { Badge } from "@/components/ui/badge";
 import GymDialog from "@/components/gym-management/dialogs/GymDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthProvider";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const GymManagement = () => {
   const { userRole } = useContext(RoleContext);
+  const { user } = useAuth();
   const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
-  const [gyms, setGyms] = useState<Gym[]>(initialGymsData);
+  const [gyms, setGyms] = useState<Gym[]>([]);
   const [activeTab, setActiveTab] = useState("members");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [gymToEdit, setGymToEdit] = useState<Gym | undefined>(undefined);
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (!user) return;
+    const fetchGyms = async () => {
+      const gymsRef = collection(db, "gyms");
+      const q = query(gymsRef, where("ownerId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
+    };
+    fetchGyms();
+  }, [user]);
 
   const handleAddGym = () => {
     setGymToEdit(undefined);
@@ -35,9 +50,8 @@ const GymManagement = () => {
     setDialogOpen(true);
   };
 
-  const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string }) => {
+  const handleSaveGym = async (values: { name: string; location: string; address: string; contactNumber: string }) => {
     if (gymToEdit) {
-      // Edit existing gym
       setGyms(
         gyms.map((gym) =>
           gym.id === gymToEdit.id
@@ -50,21 +64,31 @@ const GymManagement = () => {
         description: `${values.name} has been updated successfully.`,
       });
     } else {
-      // Add new gym
-      const newGym: Gym = {
-        id: (gyms.length + 1).toString(),
-        ...values,
-        members: 0,
+      if (!user) return;
+      await addDoc(collection(db, "gyms"), {
+        name: values.name,
+        location: values.location,
+        address: values.address,
+        contactNumber: values.contactNumber,
+        ownerId: user.uid,
+        activeMembers: [],
         status: "Active",
+        members: 0,
         pendingApplications: 0,
-      };
-      setGyms([...gyms, newGym]);
+      });
+      const gymsRef = collection(db, "gyms");
+      const q = query(gymsRef, where("ownerId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
       toast({
         title: "Gym Added",
         description: `${values.name} has been added successfully.`,
       });
     }
   };
+
+  // Calculate total members from all gyms
+  const totalMembers = gyms.reduce((sum, gym) => Array.isArray(gym.activeMembers) ? sum + gym.activeMembers.length : sum, 0);
 
   return (
     <DashboardLayout>
@@ -109,8 +133,8 @@ const GymManagement = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,245</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
+              <div className="text-2xl font-bold">{totalMembers}</div>
+              <p className="text-xs text-muted-foreground">{totalMembers === 0 ? '' : '+12% from last month'}</p>
             </CardContent>
           </Card>
           <Card>

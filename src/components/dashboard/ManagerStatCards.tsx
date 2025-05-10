@@ -1,9 +1,30 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthProvider";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, BarChart } from "lucide-react";
 
 const ManagerStatCards: React.FC = () => {
+  const { user } = useAuth();
+  const [totalActiveMembers, setTotalActiveMembers] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchGyms = async () => {
+      const gymsRef = collection(db, "gyms");
+      const q = query(gymsRef, where("ownerId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      const gyms = querySnapshot.docs.map(doc => doc.data());
+      const total = gyms.reduce(
+        (sum, gym) => Array.isArray(gym.activeMembers) ? sum + gym.activeMembers.length : sum,
+        0
+      );
+      setTotalActiveMembers(total);
+    };
+    fetchGyms();
+  }, [user]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <Card className="hover:shadow-md transition-shadow">
@@ -14,8 +35,8 @@ const ManagerStatCards: React.FC = () => {
           <Users className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">245</div>
-          <p className="text-xs text-gray-600">7% increase from last month</p>
+          <div className="text-2xl font-bold text-[#0B294B]">{totalActiveMembers}</div>
+          <p className="text-xs text-gray-600">{totalActiveMembers === 0 ? '' : '7% increase from last month'}</p>
         </CardContent>
       </Card>
       <Card className="hover:shadow-md transition-shadow">
