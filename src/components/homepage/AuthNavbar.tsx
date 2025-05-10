@@ -1,28 +1,15 @@
 import React, { useContext, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Home,
-  LayoutDashboard,
-  Dumbbell,
-  Wallet,
-  Settings,
-  HelpCircle,
-  LogOut,
-  User,
-  Layers,
-  HelpCircle as FAQIcon,
-  Users,
-  Mail
-} from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { RoleContext } from "../../router/App";
 import { useAuth } from "@/context/AuthProvider";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import NavLinks from "../navigation/NavLinks";
+import UserProfile from "../navigation/UserProfile";
 
 const AuthNavbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { userRole } = useContext(RoleContext);
   const currentPath = location.pathname;
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -83,30 +70,15 @@ const AuthNavbar: React.FC = () => {
         {/* Center space - for visual balance */}
         <div className="hidden md:block md:flex-1"></div>
 
-        {/* User Controls */}
-        <div className="flex items-center gap-4 md:w-1/4 justify-end">
-          <div className="flex items-center gap-2 min-w-[110px]">
-            <Avatar className="hover:bg-[#0a2544] bg-transparent cursor-pointer">
-              <AvatarFallback>
-                <User className="h-6 w-6" />
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-sm hidden md:inline-block min-w-[90px] text-left">
-              {getRoleLabel()}
-            </span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="hover:bg-[#0a2544] rounded-full p-2 flex items-center gap-2"
-          >
-            <LogOut className="h-6 w-6" />
-            <span className="text-sm hidden md:inline-block">Log Out</span>
-          </button>
-        </div>
+        <UserProfile
+          user={user}
+          roleLabel={getRoleLabel()}
+          onLogout={handleLogout}
+        />
       </div>
 
       {/* Tab Navigation */}
-      <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
           <TabsTrigger
             value="main"
@@ -123,106 +95,11 @@ const AuthNavbar: React.FC = () => {
         </TabsList>
       </Tabs>
 
-      {/* Navigation Links - Centered */}
-      <div className="w-full flex items-center justify-center gap-4 text-lg">
-        {activeTab === "main" ? (
-          <div className="flex gap-6 items-center">
-            <Link
-              to="/"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Home className="h-5 w-10" />
-              <span className="hidden md:inline">Home</span>
-            </Link>
-            <Link
-              to="/features"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/features') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Layers className="h-5 w-10" />
-              <span className="hidden md:inline">Features</span>
-            </Link>
-            <Link
-              to="/faqs"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/faqs') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <FAQIcon className="h-5 w-10" />
-              <span className="hidden md:inline">FAQs</span>
-            </Link>
-            <Link
-              to="/about-us"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/about-us') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Users className="h-5 w-10" />
-              <span className="hidden md:inline">About Us</span>
-            </Link>
-            <Link
-              to="/contact"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/contact') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Mail className="h-5 w-10" />
-              <span className="hidden md:inline">Contact</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="flex gap-6 items-center">
-            <Link
-              to="/dashboard"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/dashboard') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <LayoutDashboard className="h-5 w-10" />
-              <span className="hidden md:inline">Dashboard</span>
-            </Link>
-            <Link
-              to="/gyms"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/gyms') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Dumbbell className="h-5 w-10" />
-              <span className="hidden md:inline">{getGymsLabel()}</span>
-            </Link>
-            <Link
-              to="/billings"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/billings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Wallet className="h-5 w-10" />
-              <span className="hidden md:inline">Billings</span>
-            </Link>
-            <Link
-              to="/settings"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/settings') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <Settings className="h-5 w-10" />
-              <span className="hidden md:inline">Account Settings</span>
-            </Link>
-            <Link
-              to="/help"
-              className={`hover:text-gray-300 transition-colors flex items-center gap-2 ${
-                isActive('/help') ? 'text-white font-medium border-b-2 border-white pb-1' : 'text-gray-300'
-              }`}
-            >
-              <HelpCircle className="h-5 w-10" />
-              <span className="hidden md:inline">Help</span>
-            </Link>
-          </div>
-        )}
-      </div>
+      <NavLinks
+        activeTab={activeTab}
+        isActive={isActive}
+        getGymsLabel={getGymsLabel}
+      />
     </nav>
   );
 };

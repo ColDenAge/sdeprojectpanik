@@ -9,16 +9,16 @@ const QuickActions = () => {
 
   const actions = [
     {
-      title: "View Members",
-      description: "Manage your gym members and their details",
-      onClick: () => navigate("/members"),
-      icon: "👥",
+      title: userRole === "manager" ? "View Members" : "My Classes",
+      description: userRole === "manager" ? "Manage your gym members and their details" : "View and manage your class schedule",
+      onClick: () => navigate(userRole === "manager" ? "/members" : "/gyms?tab=scheduling"),
+      icon: userRole === "manager" ? "👥" : "📅",
     },
     {
-      title: "Programs",
-      description: "View and manage fitness programs",
-      onClick: () => navigate("/programs"),
-      icon: "🏋️",
+      title: "Billings",
+      description: userRole === "manager" ? "Manage revenue and payments" : "View and manage your payments",
+      onClick: () => navigate("/billings"),
+      icon: "💰",
     },
     {
       title: "Settings",
