@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,81 +13,41 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
+import { MoreHorizontal, UserPlus } from "lucide-react";
+import { initialMembersData } from "./data/mockData";
 
-// Updated member data to include gym affiliations
-const membersData = [
-  {
-    id: "1",
-    name: "John Doe",
-    membership: "Premium",
-    status: "Active",
-    location: "Downtown",
-    joinDate: "Jan 12, 2023",
-    gyms: ["Downtown Fitness"],
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    membership: "Standard",
-    status: "Active",
-    location: "Westside",
-    joinDate: "Mar 5, 2023",
-    gyms: ["Westside Gym"],
-  },
-  {
-    id: "3",
-    name: "Robert Johnson",
-    membership: "Premium",
-    status: "Inactive",
-    location: "Downtown",
-    joinDate: "Nov 19, 2022",
-    gyms: ["Downtown Fitness", "Eastside Fitness Center"],
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-    membership: "Standard",
-    status: "Active",
-    location: "Eastside",
-    joinDate: "Jul 30, 2023",
-    gyms: ["Eastside Fitness Center"],
-  },
-  {
-    id: "5",
-    name: "Michael Wilson",
-    membership: "Premium Plus",
-    status: "Active",
-    location: "Downtown",
-    joinDate: "Feb 14, 2023",
-    gyms: ["Downtown Fitness", "Westside Gym"],
-  },
-];
+interface MembersTabProps {
+  gymId?: string;
+}
 
-const MembersTab = () => {
+const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
   const { searchTerm } = useSearch();
-  const [members, setMembers] = useState(membersData);
+  const [members, setMembers] = useState(initialMembersData);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<any>(null);
   const { toast } = useToast();
 
+  // Filter members based on search term and gymId
   const filteredMembers = members.filter((member) => {
     const search = searchTerm.toLowerCase();
-    return (
+    const matchesSearch =
       member.name.toLowerCase().includes(search) ||
       member.membership.toLowerCase().includes(search) ||
-      member.status.toLowerCase().includes(search) ||
       member.location.toLowerCase().includes(search) ||
-      member.joinDate.toLowerCase().includes(search) ||
-      member.gyms.some(gym => gym.toLowerCase().includes(search))
-    );
+      member.gyms.some(gym => gym.toLowerCase().includes(search));
+
+    // If gymId is provided, only show members of that gym
+    const matchesGym = gymId ? member.gyms.includes(gymId) : true;
+
+    return matchesSearch && matchesGym;
   });
 
   const handleDeleteMember = (member: any) => {
@@ -109,6 +68,13 @@ const MembersTab = () => {
 
   return (
     <div className="overflow-x-auto">
+      <div className="flex justify-end mb-4">
+        <Button className="bg-[#0B294B] text-white hover:bg-[#0a2544]">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add New Member
+        </Button>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/30">
@@ -139,9 +105,9 @@ const MembersTab = () => {
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {member.gyms.map((gym, index) => (
-                      <Badge 
-                        key={index} 
-                        variant="outline" 
+                      <Badge
+                        key={index}
+                        variant="outline"
                         className="bg-muted/50"
                       >
                         {gym}
@@ -151,9 +117,9 @@ const MembersTab = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
                       onClick={() => handleDeleteMember(member)}
                     >
@@ -184,7 +150,7 @@ const MembersTab = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDeleteMember}
               className="bg-red-600 hover:bg-red-700"
             >

@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role: string) => Promise<void>;
+  signUp: (email: string, password: string, role?: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -52,21 +52,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, role: string) => {
+  const signUp = async (email: string, password: string, role?: string) => {
     try {
       console.log("Starting sign up process for:", email);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("User created in Firebase Auth");
+
+      // Create user document in Firestore
       const userDoc = doc(db, "users", userCredential.user.uid);
       await setDoc(userDoc, {
         email,
-        role,
+        role: role || null, // Store role as null if not provided
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
       console.log("User document created in Firestore");
-      await updateProfile(userCredential.user, { displayName: role });
-      console.log("User profile updated");
+
+      // Only update profile if role is provided
+      if (role) {
+        await updateProfile(userCredential.user, { displayName: role });
+        console.log("User profile updated with role");
+      }
+
       toast({
         title: "Success",
         description: "Account created successfully!",

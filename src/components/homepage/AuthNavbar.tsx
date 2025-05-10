@@ -36,8 +36,8 @@ const AuthNavbar: React.FC = () => {
       await signOut();
       // Remove user role from localStorage
       localStorage.removeItem("userRole");
-      // Navigate to home page
-      navigate("/");
+      // Force a full page refresh to clear all state
+      window.location.href = "/";
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -104,25 +104,25 @@ const AuthNavbar: React.FC = () => {
           </button>
         </div>
       </div>
+
       {/* Tab Navigation */}
-      <div className="w-full">
-        <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
-            <TabsTrigger
-              value="main"
-              className={activeTab === "main" ? "bg-blue-500 text-white" : ""}
-            >
-              Main
-            </TabsTrigger>
-            <TabsTrigger
-              value="dashboard"
-              className={activeTab === "dashboard" ? "bg-blue-500 text-white" : ""}
-            >
-              Dashboard
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <Tabs defaultValue={activeTab} className="w-full" onValueChange={handleTabChange}>
+        <TabsList className="grid w-full grid-cols-2 bg-[#0a2544]">
+          <TabsTrigger
+            value="main"
+            className={activeTab === "main" ? "bg-blue-500 text-white" : ""}
+          >
+            Main
+          </TabsTrigger>
+          <TabsTrigger
+            value="dashboard"
+            className={activeTab === "dashboard" ? "bg-blue-500 text-white" : ""}
+          >
+            Dashboard
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* Navigation Links - Centered */}
       <div className="w-full flex items-center justify-center gap-4 text-lg">
         {activeTab === "main" ? (

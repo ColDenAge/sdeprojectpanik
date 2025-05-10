@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -22,62 +21,62 @@ const Navbar: React.FC = () => {
         <div className="text-sm font-bold">ByteMinds Systems</div>
       </div>
 
-      <div className="flex items-center justify-between gap-4 md:flex-1">
-        <Link 
-          to="/" 
+      <div className="flex items-center gap-6">
+        <Link
+          to="/"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
           Home
         </Link>
-        <Link 
-          to="/features" 
+        <Link
+          to="/features"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/features') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/features')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
           Features
         </Link>
-        <Link 
-          to="/faqs" 
+        <Link
+          to="/faqs"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/faqs') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/faqs')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
           FAQs
         </Link>
-        <Link 
-          to="/about-us" 
+        <Link
+          to="/about-us"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/about-us') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/about-us')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
           About Us
         </Link>
-        <Link 
-          to="/contact" 
+        <Link
+          to="/contact"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/contact') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/contact')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
           Contact
         </Link>
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className={`hover:text-gray-300 transition-colors ${
-            isActive('/login') 
-              ? 'text-white font-medium border-b-2 border-white pb-1' 
+            isActive('/login')
+              ? 'text-white font-medium border-b-2 border-white pb-1'
               : 'text-gray-300'
           }`}
         >
@@ -90,7 +89,6 @@ const Navbar: React.FC = () => {
         </Link>
       </div>
 
-      
       <div className="hidden md:block md:w-1/4"></div> {/* Empty div for balance */}
     </nav>
   );

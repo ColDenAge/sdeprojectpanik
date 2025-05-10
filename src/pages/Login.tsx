@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
+import { RoleContext } from "@/router/App";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define form schema with validation rules
 const loginFormSchema = z.object({
@@ -31,14 +33,41 @@ const Login = (): JSX.Element => {
   });
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const { userRole, setUserRole } = useContext(RoleContext);
+  const { toast } = useToast();
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
       await signIn(data.email, data.password);
-      navigate("/choice");
-    } catch (error) {
+      // Check if user already has a role
+      const storedRole = localStorage.getItem("userRole");
+      if (storedRole) {
+        setUserRole(storedRole);
+        navigate("/dashboard");
+      } else {
+        // Only navigate to choice page if user is authenticated but has no role
+        navigate("/choice");
+      }
+    } catch (error: any) {
       console.error("Login failed:", error);
-      // You might want to show an error message to the user here
+      // Show appropriate error message based on the error code
+      let errorMessage = "Login failed. Please try again.";
+
+      if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address. Please check your email and try again.";
+      } else if (error.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email. Please sign up first.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Please try again later.";
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: errorMessage,
+      });
     }
   };
 
@@ -58,7 +87,7 @@ const Login = (): JSX.Element => {
         <div className="flex justify-center">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-[#0B294B] mb-6 text-center">Sign in to Your Account</h2>
-            
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -74,7 +103,7 @@ const Login = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -88,19 +117,19 @@ const Login = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="flex justify-end">
                   <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
                     Forgot password?
                   </Link>
                 </div>
-                
+
                 <Button type="submit" className="w-full bg-[#0B294B] hover:bg-[#0a2544]">
                   Login
                 </Button>
               </form>
             </Form>
-            
+
             <div className="text-center mt-6">
               <p className="text-[#0B294B]">
                 Don't have an account?{" "}

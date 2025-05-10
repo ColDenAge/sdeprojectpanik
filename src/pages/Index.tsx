@@ -10,7 +10,11 @@ const Index = () => {
   const isAuthenticated = !!userRole;
 
   const handleGetStarted = () => {
-    navigate("/choice");
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/login");
+    }
   };
 
   return (

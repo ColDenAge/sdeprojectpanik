@@ -1,22 +1,33 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/homepage/Navbar";
-import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { RoleContext } from "../router/App";
+import { useAuth } from "@/context/AuthProvider";
 
 const Choice = () => {
   const navigate = useNavigate();
-  const { userRole } = useContext(RoleContext);
-  const isAuthenticated = !!userRole;
+  const { userRole, setUserRole } = useContext(RoleContext);
+  const { user } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const handleChoice = (role: string) => {
-    navigate(`/signup?role=${role}`);
+    // Set the role in context and localStorage
+    setUserRole(role);
+    localStorage.setItem("userRole", role);
+    // Navigate to dashboard
+    navigate("/dashboard");
   };
 
   return (
     <div className="min-h-screen w-full bg-gray-100">
       <div className="w-full px-6 py-4">
-        {isAuthenticated ? <AuthNavbar /> : <Navbar />}
+        <Navbar />
       </div>
 
       <div className="mx-auto max-w-[1524px] py-8">
@@ -29,7 +40,7 @@ const Choice = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div
               className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-start cursor-pointer hover:shadow-xl transition-shadow"
-              onClick={() => handleChoice("gym_owner")}
+              onClick={() => handleChoice("manager")}
             >
               <h2 className="text-3xl font-bold text-[#0B294B] mb-4">Gym Owner</h2>
               <p className="text-gray-700 mb-6">
@@ -45,7 +56,7 @@ const Choice = () => {
               </ul>
               <button
                 className="mt-auto w-full bg-[#0B294B] hover:bg-[#0a2544] text-white font-semibold py-2 px-4 rounded transition-colors"
-                onClick={e => { e.stopPropagation(); handleChoice("gym_owner"); }}
+                onClick={e => { e.stopPropagation(); handleChoice("manager"); }}
               >
                 Join as Gym Owner
               </button>

@@ -19,6 +19,7 @@ import Choice from "../pages/Choice";
 import Dashboard from "../pages/Dashboard";
 import Members from "../pages/Members";
 import MemberGyms from "../pages/MemberGyms";
+import GymManagement from "../pages/GymManagement";
 import Billings from "../pages/Billings";
 import ManagerBillings from "../pages/ManagerBillings";
 import AccountSettings from "../pages/AccountSettings";
@@ -36,7 +37,7 @@ const queryClient = new QueryClient({
 });
 
 // Create a role context
-export const RoleContext = createContext({ 
+export const RoleContext = createContext({
   userRole: "",
   setUserRole: (role: string) => {}
 });
@@ -54,10 +55,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Role-based redirect component
-const RoleBasedRoute = ({ path, memberComponent, managerComponent }: { 
-  path: string, 
-  memberComponent: React.ReactNode, 
-  managerComponent: React.ReactNode 
+const RoleBasedRoute = ({ path, memberComponent, managerComponent }: {
+  path: string,
+  memberComponent: React.ReactNode,
+  managerComponent: React.ReactNode
 }) => {
   const { user } = useAuth();
   const { userRole } = useContext(RoleContext);
@@ -70,13 +71,13 @@ const RoleBasedRoute = ({ path, memberComponent, managerComponent }: {
   if (!userRole) {
     return <Navigate to="/choice" state={{ from: location }} replace />;
   }
-  
+
   return userRole === "member" ? memberComponent : managerComponent;
 };
 
 const App = () => {
   const [userRole, setUserRole] = useState("");
-  
+
   // Check localStorage on initial load
   useEffect(() => {
     const storedRole = localStorage.getItem("userRole");
@@ -106,51 +107,51 @@ const App = () => {
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/change-password" element={<ChangePassword />} />
                   <Route path="/choice" element={<Choice />} />
-                  
+
                   {/* Protected routes */}
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
                       <Dashboard />
                     </ProtectedRoute>
                   } />
-                  
+
                   {/* Gyms page - different for each role */}
                   <Route path="/gyms" element={
-                    <RoleBasedRoute 
+                    <RoleBasedRoute
                       path="/gyms"
-                      memberComponent={<MemberGyms />} 
-                      managerComponent={<Members />}
+                      memberComponent={<MemberGyms />}
+                      managerComponent={<GymManagement />}
                     />
                   } />
-                  
+
                   {/* Redirecting the /members route to /gyms for manager users */}
                   <Route path="/members" element={
                     userRole === "manager" ? <Navigate to="/gyms" /> : <Navigate to="/" />
                   } />
-                  
+
                   {/* Billings page - different for each role */}
                   <Route path="/billings" element={
-                    <RoleBasedRoute 
+                    <RoleBasedRoute
                       path="/billings"
-                      memberComponent={<Billings />} 
+                      memberComponent={<Billings />}
                       managerComponent={<ManagerBillings />}
                     />
                   } />
-                  
+
                   {/* Account Settings page */}
                   <Route path="/settings" element={
                     <ProtectedRoute>
                       <AccountSettings />
                     </ProtectedRoute>
                   } />
-                  
+
                   {/* Help page */}
                   <Route path="/help" element={
                     <ProtectedRoute>
                       <Help />
                     </ProtectedRoute>
                   } />
-                  
+
                   {/* Catch-all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
