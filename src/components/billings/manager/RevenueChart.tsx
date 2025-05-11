@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { 
@@ -11,24 +10,62 @@ import {
   Legend, 
   ResponsiveContainer 
 } from "recharts";
+import { useAuth } from "@/context/AuthProvider";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-// Mock data for revenue chart
-const revenueData = [
-  { month: "Jan", revenue: 4200, projections: 4000 },
-  { month: "Feb", revenue: 4500, projections: 4200 },
-  { month: "Mar", revenue: 5800, projections: 5000 },
-  { month: "Apr", revenue: 5200, projections: 5400 },
-  { month: "May", revenue: 6000, projections: 5600 },
-  { month: "Jun", revenue: 7200, projections: 6000 },
-  { month: "Jul", revenue: 7800, projections: 7000 },
-  { month: "Aug", revenue: 8400, projections: 7500 },
-  { month: "Sep", revenue: 9000, projections: 8000 },
-  { month: "Oct", revenue: 9200, projections: 8500 },
-  { month: "Nov", revenue: 9800, projections: 9000 },
-  { month: "Dec", revenue: 11200, projections: 10000 },
-];
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const RevenueChart = () => {
+  const { user } = useAuth();
+  const [revenueData, setRevenueData] = React.useState(
+    months.map((month) => ({ month, revenue: 0, projections: 0 }))
+  );
+
+  React.useEffect(() => {
+    if (!user) return;
+    const fetchRevenue = async () => {
+      // 1. Fetch gyms for owner
+      const gymsRef = collection(db, "gyms");
+      const gymsQuery = query(gymsRef, where("ownerId", "==", user.uid));
+      const gymsSnapshot = await getDocs(gymsQuery);
+      const gymIds = gymsSnapshot.docs.map(doc => doc.id);
+      if (gymIds.length === 0) {
+        setRevenueData(months.map((month) => ({ month, revenue: 0, projections: 0 })));
+        return;
+      }
+      // 2. Fetch payments for these gyms
+      const paymentsRef = collection(db, "payments");
+      const payments = [];
+      for (let i = 0; i < gymIds.length; i += 10) {
+        const batch = gymIds.slice(i, i + 10);
+        const paymentsQuery = query(paymentsRef, where("gymId", "in", batch));
+        const paymentsSnapshot = await getDocs(paymentsQuery);
+        payments.push(...paymentsSnapshot.docs.map(doc => doc.data()));
+      }
+      // 3. Aggregate revenue by month
+      const now = new Date();
+      const thisYear = now.getFullYear();
+      const monthlyRevenue = Array(12).fill(0);
+      payments.forEach(p => {
+        if (p.status === "Paid") {
+          const date = new Date(p.date);
+          if (date.getFullYear() === thisYear) {
+            monthlyRevenue[date.getMonth()] += p.amount;
+          }
+        }
+      });
+      setRevenueData(
+        months.map((month, idx) => ({
+          month,
+          revenue: monthlyRevenue[idx],
+          projections: 0 // You can add projections logic if needed
+        }))
+      );
+    };
+    fetchRevenue();
+  }, [user]);
+
   return (
     <Card className="mb-6">
       <CardHeader className="pb-0">

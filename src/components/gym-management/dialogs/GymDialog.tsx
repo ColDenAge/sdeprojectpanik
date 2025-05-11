@@ -56,7 +56,7 @@ const GymDialog: React.FC<GymDialogProps> = ({ open, onOpenChange, gym, onSave }
                 <FormItem>
                   <FormLabel>Gym Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter gym name" {...field} />
+                    <Input placeholder="Enter gym name" {...field} className="px-4 py-3" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -69,7 +69,7 @@ const GymDialog: React.FC<GymDialogProps> = ({ open, onOpenChange, gym, onSave }
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter location" {...field} />
+                    <Input placeholder="Enter location" {...field} className="px-4 py-3" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +82,7 @@ const GymDialog: React.FC<GymDialogProps> = ({ open, onOpenChange, gym, onSave }
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter address" {...field} />
+                    <Input placeholder="Enter address" {...field} className="px-4 py-3" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,7 +95,7 @@ const GymDialog: React.FC<GymDialogProps> = ({ open, onOpenChange, gym, onSave }
                 <FormItem>
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter contact number" {...field} />
+                    <Input placeholder="Enter contact number" {...field} className="px-4 py-3" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

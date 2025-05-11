@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import GymDialog from "@/components/gym-management/dialogs/GymDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthProvider";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const GymManagement = () => {
@@ -27,17 +27,28 @@ const GymManagement = () => {
   const [activeTab, setActiveTab] = useState("members");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [gymToEdit, setGymToEdit] = useState<Gym | undefined>(undefined);
+  const [totalClasses, setTotalClasses] = useState(0);
   const { toast } = useToast();
 
   React.useEffect(() => {
     if (!user) return;
-    const fetchGyms = async () => {
+    const fetchGymsAndClasses = async () => {
       const gymsRef = collection(db, "gyms");
       const q = query(gymsRef, where("ownerId", "==", user.uid));
       const querySnapshot = await getDocs(q);
-      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
+      const gymsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym));
+      setGyms(gymsList);
+      // Fetch all classes for these gyms
+      let classCount = 0;
+      for (let i = 0; i < gymsList.length; i++) {
+        const gymId = gymsList[i].id;
+        const classesRef = collection(db, "gyms", gymId, "classes");
+        const classesSnapshot = await getDocs(classesRef);
+        classCount += classesSnapshot.size;
+      }
+      setTotalClasses(classCount);
     };
-    fetchGyms();
+    fetchGymsAndClasses();
   }, [user]);
 
   const handleAddGym = () => {
@@ -52,13 +63,12 @@ const GymManagement = () => {
 
   const handleSaveGym = async (values: { name: string; location: string; address: string; contactNumber: string }) => {
     if (gymToEdit) {
-      setGyms(
-        gyms.map((gym) =>
-          gym.id === gymToEdit.id
-            ? { ...gym, ...values }
-            : gym
-        )
-      );
+      await updateDoc(doc(db, "gyms", gymToEdit.id), values);
+      // Refetch gyms from Firestore to update local state
+      const gymsRef = collection(db, "gyms");
+      const q = query(gymsRef, where("ownerId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
       toast({
         title: "Gym Updated",
         description: `${values.name} has been updated successfully.`,
@@ -143,7 +153,7 @@ const GymManagement = () => {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">24</div>
+              <div className="text-2xl font-bold">{totalClasses}</div>
               <p className="text-xs text-muted-foreground">Across all locations</p>
             </CardContent>
           </Card>
