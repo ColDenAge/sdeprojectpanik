@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
+import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -8,15 +8,15 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role: string) => Promise<void>;
+  signUp: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Attempting to sign in:", email);
       await signInWithEmailAndPassword(auth, email, password);
       console.log("Sign in successful");
-      
+
       toast({
         title: "Success",
         description: "Logged in successfully!",
@@ -54,30 +54,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 // to revise
-  const signUp = async (email: string, password: string, role: string) => {
+  const signUp = async (email: string, password: string, username: string) => {
     try {
-      console.log("Starting sign up process for:", email);
-      
-      // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("User created in Firebase Auth");
-      
+      const user = userCredential.user;
+
+      // Update the user's display name
+      await updateProfile(user, {
+        displayName: username
+      });
+
       // Create user document in Firestore
-      const userDoc = doc(db, "users", userCredential.user.uid);
-      await setDoc(userDoc, {
-        email,
-        role,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        displayName: username,
+        createdAt: serverTimestamp(),
+        role: null, // Role will be set later in the choice page
       });
-      console.log("User document created in Firestore");
-      
-      // Update user profile
-      await updateProfile(userCredential.user, {
-        displayName: role
-      });
-      console.log("User profile updated");
-      
+
       toast({
         title: "Success",
         description: "Account created successfully!",
@@ -93,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Attempting to log out");
       await signOut(auth);
       console.log("Logout successful");
-      
+
       toast({
         title: "Success",
         description: "Logged out successfully!",
@@ -109,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Attempting to reset password for:", email);
       await sendPasswordResetEmail(auth, email);
       console.log("Password reset email sent");
-      
+
       toast({
         title: "Success",
         description: "Password reset email sent!",
@@ -142,4 +136,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}; 
+};

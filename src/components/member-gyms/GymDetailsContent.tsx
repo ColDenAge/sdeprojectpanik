@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, AlertCircle } from "lucide-react";
 import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
 import { useToast } from "@/hooks/use-toast";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface GymDetailsContentProps {
   gym: Gym;
@@ -20,6 +22,21 @@ const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
   onSelectMembership
 }) => {
   const { toast } = useToast();
+  const [amenities, setAmenities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAmenities = async () => {
+      if (!gym?.id) return;
+      try {
+        const amenitiesRef = collection(db, "gyms", gym.id.toString(), "amenities");
+        const snapshot = await getDocs(amenitiesRef);
+        setAmenities(snapshot.docs.map(doc => doc.data()));
+      } catch (error) {
+        setAmenities([]);
+      }
+    };
+    fetchAmenities();
+  }, [gym?.id]);
 
   const handleEnrollClick = (gymClass: GymClass) => {
     if (!hasApplied) {
@@ -80,11 +97,11 @@ const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
       <TabsContent value="amenities" className="space-y-4 py-4">
         <h3 className="text-lg font-medium">Available Amenities</h3>
         <div className="grid grid-cols-2 gap-4">
-          {gym.amenities.map((amenity, index) => (
+          {amenities.length > 0 ? amenities.map((amenity, index) => (
             <div key={index} className="p-4 border rounded-lg">
-              <p className="font-medium">{amenity}</p>
+              <p className="font-medium">{amenity.name || amenity}</p>
             </div>
-          ))}
+          )) : <p className="col-span-2 text-center text-muted-foreground">No amenities found.</p>}
         </div>
       </TabsContent>
 

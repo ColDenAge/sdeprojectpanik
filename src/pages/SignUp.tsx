@@ -14,6 +14,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 // Define form schema with validation rules
 const signUpFormSchema = z.object({
+  username: z.string()
+    .min(1, "Username is required")
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be less than 20 characters"),
   email: z.string()
     .min(1, "Email is required")
     .email("Please enter a valid email address"),
@@ -33,6 +37,7 @@ const SignUp = (): JSX.Element => {
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
       confirmPassword: ""
@@ -44,7 +49,7 @@ const SignUp = (): JSX.Element => {
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      await signUp(data.email, data.password);
+      await signUp(data.email, data.password, data.username);
       toast({
         title: "Success",
         description: "Account created successfully! Please choose your role.",
@@ -89,6 +94,25 @@ const SignUp = (): JSX.Element => {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#0B294B]">Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Enter your username"
+                          {...field}
+                          autoComplete="username"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-500 text-xs" />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"

@@ -1,29 +1,26 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-
-// Import components
 import GymCard from "./GymCard";
 import GymDetailsContent from "./GymDetailsContent";
 import EnrollClassDialog from "./EnrollClassDialog";
 import MembershipApplicationDialog from "./MembershipApplicationDialog";
-
-// Import data and types
-import { availableGyms, gymIdMapping } from "./data/gymData";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
 
 const AvailableGyms = () => {
+  const [gyms, setGyms] = useState<Gym[]>([]);
   const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<null | GymClass>(null);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<null | MembershipOption>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
-  const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
+  const [applicationSuccess, setApplicationSuccess] = useState<string[]>([]);
   const [applications, setApplications] = useState<Record<string, any[]>>({});
   const { toast } = useToast();
 
@@ -32,6 +29,23 @@ const AvailableGyms = () => {
     name: "Alex Johnson",
     id: "user123"
   };
+
+  useEffect(() => {
+    const fetchGyms = async () => {
+      try {
+        const gymsRef = collection(db, "gyms");
+        const gymsSnapshot = await getDocs(gymsRef);
+        const gymsList = gymsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Gym[];
+        setGyms(gymsList);
+      } catch (error) {
+        console.error("Error fetching gyms:", error);
+      }
+    };
+    fetchGyms();
+  }, []);
 
   const handleViewDetails = (gym: Gym) => {
     setSelectedGym(gym);
@@ -66,7 +80,7 @@ const AvailableGyms = () => {
       // Create a new application
       const newApplication = {
         id: `app-${Date.now()}`,
-        gymId: gymIdMapping[selectedGym.id], // Convert to manager gym ID
+        gymId: selectedGym.id,
         memberName: currentUser.name,
         membershipType: selectedMembership?.name,
         requestDate: new Date().toLocaleDateString('en-US', {
@@ -77,36 +91,28 @@ const AvailableGyms = () => {
         status: "pending",
         memberId: currentUser.id
       };
-      
-      // Update applications state
       setApplications(prev => {
-        const gymId = gymIdMapping[selectedGym.id];
+        const gymId = selectedGym.id;
         return {
           ...prev,
           [gymId]: [...(prev[gymId] || []), newApplication]
         };
       });
-      
       toast({
         title: "Membership Application Submitted",
         description: `Your application for ${selectedMembership?.name} membership at ${selectedGym.name} has been submitted successfully.`,
       });
-      
-      // Update local application success tracking
       setApplicationSuccess([...applicationSuccess, selectedGym.id]);
     }
     setMembershipDialogOpen(false);
     setIsDialogOpen(false);
   };
 
-  const hasApplied = (gymId: number) => {
+  const hasApplied = (gymId: string) => {
     return applicationSuccess.includes(gymId);
   };
 
-  // Effects to simulate updating the gym manager's pending applications
   useEffect(() => {
-    // This would normally be handled by a backend or context/redux
-    // Here we simulate the data connection between member and manager views
     console.log("Applications submitted:", applications);
   }, [applications]);
 
@@ -120,8 +126,8 @@ const AvailableGyms = () => {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableGyms.map((gym) => (
-            <GymCard 
+          {gyms.map((gym) => (
+            <GymCard
               key={gym.id}
               gym={gym}
               hasApplied={hasApplied(gym.id)}
@@ -138,16 +144,14 @@ const AvailableGyms = () => {
           <DialogHeader>
             <DialogTitle>{selectedGym?.name}</DialogTitle>
           </DialogHeader>
-          
           {selectedGym && (
-            <GymDetailsContent 
+            <GymDetailsContent
               gym={selectedGym}
               hasApplied={hasApplied(selectedGym.id)}
               onEnrollClass={handleEnrollClass}
               onSelectMembership={handleSelectMembership}
             />
           )}
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
           </DialogFooter>
@@ -155,7 +159,7 @@ const AvailableGyms = () => {
       </Dialog>
 
       {/* Class Enrollment Dialog */}
-      <EnrollClassDialog 
+      <EnrollClassDialog
         open={enrollDialogOpen}
         selectedClass={selectedClass}
         onClose={() => setEnrollDialogOpen(false)}
@@ -163,7 +167,7 @@ const AvailableGyms = () => {
       />
 
       {/* Membership Selection Dialog */}
-      <MembershipApplicationDialog 
+      <MembershipApplicationDialog
         open={membershipDialogOpen}
         selectedGym={selectedGym}
         selectedMembership={selectedMembership}

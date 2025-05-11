@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -16,42 +15,40 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-const membershipPlansData = [
-  {
-    id: "1",
-    name: "Basic",
-    price: "$29.99",
-    duration: "Monthly",
-    benefits: "Access to gym equipment, locker rooms",
-    members: "45",
-  },
-  {
-    id: "2",
-    name: "Premium",
-    price: "$59.99",
-    duration: "Monthly",
-    benefits: "Basic benefits plus all classes, sauna access, 1 guest pass",
-    members: "32",
-  },
-  {
-    id: "3",
-    name: "Family",
-    price: "$99.99",
-    duration: "Monthly",
-    benefits: "Premium benefits for up to 4 family members",
-    members: "15",
-  },
-];
+// TODO: Replace this with actual selected gym ID from context/prop
+const selectedGymId = "REPLACE_WITH_SELECTED_GYM_ID";
 
 const MembershipPlansTab = () => {
   const { searchTerm } = useSearch();
-  const [membershipPlans, setMembershipPlans] = useState(membershipPlansData);
+  const [membershipPlans, setMembershipPlans] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState<undefined | typeof membershipPlansData[0]>(undefined);
+  const [currentPlan, setCurrentPlan] = useState<any | undefined>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [planToDelete, setPlanToDelete] = useState<undefined | typeof membershipPlansData[0]>(undefined);
+  const [planToDelete, setPlanToDelete] = useState<any | undefined>(undefined);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!selectedGymId) return;
+    const fetchPlans = async () => {
+      try {
+        const plansRef = collection(db, "gyms", selectedGymId, "membershipPlans");
+        const plansSnapshot = await getDocs(plansRef);
+        const plansList = plansSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setMembershipPlans(plansList);
+      } catch (error) {
+        console.error("Error fetching membership plans:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch membership plans.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchPlans();
+  }, [selectedGymId, toast]);
 
   const filteredPlans = membershipPlans.filter((plan) => {
     const search = searchTerm.toLowerCase();
@@ -68,45 +65,75 @@ const MembershipPlansTab = () => {
     setDialogOpen(true);
   };
 
-  const handleEditPlan = (plan: typeof membershipPlansData[0]) => {
+  const handleEditPlan = (plan: any) => {
     setCurrentPlan(plan);
     setDialogOpen(true);
   };
 
-  const handleDeletePlan = (plan: typeof membershipPlansData[0]) => {
+  const handleDeletePlan = (plan: any) => {
     setPlanToDelete(plan);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDeletePlan = () => {
-    if (planToDelete) {
-      setMembershipPlans(membershipPlans.filter(plan => plan.id !== planToDelete.id));
-      toast({
-        title: "Membership Plan Deleted",
-        description: `${planToDelete.name} plan has been removed.`,
-      });
+  const confirmDeletePlan = async () => {
+    if (planToDelete && selectedGymId) {
+      try {
+        await deleteDoc(doc(db, "gyms", selectedGymId, "membershipPlans", planToDelete.id));
+        setMembershipPlans(membershipPlans.filter(plan => plan.id !== planToDelete.id));
+        toast({
+          title: "Membership Plan Deleted",
+          description: `${planToDelete.name} plan has been removed.`,
+        });
+      } catch (error) {
+        console.error("Error deleting plan:", error);
+        toast({
+          title: "Error",
+          description: "Failed to delete membership plan.",
+          variant: "destructive",
+        });
+      }
     }
     setDeleteDialogOpen(false);
   };
 
-  const handleSavePlan = (values: { name: string; price: string; duration: string; benefits: string }) => {
-    if (currentPlan) {
-      // Edit existing plan
-      setMembershipPlans(
-        membershipPlans.map((item) =>
-          item.id === currentPlan.id
-            ? { ...item, ...values }
-            : item
-        )
-      );
-    } else {
-      // Add new plan
-      const newPlan = {
-        id: `${membershipPlans.length + 1}`,
-        ...values,
-        members: "0",
-      };
-      setMembershipPlans([...membershipPlans, newPlan]);
+  const handleSavePlan = async (values: { name: string; price: string; duration: string; benefits: string }) => {
+    if (!selectedGymId) return;
+    try {
+      if (currentPlan) {
+        // Edit existing plan
+        await updateDoc(doc(db, "gyms", selectedGymId, "membershipPlans", currentPlan.id), values);
+        setMembershipPlans(
+          membershipPlans.map((item) =>
+            item.id === currentPlan.id
+              ? { ...item, ...values }
+              : item
+          )
+        );
+        toast({
+          title: "Membership Plan Updated",
+          description: `${values.name} plan has been updated.`,
+        });
+      } else {
+        // Add new plan
+        const docRef = await addDoc(collection(db, "gyms", selectedGymId, "membershipPlans"), values);
+        const newPlan = {
+          id: docRef.id,
+          ...values,
+          members: "0",
+        };
+        setMembershipPlans([...membershipPlans, newPlan]);
+        toast({
+          title: "Membership Plan Added",
+          description: `${values.name} plan has been added.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving plan:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save membership plan.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -114,7 +141,7 @@ const MembershipPlansTab = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Membership Plans</h3>
-        <Button 
+        <Button
           onClick={handleAddPlan}
           className="bg-[#0B294B] text-white hover:bg-[#0a2544]"
         >
@@ -122,7 +149,6 @@ const MembershipPlansTab = () => {
           Add Plan
         </Button>
       </div>
-      
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -145,23 +171,23 @@ const MembershipPlansTab = () => {
                   <td className="px-4 py-3 text-sm max-w-xs truncate">{plan.benefits}</td>
                   <td className="px-4 py-3 text-sm">
                     <Badge variant="success">
-                      {plan.members}
+                      {plan.members || "0"}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <div className="flex space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
                         onClick={() => handleEditPlan(plan)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
                         onClick={() => handleDeletePlan(plan)}
                       >
@@ -182,14 +208,12 @@ const MembershipPlansTab = () => {
           </tbody>
         </table>
       </div>
-
-      <AddEditMembershipDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
+      <AddEditMembershipDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
         membership={currentPlan}
         onSave={handleSavePlan}
       />
-
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -201,7 +225,7 @@ const MembershipPlansTab = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDeletePlan}
               className="bg-red-600 hover:bg-red-700"
             >

@@ -233,10 +233,10 @@ const GymManagement = () => {
                       <MembersTab gymId={selectedGym?.id} />
                     </TabsContent>
                     <TabsContent value="amenities" className="mt-4">
-                      <AmenitiesTab />
+                      <AmenitiesTab gymId={selectedGym?.id} />
                     </TabsContent>
                     <TabsContent value="classes" className="mt-4">
-                      <ClassesTab />
+                      <ClassesTab gymId={selectedGym?.id} />
                     </TabsContent>
                   </Tabs>
                 </CardContent>
