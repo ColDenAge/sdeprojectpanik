@@ -29,7 +29,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, roleLabel, onLogout }) 
           </AvatarFallback>
         </Avatar>
         <div className="text-sm hidden md:inline-block min-w-[90px] text-left">
-          <div className="font-medium">{user?.displayName || roleLabel}</div>
+          <div className="font-medium">{user?.displayName || `User_${user?.uid?.slice(0, 6)}`}</div>
           <div className="text-xs text-gray-300">{roleLabel}</div>
         </div>
       </div>
