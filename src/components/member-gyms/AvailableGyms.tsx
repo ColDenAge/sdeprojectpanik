@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -8,20 +8,18 @@ import GymCard from "./GymCard";
 import GymDetailsContent from "./GymDetailsContent";
 import EnrollClassDialog from "./EnrollClassDialog";
 import MembershipApplicationDialog from "./MembershipApplicationDialog";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
+import { useGyms } from "./hooks/useGyms";
+import { useMembershipApplications } from "./hooks/useMembershipApplications";
 
 const AvailableGyms = () => {
-  const [gyms, setGyms] = useState<Gym[]>([]);
-  const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
+  const { gyms, isLoading } = useGyms();
+  const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<null | GymClass>(null);
+  const [selectedClass, setSelectedClass] = useState<GymClass | null>(null);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
-  const [selectedMembership, setSelectedMembership] = useState<null | MembershipOption>(null);
+  const [selectedMembership, setSelectedMembership] = useState<MembershipOption | null>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
-  const [applicationSuccess, setApplicationSuccess] = useState<string[]>([]);
-  const [applications, setApplications] = useState<Record<string, any[]>>({});
   const { toast } = useToast();
 
   // Mock user data
@@ -30,22 +28,7 @@ const AvailableGyms = () => {
     id: "user123"
   };
 
-  useEffect(() => {
-    const fetchGyms = async () => {
-      try {
-        const gymsRef = collection(db, "gyms");
-        const gymsSnapshot = await getDocs(gymsRef);
-        const gymsList = gymsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Gym[];
-        setGyms(gymsList);
-      } catch (error) {
-        console.error("Error fetching gyms:", error);
-      }
-    };
-    fetchGyms();
-  }, []);
+  const { hasApplied, submitApplication } = useMembershipApplications({ currentUser });
 
   const handleViewDetails = (gym: Gym) => {
     setSelectedGym(gym);
@@ -76,45 +59,28 @@ const AvailableGyms = () => {
   };
 
   const confirmMembership = () => {
-    if (selectedGym) {
-      // Create a new application
-      const newApplication = {
-        id: `app-${Date.now()}`,
-        gymId: selectedGym.id,
-        memberName: currentUser.name,
-        membershipType: selectedMembership?.name,
-        requestDate: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        status: "pending",
-        memberId: currentUser.id
-      };
-      setApplications(prev => {
-        const gymId = selectedGym.id;
-        return {
-          ...prev,
-          [gymId]: [...(prev[gymId] || []), newApplication]
-        };
-      });
-      toast({
-        title: "Membership Application Submitted",
-        description: `Your application for ${selectedMembership?.name} membership at ${selectedGym.name} has been submitted successfully.`,
-      });
-      setApplicationSuccess([...applicationSuccess, selectedGym.id]);
+    if (selectedGym && selectedMembership) {
+      submitApplication(selectedGym, selectedMembership);
+      setMembershipDialogOpen(false);
+      setIsDialogOpen(false);
     }
-    setMembershipDialogOpen(false);
-    setIsDialogOpen(false);
   };
 
-  const hasApplied = (gymId: string) => {
-    return applicationSuccess.includes(gymId);
-  };
-
-  useEffect(() => {
-    console.log("Applications submitted:", applications);
-  }, [applications]);
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="bg-muted/50">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Explore Available Gyms
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-center">Loading gyms...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
