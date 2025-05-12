@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthProvider";
 import { collection, query, where, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import MembershipPlansTab from "@/components/gym-management/MembershipPlansTab";
+import { initializeMembershipPlans } from "@/components/gym-management/utils/initializeMembershipPlans";
 
 const GymManagement = () => {
   const { userRole } = useContext(RoleContext);
@@ -38,6 +40,10 @@ const GymManagement = () => {
       const querySnapshot = await getDocs(q);
       const gymsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym));
       setGyms(gymsList);
+
+      // Initialize membership plans for gyms that don't have them
+      await initializeMembershipPlans(user.uid);
+
       // Fetch all classes for these gyms
       let classCount = 0;
       for (let i = 0; i < gymsList.length; i++) {
@@ -223,21 +229,31 @@ const GymManagement = () => {
                       <CardTitle>{selectedGym.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">{selectedGym.location}</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditGym}
-                    >
-                      Edit Gym Info
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleManageMembershipPlans(selectedGym)}
+                      >
+                        Manage Plans
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditGym}
+                      >
+                        Edit Info
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="members" className="w-full" onValueChange={setActiveTab}>
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="members">Members</TabsTrigger>
                       <TabsTrigger value="amenities">Amenities</TabsTrigger>
                       <TabsTrigger value="classes">Classes</TabsTrigger>
+                      <TabsTrigger value="membership-plans">Plans</TabsTrigger>
                     </TabsList>
                     <TabsContent value="members" className="mt-4">
                       <MembersTab gymId={selectedGym?.id} />
@@ -247,6 +263,9 @@ const GymManagement = () => {
                     </TabsContent>
                     <TabsContent value="classes" className="mt-4">
                       <ClassesTab gymId={selectedGym?.id} />
+                    </TabsContent>
+                    <TabsContent value="membership-plans" className="mt-4">
+                      <MembershipPlansTab gymId={selectedGym?.id} />
                     </TabsContent>
                   </Tabs>
                 </CardContent>

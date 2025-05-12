@@ -69,7 +69,7 @@ const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
           )}
         </div>
         <ScrollArea className="h-[300px] rounded-md border p-4">
-          {gym.classes.map((cls) => (
+          {(gym.classes ?? []).map((cls) => (
             <div key={cls.id} className="mb-4 p-4 border rounded-lg">
               <div className="flex justify-between items-start">
                 <div>
@@ -108,7 +108,7 @@ const GymDetailsContent: React.FC<GymDetailsContentProps> = ({
       <TabsContent value="memberships" className="space-y-4 py-4">
         <h3 className="text-lg font-medium">Membership Options</h3>
         <div className="space-y-4">
-          {gym.membershipOptions.map((option) => (
+          {(gym.membershipOptions ?? []).map((option) => (
             <div
               key={option.id}
               className="p-4 border rounded-lg cursor-pointer hover:border-[#0B294B] transition-colors"

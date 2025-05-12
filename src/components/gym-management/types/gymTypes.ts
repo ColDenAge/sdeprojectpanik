@@ -1,13 +1,25 @@
+export interface MembershipPlan {
+  id: string;
+  name: string;
+  price: number;
+  duration: string;
+  benefits: string[];
+}
+
 export interface Gym {
   id: string;
   name: string;
   location: string;
   address: string;
   contactNumber: string;
-  members: number;
+  ownerId: string;
+  activeMembers?: ActiveMember[];
   status: string;
+  members: number;
   pendingApplications: number;
-  activeMembers: string[];
+  membershipPlans?: MembershipPlan[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type MembershipApplicationStatus = "pending" | "approved" | "rejected";

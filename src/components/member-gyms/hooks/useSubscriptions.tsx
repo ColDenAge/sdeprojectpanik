@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Gym, GymClass } from "../types/gymTypes";
@@ -39,9 +38,9 @@ export function useSubscriptions() {
           { id: 3, name: "Annual", price: "$24.99/mo (billed annually)", current: false }
         ]
       };
-      
+
       setSubscriptions(prev => [...prev, newApproval]);
-      
+
       // Also add the gym data
       subscriptionGyms.push({
         id: 3,
@@ -58,13 +57,13 @@ export function useSubscriptions() {
           { id: 2, name: "Advanced Lifting", instructor: "Maria Power", schedule: "Tue, Thu 5:00 PM", capacity: 6, enrolled: 5 }
         ]
       });
-      
+
       toast({
         title: "Membership Approved!",
         description: "Your PowerLift Gym membership application has been approved.",
       });
     }, 5000);
-    
+
     return () => clearTimeout(timer);
   }, [toast]);
 
@@ -80,7 +79,7 @@ export function useSubscriptions() {
 
   const handlePlanSubmit = () => {
     if (!selectedSubscription || !selectedPlan) return;
-    
+
     const planName = selectedSubscription.availablePlans.find(
       plan => plan.id.toString() === selectedPlan
     )?.name;
@@ -89,12 +88,12 @@ export function useSubscriptions() {
       title: "Membership Changed",
       description: `Your membership has been updated to ${planName} plan.`,
     });
-    
+
     setIsDialogOpen(false);
-    
+
     // Update the subscription in state
-    setSubscriptions(subscriptions.map(sub => 
-      sub.id === selectedSubscription.id 
+    setSubscriptions(subscriptions.map(sub =>
+      sub.id === selectedSubscription.id
         ? {
             ...sub,
             membershipType: planName || sub.membershipType,
@@ -119,18 +118,24 @@ export function useSubscriptions() {
     if (selectedGym) {
       // Find the gym and update the class
       const updatedGym = {...selectedGym};
-      const classIndex = updatedGym.classes.findIndex(c => c.id === classItem.id);
-      
-      if (classIndex !== -1 && updatedGym.classes[classIndex].enrolled < updatedGym.classes[classIndex].capacity) {
-        updatedGym.classes[classIndex].enrolled += 1;
+      const classIndex = (updatedGym.classes ?? []).findIndex(c => c.id === classItem.id);
+
+      if (
+        classIndex !== -1 &&
+        (updatedGym.classes?.[classIndex]?.enrolled ?? 0) < (updatedGym.classes?.[classIndex]?.capacity ?? 0)
+      ) {
+        if (updatedGym.classes) {
+          updatedGym.classes[classIndex].enrolled += 1;
+        }
+
         setSelectedGym(updatedGym);
-        
+
         // Update in the subscriptionGyms array as well
         const gymIndex = subscriptionGyms.findIndex(g => g.id === updatedGym.id);
         if (gymIndex !== -1) {
           subscriptionGyms[gymIndex] = updatedGym;
         }
-        
+
         toast({
           title: "Enrolled Successfully",
           description: `You have enrolled in ${classItem.name}.`,

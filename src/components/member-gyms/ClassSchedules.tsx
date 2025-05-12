@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock } from "lucide-react";
@@ -10,42 +9,42 @@ import { GymClass } from "./types/gymTypes";
 
 const ClassSchedules = () => {
   const [selectedDay, setSelectedDay] = useState<string>("all");
-  
+
   // Get all classes from subscribed gyms
-  const allClasses = subscriptionGyms.flatMap(gym => 
-    gym.classes.map(cls => ({
+  const allClasses = subscriptionGyms.flatMap(gym =>
+    (gym.classes ?? []).map(cls => ({
       ...cls,
       gymName: gym.name,
       gymLocation: gym.location
     }))
   );
-  
+
   // Extract days from class schedules
   const extractDays = (scheduleText: string) => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return days.filter(day => scheduleText.includes(day));
   };
-  
+
   // Group classes by day of the week
   const classesByDay = allClasses.reduce<Record<string, (GymClass & { gymName: string; gymLocation: string })[]>>(
     (acc, cls) => {
       const days = extractDays(cls.schedule);
-      
+
       days.forEach(day => {
         if (!acc[day]) {
           acc[day] = [];
         }
         acc[day].push(cls);
       });
-      
+
       return acc;
     },
     {}
   );
-  
+
   // Filter classes based on selected day
-  const filteredClasses = selectedDay === "all" 
-    ? allClasses 
+  const filteredClasses = selectedDay === "all"
+    ? allClasses
     : classesByDay[selectedDay] || [];
 
   return (
@@ -57,8 +56,8 @@ const ClassSchedules = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <Tabs 
-          defaultValue="all" 
+        <Tabs
+          defaultValue="all"
           onValueChange={setSelectedDay}
           className="w-full"
         >
@@ -72,13 +71,13 @@ const ClassSchedules = () => {
             <TabsTrigger value="Sat">Sat</TabsTrigger>
             <TabsTrigger value="Sun">Sun</TabsTrigger>
           </TabsList>
-          
+
           <ScrollArea className="h-[300px] mt-4">
             <div className="space-y-4">
               {filteredClasses.length > 0 ? (
                 filteredClasses.map((cls, index) => (
-                  <div 
-                    key={`${cls.id}-${index}`} 
+                  <div
+                    key={`${cls.id}-${index}`}
                     className="p-4 border rounded-lg flex justify-between items-start"
                   >
                     <div className="space-y-1">
