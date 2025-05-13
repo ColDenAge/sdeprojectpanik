@@ -21,7 +21,12 @@ export const useGyms = () => {
 
         const gymsList = await Promise.all(
           gymsSnapshot.docs.map(async (doc) => {
-            const gymData = doc.data() as Omit<Gym, 'id' | 'membershipOptions' | 'classes'>;
+            const gymData = doc.data() as {
+              name: string;
+              location: string;
+              amenities: string[];
+              membershipOptions?: MembershipOption[];
+            };
 
             // Debug: Log the gym data
             console.log('Gym data:', { id: doc.id, ...gymData });
