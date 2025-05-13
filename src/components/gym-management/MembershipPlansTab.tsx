@@ -9,6 +9,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthProvider";
 import { Gym, MembershipPlan } from "./types/gymTypes";
 import MembershipPlansDialog from "./dialogs/MembershipPlansDialog";
+import { GcashPayment } from "../member-gyms/GcashPayment";
 
 interface MembershipPlansTabProps {
   gymId?: string;
@@ -55,6 +56,21 @@ const MembershipPlansTab: React.FC<MembershipPlansTabProps> = ({ gymId }) => {
     setDialogOpen(true);
   };
 
+  const handlePaymentComplete = () => {
+    // Refetch gyms to update the UI after payment
+    const gymsRef = collection(db, "gyms");
+    const q = query(gymsRef, where("ownerId", "==", user.uid));
+    getDocs(q).then(querySnapshot => {
+      const updatedGyms = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Gym));
+      setGyms(updatedGyms);
+      const updatedSelectedGym = updatedGyms.find(gym => gym.id === selectedGym?.id);
+      if (updatedSelectedGym) setSelectedGym(updatedSelectedGym);
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -88,7 +104,7 @@ const MembershipPlansTab: React.FC<MembershipPlansTabProps> = ({ gymId }) => {
               selectedGym.membershipPlans.map((plan) => (
                 <TableRow key={plan.id}>
                   <TableCell className="font-medium">{plan.name}</TableCell>
-                  <TableCell>${plan.price}</TableCell>
+                  <TableCell>₱{plan.price.toFixed(2)}</TableCell>
                   <TableCell>{plan.duration}</TableCell>
                   <TableCell>
                     <div className="max-w-xs">
@@ -106,13 +122,23 @@ const MembershipPlansTab: React.FC<MembershipPlansTabProps> = ({ gymId }) => {
                     <Badge variant="success">Active</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleManagePlans(selectedGym)}
-                    >
-                      Edit
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleManagePlans(selectedGym)}
+                      >
+                        Edit
+                      </Button>
+                      {selectedGym.gcashNumber && (
+                        <GcashPayment
+                          gymName={selectedGym.name}
+                          gcashNumber={selectedGym.gcashNumber}
+                          membershipPlan={plan}
+                          onPaymentComplete={handlePaymentComplete}
+                        />
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

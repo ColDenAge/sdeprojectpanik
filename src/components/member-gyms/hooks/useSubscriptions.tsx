@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Gym, GymClass } from "../types/gymTypes";
 import { activeSubscriptions, subscriptionGyms } from "../data/subscriptionData";
@@ -12,60 +12,6 @@ export function useSubscriptions() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
   const { toast } = useToast();
-
-  // Simulate a newly approved membership after 5 seconds for demo purposes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const newApproval = {
-        id: subscriptions.length + 1,
-        gymName: "PowerLift Gym",
-        membershipType: "Monthly",
-        startDate: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }),
-        nextPayment: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }),
-        status: "Active",
-        location: "Eastside",
-        availablePlans: [
-          { id: 1, name: "Monthly", price: "$34.99/mo", current: true },
-          { id: 2, name: "Quarterly", price: "$29.99/mo (billed quarterly)", current: false },
-          { id: 3, name: "Annual", price: "$24.99/mo (billed annually)", current: false }
-        ]
-      };
-
-      setSubscriptions(prev => [...prev, newApproval]);
-
-      // Also add the gym data
-      subscriptionGyms.push({
-        id: 3,
-        name: "PowerLift Gym",
-        location: "Eastside",
-        amenities: ["Powerlifting Equipment", "Olympic Lifting Area", "Strongman Equipment", "24/7 Access"],
-        membershipOptions: [
-          { id: 1, name: "Monthly", price: "$34.99/month" },
-          { id: 2, name: "Quarterly", price: "$29.99/month (billed quarterly)" },
-          { id: 3, name: "Annual", price: "$24.99/month (billed annually)" }
-        ],
-        classes: [
-          { id: 1, name: "Beginner Strength", instructor: "David Strong", schedule: "Mon, Wed 10:00 AM", capacity: 8, enrolled: 4 },
-          { id: 2, name: "Advanced Lifting", instructor: "Maria Power", schedule: "Tue, Thu 5:00 PM", capacity: 6, enrolled: 5 }
-        ]
-      });
-
-      toast({
-        title: "Membership Approved!",
-        description: "Your PowerLift Gym membership application has been approved.",
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   const handleManageSubscription = (subscription: typeof activeSubscriptions[0]) => {
     setSelectedSubscription(subscription);

@@ -6,6 +6,15 @@ export interface MembershipPlan {
   benefits: string[];
 }
 
+export interface ActiveMember {
+  id: string;
+  name: string;
+  membershipPlanId: string;
+  startDate: Date;
+  endDate: Date;
+  status: "active" | "expired" | "suspended";
+}
+
 export interface Gym {
   id: string;
   name: string;
@@ -13,6 +22,7 @@ export interface Gym {
   address: string;
   contactNumber: string;
   ownerId: string;
+  gcashNumber: string;
   activeMembers?: ActiveMember[];
   status: string;
   members: number;

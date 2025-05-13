@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Dumbbell, List, Calendar, CreditCard } from "lucide-react";
+import { Users, Dumbbell, List, Calendar, CreditCard, Wallet } from "lucide-react";
 import MembersTab from "./MembersTab";
 import GymsTab from "./GymsTab";
 import AmenitiesTab from "./AmenitiesTab";
 import ClassesTab from "./ClassesTab";
 import MembershipPlansTab from "./MembershipPlansTab";
+import { GcashSettings } from "./GcashSettings";
 import { SearchProvider } from "./SearchContext";
 
 interface GymManagementTabsProps {
@@ -15,9 +16,15 @@ interface GymManagementTabsProps {
 
 const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole }) => {
   const [activeTab, setActiveTab] = useState<string>("members");
+  const [selectedGym, setSelectedGym] = useState<any>(null);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+  };
+
+  const handleGcashSave = (gcashNumber: string) => {
+    // Here you would typically update the gym's GCash number in your backend
+    console.log("Saving GCash number:", gcashNumber);
   };
 
   return (
@@ -68,7 +75,7 @@ const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole }) => {
             </TabsContent>
 
             <TabsContent value="gyms" className="pt-4">
-              <GymsTab userRole={userRole} />
+              <GymsTab userRole={userRole} onGymSelect={setSelectedGym} />
             </TabsContent>
 
             <TabsContent value="amenities" className="pt-4">

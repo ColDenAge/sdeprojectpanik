@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -67,7 +66,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
     setDeleteDialogOpen(false);
   };
 
-  const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string }) => {
+  const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string; gcashNumber?: string }) => {
     if (currentGym) {
       // Edit existing gym
       setGyms(
