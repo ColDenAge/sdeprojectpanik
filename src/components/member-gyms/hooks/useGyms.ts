@@ -16,67 +16,72 @@ export const useGyms = () => {
         const gymsRef = collection(db, "gyms");
         const gymsSnapshot = await getDocs(gymsRef);
 
-        // Debug: Log the number of gyms found
         console.log('Number of gyms found:', gymsSnapshot.size);
 
         const gymsList = await Promise.all(
           gymsSnapshot.docs.map(async (doc) => {
-            const gymData = doc.data() as {
-              name: string;
-              location: string;
-              amenities: string[];
-              membershipOptions?: MembershipOption[];
-            };
+            const gymData = doc.data();
+            console.log('Raw gym data for', doc.id, ':', gymData);
 
-            // Debug: Log the gym data
-            console.log('Gym data:', { id: doc.id, ...gymData });
-
-            // Try fetching membership options from both possible paths
-            let membershipOptions: MembershipOption[] = [];
+            // Fetch amenities from subcollection
+            let amenities: string[] = [];
             try {
-              // First try: Check if membership options are in a subcollection
-              const membershipOptionsRef = collection(db, `gyms/${doc.id}/membershipOptions`);
-              const membershipOptionsSnapshot = await getDocs(membershipOptionsRef);
-
-              // Debug: Log the number of membership options found
-              console.log(`Membership options found for gym ${doc.id}:`, membershipOptionsSnapshot.size);
-
-              if (membershipOptionsSnapshot.size > 0) {
-                membershipOptions = membershipOptionsSnapshot.docs.map(doc => ({
-                  id: Number(doc.id),
-                  ...doc.data()
-                })) as MembershipOption[];
-              } else {
-                // Second try: Check if membership options are in the gym document itself
-                const membershipOptionsData = gymData.membershipOptions;
-                if (Array.isArray(membershipOptionsData)) {
-                  membershipOptions = membershipOptionsData.map((option, index) => ({
-                    id: index + 1,
-                    ...option
-                  })) as MembershipOption[];
-                }
-              }
+              const amenitiesRef = collection(db, `gyms/${doc.id}/amenities`);
+              const amenitiesSnapshot = await getDocs(amenitiesRef);
+              amenities = amenitiesSnapshot.docs.map(doc => doc.data().name || doc.data().amenity || '');
+              console.log('Amenities for gym', doc.id, ':', amenities);
             } catch (error) {
-              console.error(`Error fetching membership options for gym ${doc.id}:`, error);
+              console.error(`Error fetching amenities for gym ${doc.id}:`, error);
             }
 
-            // Fetch classes
-            const classesRef = collection(db, `gyms/${doc.id}/classes`);
-            const classesSnapshot = await getDocs(classesRef);
-            const classes = classesSnapshot.docs.map(doc => ({
-              id: Number(doc.id),
-              ...doc.data()
-            })) as GymClass[];
+            // Transform membership plans to match the expected structure
+            const membershipOptions: MembershipOption[] = (gymData.membershipPlans || []).map((plan: any) => ({
+              id: plan.id,
+              name: plan.name,
+              price: `$${plan.price}/mo`,
+              duration: plan.duration,
+              benefits: plan.benefits || []
+            }));
 
-            // Debug: Log the final gym object
+            console.log('Membership options for gym', doc.id, ':', membershipOptions);
+
+            // Fetch classes from subcollection
+            let classes: GymClass[] = [];
+            try {
+              const classesRef = collection(db, `gyms/${doc.id}/classes`);
+              const classesSnapshot = await getDocs(classesRef);
+              classes = classesSnapshot.docs.map(doc => ({
+                id: Number(doc.id),
+                name: doc.data().name,
+                instructor: doc.data().instructor,
+                schedule: doc.data().schedule,
+                capacity: Number(doc.data().capacity),
+                enrolled: Number(doc.data().enrolled),
+                gymId: doc.data().gymId
+              }));
+              console.log('Classes for gym', doc.id, ':', classes);
+            } catch (error) {
+              console.error(`Error fetching classes for gym ${doc.id}:`, error);
+            }
+
+            // Create the final gym object
             const gym = {
-              id: Number(doc.id),
-              ...gymData,
+              id: doc.id,
+              name: gymData.name,
+              location: gymData.location,
+              address: gymData.address,
+              contactNumber: gymData.contactNumber,
+              amenities,
               membershipOptions,
-              classes
+              classes,
+              status: gymData.status,
+              members: gymData.members,
+              pendingApplications: gymData.pendingApplications,
+              ownerId: gymData.ownerId,
+              updatedAt: gymData.updatedAt
             } as Gym;
-            console.log('Final gym object:', gym);
 
+            console.log('Final gym object for', doc.id, ':', gym);
             return gym;
           })
         );
