@@ -9,12 +9,16 @@ import ClassesTab from "./ClassesTab";
 import MembershipPlansTab from "./MembershipPlansTab";
 import { GcashSettings } from "./GcashSettings";
 import { SearchProvider } from "./SearchContext";
+import { doc, updateDoc, increment } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Gym } from "./types/gymTypes";
 
 interface GymManagementTabsProps {
   userRole?: string;
+  gyms: Gym[];
 }
 
-const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole }) => {
+const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole, gyms }) => {
   const [activeTab, setActiveTab] = useState<string>("members");
   const [selectedGym, setSelectedGym] = useState<any>(null);
 
@@ -26,6 +30,13 @@ const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole }) => {
     // Here you would typically update the gym's GCash number in your backend
     console.log("Saving GCash number:", gcashNumber);
   };
+
+  const handleMemberAcceptance = async (gymId: string) => {
+    const gymRef = doc(db, 'gyms', gymId);
+    await updateDoc(gymRef, { members: increment(1) });
+  };
+
+  console.log("GYMS STATE:", gyms);
 
   return (
     <SearchProvider>
@@ -75,15 +86,15 @@ const GymManagementTabs: React.FC<GymManagementTabsProps> = ({ userRole }) => {
             </TabsContent>
 
             <TabsContent value="gyms" className="pt-4">
-              <GymsTab userRole={userRole} onGymSelect={setSelectedGym} />
+              <GymsTab userRole={userRole} gyms={gyms} />
             </TabsContent>
 
             <TabsContent value="amenities" className="pt-4">
-              <AmenitiesTab />
+              <AmenitiesTab gymId={selectedGym?.id} />
             </TabsContent>
 
             <TabsContent value="classes" className="pt-4">
-              <ClassesTab />
+              <ClassesTab gymId={selectedGym?.id} />
             </TabsContent>
 
             <TabsContent value="membership-plans" className="mt-4">

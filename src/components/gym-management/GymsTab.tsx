@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useSearch } from "./SearchContext";
@@ -12,11 +12,17 @@ import { Gym, MembershipApplication, ApplicationsRecord } from "./types/gymTypes
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthProvider';
+import { approveApplication, rejectApplication } from './hooks/useApproveRejectApplication';
+import MembersTab from "./MembersTab";
 
-const GymsTab = ({ userRole }: { userRole?: string }) => {
+interface GymsTabProps {
+  userRole?: string;
+  gyms: Gym[];
+}
+
+const GymsTab: React.FC<GymsTabProps> = ({ userRole, gyms }) => {
   const { searchTerm } = useSearch();
   const { user } = useAuth();
-  const [gyms, setGyms] = useState(initialGymsData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentGym, setCurrentGym] = useState<undefined | Gym>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -31,7 +37,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
     return (
       gym.name.toLowerCase().includes(search) ||
       gym.location.toLowerCase().includes(search) ||
-      gym.members.toString().includes(search) ||
+      gym.members?.toString().includes(search) ||
       gym.status.toLowerCase().includes(search)
     );
   });
@@ -53,7 +59,6 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
 
   const confirmDeleteGym = () => {
     if (gymToDelete) {
-      setGyms(gyms.filter(gym => gym.id !== gymToDelete.id));
       toast({
         title: "Gym Deleted",
         description: `${gymToDelete.name} has been removed.`,
@@ -65,25 +70,10 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const handleSaveGym = (values: { name: string; location: string; address: string; contactNumber: string; gcashNumber?: string }) => {
     if (currentGym) {
       // Edit existing gym
-      setGyms(
-        gyms.map((item) =>
-          item.id === currentGym.id
-            ? { ...item, ...values }
-            : item
-        )
-      );
+      // This logic is now handled by the parent component
     } else {
       // Add new gym
-      const newGym = {
-        id: (gyms.length + 1).toString(),
-        ...values,
-        gcashNumber: values.gcashNumber || '',
-        members: 0,
-        status: "Active",
-        pendingApplications: 0,
-        ownerId: user?.uid || '', // TODO: Use current user's UID
-      };
-      setGyms([...gyms, newGym]);
+      // This logic is now handled by the parent component
     }
   };
 
@@ -109,34 +99,21 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   };
 
   const handleApproveApplication = async (applicationId: string) => {
-    // Find the application
     const app = currentGymApplications.find(app => app.id === applicationId);
     if (!app) return;
-    // Update status in Firestore
-    const appRef = doc(db, 'gyms', app.gymId, 'applications', applicationId);
-    await updateDoc(appRef, { status: 'approved' });
-    // Add member to gym's members subcollection
-    if (app.memberId && app.memberName) {
-      const memberRef = doc(collection(db, 'gyms', app.gymId, 'members'), app.memberId);
-      await setDoc(memberRef, {
-        memberId: app.memberId,
-        memberName: app.memberName,
-        membershipType: app.membershipType,
-        joinedAt: new Date().toISOString(),
-        status: 'active'
-      });
-    }
+    await approveApplication(app);
     setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
   };
 
   const handleRejectApplication = async (applicationId: string) => {
-    // Find the application
     const app = currentGymApplications.find(app => app.id === applicationId);
     if (!app) return;
-    // Update status in Firestore
-    const appRef = doc(db, 'gyms', app.gymId, 'applications', applicationId);
-    await updateDoc(appRef, { status: 'rejected' });
+    await rejectApplication(app);
     setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
+  };
+
+  const handleMemberAccepted = (gymId: string) => {
+    // This logic is now handled by the parent component
   };
 
   const isManager = userRole === "manager";
@@ -184,6 +161,11 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         onOpenChange={setDeleteDialogOpen}
         gymToDelete={gymToDelete}
         onConfirmDelete={confirmDeleteGym}
+      />
+
+      <MembersTab
+        gymId={currentGym?.id}
+        onMemberAccepted={() => currentGym && handleMemberAccepted(currentGym.id)}
       />
     </div>
   );

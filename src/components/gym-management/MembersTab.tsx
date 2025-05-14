@@ -23,17 +23,20 @@ import {
 } from "@/components/ui/table";
 import { MoreHorizontal, UserPlus } from "lucide-react";
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
 
 interface MembersTabProps {
   gymId?: string;
+  onMemberAccepted?: () => void;
 }
 
-const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
+const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
   const { searchTerm } = useSearch();
   const [members, setMembers] = useState<any[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<any>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [pendingToReview, setPendingToReview] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -88,6 +91,48 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
     setDeleteDialogOpen(false);
   };
 
+  const handleReviewPending = (member: any) => {
+    setPendingToReview(member);
+    setReviewDialogOpen(true);
+  };
+
+  const handleAcceptPending = async () => {
+    if (!pendingToReview || !gymId) return;
+    // Remove from applications
+    const appRef = doc(db, 'gyms', gymId, 'applications', pendingToReview.id);
+    await deleteDoc(appRef);
+    // Add to members
+    const memberRef = doc(collection(db, 'gyms', gymId, 'members'), pendingToReview.id);
+    await setDoc(memberRef, {
+      memberName: pendingToReview.memberName,
+      membershipType: pendingToReview.membershipType,
+      joinedAt: new Date().toISOString(),
+      status: 'active',
+    });
+    // Debug log before increment
+    console.log('Incrementing members for gym:', gymId);
+    // Increment gym's member count in Firestore
+    const gymRef = doc(db, 'gyms', gymId);
+    await updateDoc(gymRef, { members: increment(1) });
+    // Notify parent to update local gyms state
+    if (onMemberAccepted) onMemberAccepted();
+    setMembers(members => members.map(m => m.id === pendingToReview.id ? { ...m, status: 'active', joinedAt: new Date().toISOString() } : m));
+    setReviewDialogOpen(false);
+    setPendingToReview(null);
+    toast({ title: 'Member Accepted', description: `${pendingToReview.memberName} is now an active member.` });
+  };
+
+  const handleDeclinePending = async () => {
+    if (!pendingToReview || !gymId) return;
+    // Remove from applications
+    const appRef = doc(db, 'gyms', gymId, 'applications', pendingToReview.id);
+    await deleteDoc(appRef);
+    setMembers(members => members.filter(m => m.id !== pendingToReview.id));
+    setReviewDialogOpen(false);
+    setPendingToReview(null);
+    toast({ title: 'Application Declined', description: `${pendingToReview.memberName}'s application was declined.` });
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -109,11 +154,17 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
                 <TableCell>{member.memberName}</TableCell>
                 <TableCell>{member.membershipType}</TableCell>
                 <TableCell>
-                  <Badge
-                    variant={member.status === "active" ? "success" : "destructive"}
-                  >
-                    {member.status}
-                  </Badge>
+                  {member.status === 'pending' ? (
+                    <Badge
+                      variant="destructive"
+                      className="cursor-pointer hover:opacity-80"
+                      onClick={() => handleReviewPending(member)}
+                    >
+                      pending
+                    </Badge>
+                  ) : (
+                    <Badge variant="success">{member.status}</Badge>
+                  )}
                 </TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}</TableCell>
@@ -159,6 +210,22 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
             >
               Delete
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Review Pending Modal */}
+      <AlertDialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Review Application</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingToReview && `Do you want to accept or decline ${pendingToReview.memberName}'s application?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={handleDeclinePending} className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">Decline</Button>
+            <Button onClick={handleAcceptPending} className="bg-green-600 text-white hover:bg-green-700">Accept</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

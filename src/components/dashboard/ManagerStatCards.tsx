@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, BarChart } from "lucide-react";
+import { usePendingApplicationsCount } from '../../hooks/usePendingApplicationsCount';
 
 const ManagerStatCards: React.FC = () => {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ const ManagerStatCards: React.FC = () => {
   const [attendanceRate, setAttendanceRate] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [newSignups, setNewSignups] = useState(0);
+  const pendingApplicationsCount = usePendingApplicationsCount();
 
   useEffect(() => {
     if (!user) return;
