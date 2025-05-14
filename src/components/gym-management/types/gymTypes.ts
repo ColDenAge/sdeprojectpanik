@@ -41,6 +41,7 @@ export interface MembershipApplication {
   membershipType: string;
   requestDate: string;
   status: MembershipApplicationStatus;
+  memberId: string;
 }
 
 export type ApplicationsRecord = Record<string, MembershipApplication[]>;

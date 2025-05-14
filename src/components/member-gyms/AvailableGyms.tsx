@@ -11,9 +11,11 @@ import MembershipApplicationDialog from "./MembershipApplicationDialog";
 import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
 import { useGyms } from "./hooks/useGyms";
 import { useMembershipApplications } from "./hooks/useMembershipApplications";
+import { useAuth } from '@/context/AuthProvider';
 
 const AvailableGyms = () => {
   const { gyms, isLoading } = useGyms();
+  const { user } = useAuth();
   const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<GymClass | null>(null);
@@ -24,8 +26,9 @@ const AvailableGyms = () => {
 
   // Mock user data
   const currentUser = {
-    name: "Alex Johnson",
-    id: "user123"
+    name: user?.displayName || '',
+    id: user?.uid || '',
+    email: user?.email || '',
   };
 
   const { hasApplied, submitApplication } = useMembershipApplications({ currentUser });

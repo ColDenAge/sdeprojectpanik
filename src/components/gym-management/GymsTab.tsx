@@ -7,11 +7,15 @@ import PendingApplicationsDialog from "./PendingApplicationsDialog";
 import DeleteGymDialog from "./dialogs/DeleteGymDialog";
 import GymsTable from "./GymsTable";
 import { useToast } from "@/hooks/use-toast";
-import { initialGymsData, mockApplicationsData } from "./data/mockData";
+import { initialGymsData } from "./data/mockData";
 import { Gym, MembershipApplication, ApplicationsRecord } from "./types/gymTypes";
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthProvider';
 
 const GymsTab = ({ userRole }: { userRole?: string }) => {
   const { searchTerm } = useSearch();
+  const { user } = useAuth();
   const [gyms, setGyms] = useState(initialGymsData);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentGym, setCurrentGym] = useState<undefined | Gym>(undefined);
@@ -21,8 +25,6 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const [currentGymApplications, setCurrentGymApplications] = useState<MembershipApplication[]>([]);
   const [currentGymName, setCurrentGymName] = useState("");
   const { toast } = useToast();
-
-  const [pendingApplications, setPendingApplications] = useState<ApplicationsRecord>(mockApplicationsData);
 
   const filteredGyms = gyms.filter((gym) => {
     const search = searchTerm.toLowerCase();
@@ -52,12 +54,6 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
   const confirmDeleteGym = () => {
     if (gymToDelete) {
       setGyms(gyms.filter(gym => gym.id !== gymToDelete.id));
-      // Also remove any pending applications
-      if (pendingApplications[gymToDelete.id]) {
-        const newPendingApplications = { ...pendingApplications };
-        delete newPendingApplications[gymToDelete.id];
-        setPendingApplications(newPendingApplications);
-      }
       toast({
         title: "Gym Deleted",
         description: `${gymToDelete.name} has been removed.`,
@@ -81,94 +77,65 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
       const newGym = {
         id: (gyms.length + 1).toString(),
         ...values,
+        gcashNumber: values.gcashNumber || '',
         members: 0,
         status: "Active",
         pendingApplications: 0,
+        ownerId: user?.uid || '', // TODO: Use current user's UID
       };
       setGyms([...gyms, newGym]);
     }
   };
 
-  const handleViewApplications = (gym: Gym) => {
+  const handleViewApplications = async (gym: Gym) => {
     setCurrentGymName(gym.name);
-    setCurrentGymApplications(pendingApplications[gym.id] || []);
+    // Fetch applications from Firestore
+    const applicationsRef = collection(db, 'gyms', gym.id.toString(), 'applications');
+    const snapshot = await getDocs(applicationsRef);
+    const applications = snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        gymId: data.gymId || gym.id,
+        memberName: data.memberName || '',
+        membershipType: data.membershipType || '',
+        requestDate: data.requestDate || '',
+        status: data.status || 'pending',
+        memberId: data.memberId || '',
+      };
+    });
+    setCurrentGymApplications(applications.filter(app => app.status === 'pending'));
     setApplicationsDialogOpen(true);
   };
 
-  const handleApproveApplication = (applicationId: string) => {
-    // Update pending applications
-    const updatedApplications = { ...pendingApplications };
-    
-    // Find which gym this application belongs to
-    let gymId = "";
-    for (const [key, apps] of Object.entries(updatedApplications)) {
-      const appIndex = apps.findIndex(app => app.id === applicationId);
-      if (appIndex >= 0) {
-        gymId = key;
-        // Remove application from pending list
-        updatedApplications[key] = apps.filter(app => app.id !== applicationId);
-        if (updatedApplications[key].length === 0) {
-          delete updatedApplications[key];
-        }
-        break;
-      }
+  const handleApproveApplication = async (applicationId: string) => {
+    // Find the application
+    const app = currentGymApplications.find(app => app.id === applicationId);
+    if (!app) return;
+    // Update status in Firestore
+    const appRef = doc(db, 'gyms', app.gymId, 'applications', applicationId);
+    await updateDoc(appRef, { status: 'approved' });
+    // Add member to gym's members subcollection
+    if (app.memberId && app.memberName) {
+      const memberRef = doc(collection(db, 'gyms', app.gymId, 'members'), app.memberId);
+      await setDoc(memberRef, {
+        memberId: app.memberId,
+        memberName: app.memberName,
+        membershipType: app.membershipType,
+        joinedAt: new Date().toISOString(),
+        status: 'active'
+      });
     }
-    
-    setPendingApplications(updatedApplications);
-    
-    // Update gym's pending applications count and member count
-    if (gymId) {
-      setGyms(gyms.map(gym => {
-        if (gym.id === gymId) {
-          return {
-            ...gym,
-            pendingApplications: gym.pendingApplications - 1,
-            members: gym.members + 1
-          };
-        }
-        return gym;
-      }));
-    }
-    
-    // Update current displayed applications
     setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
   };
 
-  const handleRejectApplication = (applicationId: string) => {
-    // Update pending applications
-    const updatedApplications = { ...pendingApplications };
-    
-    // Find which gym this application belongs to
-    let gymId = "";
-    for (const [key, apps] of Object.entries(updatedApplications)) {
-      const appIndex = apps.findIndex(app => app.id === applicationId);
-      if (appIndex >= 0) {
-        gymId = key;
-        // Remove application from pending list
-        updatedApplications[key] = apps.filter(app => app.id !== applicationId);
-        if (updatedApplications[key].length === 0) {
-          delete updatedApplications[key];
-        }
-        break;
-      }
-    }
-    
-    setPendingApplications(updatedApplications);
-    
-    // Update gym's pending applications count
-    if (gymId) {
-      setGyms(gyms.map(gym => {
-        if (gym.id === gymId) {
-          return {
-            ...gym,
-            pendingApplications: gym.pendingApplications - 1
-          };
-        }
-        return gym;
-      }));
-    }
-    
-    // Update current displayed applications
+  const handleRejectApplication = async (applicationId: string) => {
+    // Find the application
+    const app = currentGymApplications.find(app => app.id === applicationId);
+    if (!app) return;
+    // Update status in Firestore
+    const appRef = doc(db, 'gyms', app.gymId, 'applications', applicationId);
+    await updateDoc(appRef, { status: 'rejected' });
     setCurrentGymApplications(currentGymApplications.filter(app => app.id !== applicationId));
   };
 
@@ -187,7 +154,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
           </Button>
         </div>
       )}
-      
+
       <GymsTable
         gyms={filteredGyms}
         isManager={isManager}
@@ -196,13 +163,13 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         onViewApplications={handleViewApplications}
       />
 
-      <AddEditGymDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
+      <AddEditGymDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
         gym={currentGym}
         onSave={handleSaveGym}
       />
-      
+
       <PendingApplicationsDialog
         open={applicationsDialogOpen}
         onOpenChange={setApplicationsDialogOpen}
@@ -211,7 +178,7 @@ const GymsTab = ({ userRole }: { userRole?: string }) => {
         onApprove={handleApproveApplication}
         onReject={handleRejectApplication}
       />
-      
+
       <DeleteGymDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}

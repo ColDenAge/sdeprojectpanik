@@ -2,8 +2,9 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, CheckCircle } from "lucide-react";
+import { MapPin, CheckCircle, AlertCircle } from "lucide-react";
 import { Gym } from "./types/gymTypes";
+import { useAuth } from "@/context/AuthProvider";
 
 interface GymCardProps {
   gym: Gym;
@@ -18,6 +19,9 @@ const GymCard: React.FC<GymCardProps> = ({
   onViewDetails,
   onApplyMembership
 }) => {
+  const { user } = useAuth();
+  const isOwner = user && gym.ownerId === user.uid;
+
   return (
     <Card key={gym.id} className="overflow-hidden border border-border">
       <CardHeader className="p-4">
@@ -63,8 +67,14 @@ const GymCard: React.FC<GymCardProps> = ({
               variant="default"
               className="bg-[#0B294B] hover:bg-[#0a2544] text-white"
               onClick={() => onApplyMembership(gym)}
+              disabled={isOwner}
+              title={isOwner ? 'You cannot join your own gym as a member.' : ''}
             >
-              Apply for Membership
+              {isOwner ? (
+                <span className="flex items-center gap-1"><AlertCircle className="h-4 w-4" /> Not allowed</span>
+              ) : (
+                'Apply for Membership'
+              )}
             </Button>
           )}
           <Button

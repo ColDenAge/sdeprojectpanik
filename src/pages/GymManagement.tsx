@@ -16,10 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import GymDialog from "@/components/gym-management/dialogs/GymDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthProvider";
-import { collection, query, where, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import MembershipPlansTab from "@/components/gym-management/MembershipPlansTab";
 import { initializeMembershipPlans } from "@/components/gym-management/utils/initializeMembershipPlans";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
 
 const GymManagement = () => {
   const { userRole } = useContext(RoleContext);
@@ -31,6 +33,7 @@ const GymManagement = () => {
   const [gymToEdit, setGymToEdit] = useState<Gym | undefined>(undefined);
   const [totalClasses, setTotalClasses] = useState(0);
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   React.useEffect(() => {
     if (!user) return;
@@ -99,6 +102,27 @@ const GymManagement = () => {
       toast({
         title: "Gym Added",
         description: `${values.name} has been added successfully.`,
+      });
+    }
+  };
+
+  const handleDeleteGym = async () => {
+    if (!selectedGym || !user) return;
+
+    try {
+      await deleteDoc(doc(db, "gyms", selectedGym.id));
+      setGyms(gyms.filter(gym => gym.id !== selectedGym.id));
+      setSelectedGym(null);
+      toast({
+        title: "Gym Deleted",
+        description: `${selectedGym.name} has been deleted successfully.`,
+      });
+    } catch (error) {
+      console.error("Error deleting gym:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete gym. Please try again.",
+        variant: "destructive"
       });
     }
   };
@@ -233,16 +257,17 @@ const GymManagement = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleManageMembershipPlans(selectedGym)}
-                      >
-                        Manage Plans
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
                         onClick={handleEditGym}
                       >
                         Edit Info
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setDeleteDialogOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Gym
                       </Button>
                     </div>
                   </div>
@@ -292,6 +317,27 @@ const GymManagement = () => {
         gym={gymToEdit}
         onSave={handleSaveGym}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this gym?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the gym and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteGym}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };

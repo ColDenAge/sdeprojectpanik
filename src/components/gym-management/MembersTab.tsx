@@ -22,7 +22,8 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { MoreHorizontal, UserPlus } from "lucide-react";
-import { initialMembersData } from "./data/mockData";
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 interface MembersTabProps {
   gymId?: string;
@@ -30,24 +31,45 @@ interface MembersTabProps {
 
 const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
   const { searchTerm } = useSearch();
-  const [members, setMembers] = useState(initialMembersData);
+  const [members, setMembers] = useState<any[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<any>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!gymId) return;
+    const fetchMembersAndPending = async () => {
+      // Fetch approved members
+      const membersRef = collection(db, 'gyms', gymId, 'members');
+      const membersSnapshot = await getDocs(membersRef);
+      const approvedMembers = membersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        status: 'active',
+      }));
+      // Fetch pending applications
+      const applicationsRef = collection(db, 'gyms', gymId, 'applications');
+      const pendingQuery = query(applicationsRef, where('status', '==', 'pending'));
+      const pendingSnapshot = await getDocs(pendingQuery);
+      const pendingMembers = pendingSnapshot.docs.map(doc => ({
+        id: doc.id,
+        memberName: doc.data().memberName,
+        membershipType: doc.data().membershipType,
+        joinedAt: null,
+        status: 'pending',
+      }));
+      setMembers([...approvedMembers, ...pendingMembers]);
+    };
+    fetchMembersAndPending();
+  }, [gymId]);
 
   // Filter members based on search term and gymId
   const filteredMembers = members.filter((member) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
-      member.name.toLowerCase().includes(search) ||
-      member.membership.toLowerCase().includes(search) ||
-      member.location.toLowerCase().includes(search) ||
-      member.gyms.some(gym => gym.toLowerCase().includes(search));
-
-    // If gymId is provided, only show members of that gym
-    const matchesGym = gymId ? member.gyms.includes(gymId) : true;
-
-    return matchesSearch && matchesGym;
+      (member.memberName || '').toLowerCase().includes(search) ||
+      (member.membershipType || '').toLowerCase().includes(search);
+    return matchesSearch;
   });
 
   const handleDeleteMember = (member: any) => {
@@ -60,7 +82,7 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
       setMembers(members.filter(member => member.id !== memberToDelete.id));
       toast({
         title: "Member Deleted",
-        description: `${memberToDelete.name} has been removed.`,
+        description: `${memberToDelete.memberName} has been removed.`,
       });
     }
     setDeleteDialogOpen(false);
@@ -68,13 +90,6 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex justify-end mb-4">
-        <Button className="bg-[#0B294B] text-white hover:bg-[#0a2544]">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add New Member
-        </Button>
-      </div>
-
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/30">
@@ -91,30 +106,18 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
           {filteredMembers.length > 0 ? (
             filteredMembers.map((member, i) => (
               <TableRow key={i} className="hover:bg-muted/30">
-                <TableCell>{member.name}</TableCell>
-                <TableCell>{member.membership}</TableCell>
+                <TableCell>{member.memberName}</TableCell>
+                <TableCell>{member.membershipType}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={member.status === "Active" ? "success" : "destructive"}
+                    variant={member.status === "active" ? "success" : "destructive"}
                   >
                     {member.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{member.location}</TableCell>
-                <TableCell>{member.joinDate}</TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {member.gyms.map((gym, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="bg-muted/50"
-                      >
-                        {gym}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}</TableCell>
+                <TableCell>-</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button
@@ -145,7 +148,7 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId }) => {
             <AlertDialogTitle>Are you sure you want to delete this member?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the member
-              {memberToDelete && ` "${memberToDelete.name}"`} and remove their data.
+              {memberToDelete && ` "${memberToDelete.memberName}"`} and remove their data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
