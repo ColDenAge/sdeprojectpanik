@@ -173,10 +173,13 @@ const ClassesTab: React.FC<ClassesTabProps> = ({ gymId }) => {
   const handleSaveEnrollment = async (selectedMemberIds: string[]) => {
     if (currentClass) {
       try {
-        const enrolledMembers = selectedMemberIds.map(id => ({
-          id,
-          name: id // You might want to fetch member names from a separate collection
-        }));
+        const enrolledMembers = selectedMemberIds.map(id => {
+          const member = availableMembers.find(m => m.id === id);
+          return {
+            id,
+            name: (member && member.name) || 'Unknown Member'
+          };
+        });
 
         await updateDoc(doc(db, "gyms", currentClass.gymId, "classes", currentClass.id), {
           enrolledMembers,

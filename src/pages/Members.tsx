@@ -53,7 +53,7 @@ const Members = () => {
                 </div>
                 <div>
                   <h2 className="font-bold text-[#0b294b] text-4xl font-cairo mb-4">
-                    {member.name}
+                    {member.name || member.email || 'Unknown Member'}
                   </h2>
                   <p className="text-[#0b294b] text-lg leading-relaxed font-cairo">
                     <strong>Role:</strong> {member.role}<br />

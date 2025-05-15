@@ -158,9 +158,24 @@ export function useSubscriptions() {
       const gymDoc = await getDoc(gymRef);
 
       if (gymDoc.exists()) {
+        // Fetch amenities
+        const amenitiesRef = collection(db, 'gyms', subscription.gymId, 'amenities');
+        const amenitiesSnapshot = await getDocs(amenitiesRef);
+        const amenities = amenitiesSnapshot.docs.map(doc => doc.data().name);
+
+        // Fetch classes
+        const classesRef = collection(db, 'gyms', subscription.gymId, 'classes');
+        const classesSnapshot = await getDocs(classesRef);
+        const classes = classesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
         setSelectedGym({
           id: gymDoc.id,
-          ...gymDoc.data()
+          ...gymDoc.data(),
+          amenities,
+          classes
         } as Gym);
         setIsDetailsDialogOpen(true);
       }
@@ -176,9 +191,37 @@ export function useSubscriptions() {
   const handleEnrollClass = async (classItem: GymClass) => {
     if (!selectedGym || !user) return;
 
+    // Defensive: Check if user is an active member and has a name
+    const membersRef = collection(db, 'gyms', selectedGym.id, 'members');
+    const memberQuery = query(
+      membersRef,
+      where('memberId', '==', user.uid),
+      where('status', '==', 'active')
+    );
+    const memberSnapshot = await getDocs(memberQuery);
+
+    if (memberSnapshot.empty) {
+      toast({
+        title: "Enrollment Failed",
+        description: "You must be an active member to enroll in classes.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const memberData = memberSnapshot.docs[0].data();
+    if (!memberData.name) {
+      toast({
+        title: "Enrollment Failed",
+        description: "Your member profile is incomplete. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       // Update class enrollment in Firestore
-      const classRef = doc(db, 'gyms', selectedGym.id, 'classes', classItem.id);
+      const classRef = doc(db, 'gyms', selectedGym.id, 'classes', String(classItem.id));
       await updateDoc(classRef, {
         enrolled: increment(1)
       });

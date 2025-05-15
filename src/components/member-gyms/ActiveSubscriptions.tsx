@@ -1,11 +1,11 @@
-
-import React from "react";
+import React, { useContext } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { UserCheck } from "lucide-react";
 import SubscriptionsTable from "./SubscriptionsTable";
 import ChangeMembershipDialog from "./ChangeMembershipDialog";
 import GymDetailsDialog from "./GymDetailsDialog";
 import { useSubscriptions } from "./hooks/useSubscriptions";
+import { RoleContext } from "../../router/App";
 
 const ActiveSubscriptions = () => {
   const {
@@ -24,6 +24,7 @@ const ActiveSubscriptions = () => {
     setIsDetailsDialogOpen,
     handleEnrollClass,
   } = useSubscriptions();
+  const { userRole } = useContext(RoleContext);
 
   return (
     <Card className="mb-8">
@@ -34,7 +35,7 @@ const ActiveSubscriptions = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <SubscriptionsTable 
+        <SubscriptionsTable
           subscriptions={subscriptions}
           pendingSubscriptions={pendingSubscriptions}
           onViewDetails={handleViewGymDetails}
@@ -43,7 +44,7 @@ const ActiveSubscriptions = () => {
       </CardContent>
 
       {/* Change Membership Dialog */}
-      <ChangeMembershipDialog 
+      <ChangeMembershipDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         subscription={selectedSubscription}
@@ -53,11 +54,12 @@ const ActiveSubscriptions = () => {
       />
 
       {/* Gym Details Dialog */}
-      <GymDetailsDialog 
-        isOpen={isDetailsDialogOpen} 
+      <GymDetailsDialog
+        isOpen={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         gym={selectedGym}
         onEnrollClass={handleEnrollClass}
+        canEnroll={userRole === 'member'}
       />
     </Card>
   );

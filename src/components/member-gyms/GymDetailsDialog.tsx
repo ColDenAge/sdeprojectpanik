@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -15,13 +14,15 @@ interface GymDetailsDialogProps {
   onClose: () => void;
   gym: Gym | null;
   onEnrollClass: (classItem: GymClass) => void;
+  canEnroll: boolean;
 }
 
 const GymDetailsDialog: React.FC<GymDetailsDialogProps> = ({
   isOpen,
   onClose,
   gym,
-  onEnrollClass
+  onEnrollClass,
+  canEnroll
 }) => {
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<GymClass | null>(null);
@@ -46,18 +47,19 @@ const GymDetailsDialog: React.FC<GymDetailsDialogProps> = ({
             <DialogTitle className="text-xl">{gym?.name}</DialogTitle>
             <p className="text-sm text-muted-foreground">{gym?.location}</p>
           </DialogHeader>
-          
+
           {gym && (
             <div className="flex-grow overflow-hidden">
               <GymDetailsTabs
                 gym={gym}
                 onEnrollClass={handleEnrollClick}
+                canEnroll={canEnroll}
               />
             </div>
           )}
         </DialogContent>
       </Dialog>
-      
+
       <EnrollClassDialog
         open={enrollDialogOpen}
         selectedClass={selectedClass}

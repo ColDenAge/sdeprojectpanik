@@ -47,7 +47,7 @@ export const MembersTab = ({ members, gymId, onMemberUpdate }: MembersTabProps) 
         <TableBody>
           {members.map((member) => (
             <TableRow key={member.id}>
-              <TableCell>{member.name}</TableCell>
+              <TableCell>{member.name || member.email || 'Unknown Member'}</TableCell>
               <TableCell>{member.email}</TableCell>
               <TableCell>
                 <Button
@@ -72,10 +72,10 @@ export const MembersTab = ({ members, gymId, onMemberUpdate }: MembersTabProps) 
           onClose={handleModalClose}
           memberId={selectedMember.id}
           gymId={gymId}
-          memberName={selectedMember.name}
+          memberName={selectedMember.name || selectedMember.email || 'Unknown Member'}
           onSuccess={onMemberUpdate}
         />
       )}
     </div>
   );
-}; 
+};
