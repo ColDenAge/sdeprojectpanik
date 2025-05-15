@@ -23,17 +23,20 @@ import { initializeMembershipPlans } from "@/components/gym-management/utils/ini
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 
+type GymWithStatus = Gym & { computedStatus: string; memberCount: number };
+
 const GymManagement = () => {
   const { userRole } = useContext(RoleContext);
   const { user } = useAuth();
   const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
-  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [gyms, setGyms] = useState<GymWithStatus[]>([]);
   const [activeTab, setActiveTab] = useState("members");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [gymToEdit, setGymToEdit] = useState<Gym | undefined>(undefined);
   const [totalClasses, setTotalClasses] = useState(0);
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [totalMembers, setTotalMembers] = useState(0);
 
   React.useEffect(() => {
     if (!user) return;
@@ -41,8 +44,20 @@ const GymManagement = () => {
       const gymsRef = collection(db, "gyms");
       const q = query(gymsRef, where("ownerId", "==", user.uid));
       const querySnapshot = await getDocs(q);
-      const gymsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym));
+      let memberSum = 0;
+      const gymsList = await Promise.all(querySnapshot.docs.map(async doc => {
+        const gym = { id: doc.id, ...doc.data() } as Gym;
+        // Fetch members for this gym
+        const membersRef = collection(db, "gyms", gym.id, "members");
+        const membersSnapshot = await getDocs(membersRef);
+        const members = membersSnapshot.docs.map(m => m.data());
+        memberSum += members.length;
+        // Compute status: if at least one active, Active; else Inactive
+        const hasActive = members.some(m => m.status === 'active');
+        return { ...gym, computedStatus: hasActive ? 'Active' : 'Inactive', memberCount: members.length };
+      }));
       setGyms(gymsList);
+      setTotalMembers(memberSum);
 
       // Initialize membership plans for gyms that don't have them
       await initializeMembershipPlans(user.uid);
@@ -77,7 +92,7 @@ const GymManagement = () => {
       const gymsRef = collection(db, "gyms");
       const q = query(gymsRef, where("ownerId", "==", user.uid));
       const querySnapshot = await getDocs(q);
-      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
+      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GymWithStatus)));
       toast({
         title: "Gym Updated",
         description: `${values.name} has been updated successfully.`,
@@ -98,7 +113,7 @@ const GymManagement = () => {
       const gymsRef = collection(db, "gyms");
       const q = query(gymsRef, where("ownerId", "==", user.uid));
       const querySnapshot = await getDocs(q);
-      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gym)));
+      setGyms(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GymWithStatus)));
       toast({
         title: "Gym Added",
         description: `${values.name} has been added successfully.`,
@@ -126,9 +141,6 @@ const GymManagement = () => {
       });
     }
   };
-
-  // Calculate total members from all gyms
-  const totalMembers = gyms.reduce((sum, gym) => Array.isArray(gym.activeMembers) ? sum + gym.activeMembers.length : sum, 0);
 
   return (
     <DashboardLayout>
@@ -222,12 +234,12 @@ const GymManagement = () => {
                           <h3 className="font-medium">{gym.name}</h3>
                           <p className="text-sm text-muted-foreground">{gym.location}</p>
                         </div>
-                        <Badge variant="success">{gym.status}</Badge>
+                        <Badge variant="success">{gym.computedStatus}</Badge>
                       </div>
                       <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
-                          {gym.members} members
+                          {gym.memberCount} members
                         </span>
                         {gym.pendingApplications > 0 && (
                           <span className="flex items-center gap-1 text-amber-600">

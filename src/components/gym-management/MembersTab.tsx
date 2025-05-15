@@ -24,6 +24,7 @@ import {
 import { MoreHorizontal, UserPlus } from "lucide-react";
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, doc, deleteDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { useGyms } from "@/components/member-gyms/hooks/useGyms";
 
 interface MembersTabProps {
   gymId?: string;
@@ -37,7 +38,11 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
   const [memberToDelete, setMemberToDelete] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [pendingToReview, setPendingToReview] = useState<any>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedPaymentMember, setSelectedPaymentMember] = useState<any>(null);
   const { toast } = useToast();
+  const { gyms } = useGyms();
+  const currentGym = gyms.find(g => g.id === gymId);
 
   useEffect(() => {
     if (!gymId) return;
@@ -48,7 +53,6 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
       const approvedMembers = membersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        status: 'active',
       }));
 
       // Fetch pending applications
@@ -177,6 +181,30 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
     toast({ title: 'Application Declined', description: `${pendingToReview.memberName}'s application was declined.` });
   };
 
+  const handlePaymentClick = (member: any) => {
+    setSelectedPaymentMember(member);
+    setPaymentDialogOpen(true);
+  };
+
+  const handlePaymentStatus = async (status: 'paid' | 'expired') => {
+    if (!selectedPaymentMember || !gymId) return;
+    if (status === 'expired') {
+      // Update status to inactive in Firestore
+      const memberRef = doc(db, 'gyms', gymId, 'members', selectedPaymentMember.id);
+      await updateDoc(memberRef, { status: 'inactive' });
+      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'inactive' } : m));
+      toast({ title: 'Status Updated', description: `${selectedPaymentMember.memberName} is now inactive.` });
+    } else {
+      // Update status to active in Firestore
+      const memberRef = doc(db, 'gyms', gymId, 'members', selectedPaymentMember.id);
+      await updateDoc(memberRef, { status: 'active' });
+      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'active' } : m));
+      toast({ title: 'Status Updated', description: `${selectedPaymentMember.memberName} is now active.` });
+    }
+    setPaymentDialogOpen(false);
+    setSelectedPaymentMember(null);
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -185,9 +213,9 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
             <TableHead>Name</TableHead>
             <TableHead>Membership</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Location</TableHead>
             <TableHead>Join Date</TableHead>
             <TableHead>Gyms</TableHead>
+            <TableHead>Payment</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -207,12 +235,16 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
                       pending
                     </Badge>
                   ) : (
-                    <Badge variant="success">{member.status}</Badge>
+                    <Badge variant={member.status === 'inactive' ? 'secondary' : 'success'}>{member.status}</Badge>
                   )}
                 </TableCell>
-                <TableCell>-</TableCell>
                 <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}</TableCell>
-                <TableCell>-</TableCell>
+                <TableCell>{currentGym ? currentGym.name : '-'}</TableCell>
+                <TableCell>
+                  <Button variant="outline" size="sm" onClick={() => handlePaymentClick(member)}>
+                    Payment
+                  </Button>
+                </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button
@@ -270,6 +302,22 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
           <AlertDialogFooter>
             <Button variant="outline" onClick={handleDeclinePending} className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">Decline</Button>
             <Button onClick={handleAcceptPending} className="bg-green-600 text-white hover:bg-green-700">Accept</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Payment Status Dialog */}
+      <AlertDialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Update Payment Status</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedPaymentMember && `Set payment status for ${selectedPaymentMember.memberName}:`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => handlePaymentStatus('paid')}>Paid</Button>
+            <Button variant="destructive" onClick={() => handlePaymentStatus('expired')}>Expired</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

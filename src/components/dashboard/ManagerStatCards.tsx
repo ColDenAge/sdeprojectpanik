@@ -23,10 +23,13 @@ const ManagerStatCards: React.FC = () => {
       const querySnapshot = await getDocs(q);
       const gyms = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       // Active Members
-      const total = gyms.reduce(
-        (sum, gym) => Array.isArray((gym as any).activeMembers) ? sum + (gym as any).activeMembers.length : sum,
-        0
-      );
+      let total = 0;
+      for (const gym of gyms) {
+        const membersRef = collection(db, "gyms", gym.id, "members");
+        const membersSnapshot = await getDocs(membersRef);
+        const activeMembers = membersSnapshot.docs.filter(doc => doc.data().status === 'active');
+        total += activeMembers.length;
+      }
       setTotalActiveMembers(total);
       // 2. Fetch classes for all gyms
       let allClasses = [];
