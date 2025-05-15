@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Gym, GymClass } from "../types/gymTypes";
-import { activeSubscriptions, subscriptionGyms } from "../data/subscriptionData";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, increment } from "firebase/firestore";
+import { useAuth } from "@/context/AuthProvider";
 
 export function useSubscriptions() {
-  const [subscriptions, setSubscriptions] = useState(activeSubscriptions);
-  const [selectedSubscription, setSelectedSubscription] = useState<null | typeof activeSubscriptions[0]>(null);
+  const { user } = useAuth();
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [pendingSubscriptions, setPendingSubscriptions] = useState<any[]>([]);
@@ -13,9 +16,92 @@ export function useSubscriptions() {
   const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
   const { toast } = useToast();
 
-  const handleManageSubscription = (subscription: typeof activeSubscriptions[0]) => {
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchSubscriptions = async () => {
+      try {
+        // Fetch all gyms
+        const gymsRef = collection(db, 'gyms');
+        const gymsSnapshot = await getDocs(gymsRef);
+        const gyms = gymsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...(doc.data() as { name: string; location: string; membershipPlans?: any[] })
+        }));
+
+        // For each gym, check if user is a member
+        const activeSubscriptions = [];
+        const pendingSubs = [];
+
+        for (const gym of gyms) {
+          // Check members collection for active status
+          const membersRef = collection(db, 'gyms', gym.id, 'members');
+          const memberQuery = query(
+            membersRef,
+            where('memberId', '==', user.uid),
+            where('status', '==', 'active') // Only active members
+          );
+          const memberSnapshot = await getDocs(memberQuery);
+
+          if (!memberSnapshot.empty) {
+            const memberData = memberSnapshot.docs[0].data();
+            activeSubscriptions.push({
+              id: memberSnapshot.docs[0].id,
+              gymId: String(gym.id), // Ensure gymId is a string
+              gymName: gym.name,
+              membershipType: memberData.membershipType,
+              startDate: memberData.joinedAt ? new Date(memberData.joinedAt).toLocaleDateString() : '-',
+              nextPayment: '-', // You might want to add payment tracking
+              status: 'active',
+              location: gym.location,
+              availablePlans: gym.membershipPlans?.map((plan: any) => ({
+                id: plan.id,
+                name: plan.name,
+                price: plan.price,
+                current: plan.name === memberData.membershipType
+              })) || []
+            });
+          }
+
+          // Check applications collection for pending
+          const applicationsRef = collection(db, 'gyms', gym.id, 'applications');
+          const appQuery = query(
+            applicationsRef,
+            where('memberId', '==', user.uid),
+            where('status', '==', 'pending')
+          );
+          const appSnapshot = await getDocs(appQuery);
+
+          if (!appSnapshot.empty) {
+            const appData = appSnapshot.docs[0].data();
+            pendingSubs.push({
+              id: appSnapshot.docs[0].id,
+              gymName: gym.name,
+              membershipType: appData.membershipType,
+              status: 'pending',
+              location: gym.location
+            });
+          }
+        }
+
+        setSubscriptions(activeSubscriptions);
+        setPendingSubscriptions(pendingSubs);
+      } catch (error) {
+        console.error('Error fetching subscriptions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your gym memberships.",
+          variant: "destructive"
+        });
+      }
+    };
+
+    fetchSubscriptions();
+  }, [user, toast]);
+
+  const handleManageSubscription = (subscription: any) => {
     setSelectedSubscription(subscription);
-    setSelectedPlan(subscription.availablePlans.find(plan => plan.current)?.id.toString() || "");
+    setSelectedPlan(subscription.availablePlans.find((plan: any) => plan.current)?.id.toString() || "");
     setIsDialogOpen(true);
   };
 
@@ -23,76 +109,100 @@ export function useSubscriptions() {
     setSelectedPlan(value);
   };
 
-  const handlePlanSubmit = () => {
-    if (!selectedSubscription || !selectedPlan) return;
+  const handlePlanSubmit = async () => {
+    if (!selectedSubscription || !selectedPlan || !user) return;
 
-    const planName = selectedSubscription.availablePlans.find(
-      plan => plan.id.toString() === selectedPlan
-    )?.name;
+    try {
+      const planName = selectedSubscription.availablePlans.find(
+        (plan: any) => plan.id.toString() === selectedPlan
+      )?.name;
 
-    toast({
-      title: "Membership Changed",
-      description: `Your membership has been updated to ${planName} plan.`,
-    });
+      // Update membership in Firestore
+      const memberRef = doc(db, 'gyms', String(selectedSubscription.gymId), 'members', selectedSubscription.id);
+      await updateDoc(memberRef, {
+        membershipType: planName
+      });
 
-    setIsDialogOpen(false);
+      toast({
+        title: "Membership Changed",
+        description: `Your membership has been updated to ${planName} plan.`,
+      });
 
-    // Update the subscription in state
-    setSubscriptions(subscriptions.map(sub =>
-      sub.id === selectedSubscription.id
-        ? {
-            ...sub,
-            membershipType: planName || sub.membershipType,
-            availablePlans: sub.availablePlans.map(plan => ({
-              ...plan,
-              current: plan.id.toString() === selectedPlan
-            }))
-          }
-        : sub
-    ));
-  };
+      // Update local state
+      setSubscriptions(subscriptions.map(sub =>
+        sub.id === selectedSubscription.id
+          ? {
+              ...sub,
+              membershipType: planName || sub.membershipType,
+              availablePlans: sub.availablePlans.map((plan: any) => ({
+                ...plan,
+                current: plan.id.toString() === selectedPlan
+              }))
+            }
+          : sub
+      ));
 
-  const handleViewGymDetails = (subscription: typeof activeSubscriptions[0]) => {
-    const gym = subscriptionGyms.find(gym => gym.name === subscription.gymName);
-    if (gym) {
-      setSelectedGym(gym);
-      setIsDetailsDialogOpen(true);
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update membership. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
-  const handleEnrollClass = (classItem: GymClass) => {
-    if (selectedGym) {
-      // Find the gym and update the class
-      const updatedGym = {...selectedGym};
-      const classIndex = (updatedGym.classes ?? []).findIndex(c => c.id === classItem.id);
+  const handleViewGymDetails = async (subscription: any) => {
+    try {
+      const gymRef = doc(db, 'gyms', subscription.gymId);
+      const gymDoc = await getDoc(gymRef);
 
-      if (
-        classIndex !== -1 &&
-        (updatedGym.classes?.[classIndex]?.enrolled ?? 0) < (updatedGym.classes?.[classIndex]?.capacity ?? 0)
-      ) {
-        if (updatedGym.classes) {
-          updatedGym.classes[classIndex].enrolled += 1;
-        }
-
-        setSelectedGym(updatedGym);
-
-        // Update in the subscriptionGyms array as well
-        const gymIndex = subscriptionGyms.findIndex(g => g.id === updatedGym.id);
-        if (gymIndex !== -1) {
-          subscriptionGyms[gymIndex] = updatedGym;
-        }
-
-        toast({
-          title: "Enrolled Successfully",
-          description: `You have enrolled in ${classItem.name}.`,
-        });
-      } else {
-        toast({
-          title: "Enrollment Failed",
-          description: "This class is already at capacity.",
-          variant: "destructive"
-        });
+      if (gymDoc.exists()) {
+        setSelectedGym({
+          id: gymDoc.id,
+          ...gymDoc.data()
+        } as Gym);
+        setIsDetailsDialogOpen(true);
       }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load gym details.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEnrollClass = async (classItem: GymClass) => {
+    if (!selectedGym || !user) return;
+
+    try {
+      // Update class enrollment in Firestore
+      const classRef = doc(db, 'gyms', selectedGym.id, 'classes', classItem.id);
+      await updateDoc(classRef, {
+        enrolled: increment(1)
+      });
+
+      toast({
+        title: "Enrolled Successfully",
+        description: `You have enrolled in ${classItem.name}.`,
+      });
+
+      // Update local state
+      setSelectedGym({
+        ...selectedGym,
+        classes: selectedGym.classes?.map(c =>
+          c.id === classItem.id
+            ? { ...c, enrolled: (c.enrolled || 0) + 1 }
+            : c
+        )
+      });
+    } catch (error) {
+      toast({
+        title: "Enrollment Failed",
+        description: "Failed to enroll in class. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 

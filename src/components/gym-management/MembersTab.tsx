@@ -50,18 +50,47 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
         ...doc.data(),
         status: 'active',
       }));
+
       // Fetch pending applications
       const applicationsRef = collection(db, 'gyms', gymId, 'applications');
       const pendingQuery = query(applicationsRef, where('status', '==', 'pending'));
       const pendingSnapshot = await getDocs(pendingQuery);
+
+      // Clean up duplicate applications
       const pendingMembers = pendingSnapshot.docs.map(doc => ({
         id: doc.id,
         memberName: doc.data().memberName,
         membershipType: doc.data().membershipType,
         joinedAt: null,
         status: 'pending',
+        memberId: doc.data().memberId
       }));
-      setMembers([...approvedMembers, ...pendingMembers]);
+
+      // Group by memberId to find duplicates
+      const memberGroups = pendingMembers.reduce((acc, member) => {
+        if (!acc[member.memberId]) {
+          acc[member.memberId] = [];
+        }
+        acc[member.memberId].push(member);
+        return acc;
+      }, {});
+
+      // Keep only the most recent application for each member
+      const uniquePendingMembers = Object.values(memberGroups).map((group: any[]) => {
+        if (group.length > 1) {
+          // Sort by ID (assuming newer IDs are more recent)
+          group.sort((a, b) => b.id.localeCompare(a.id));
+          // Delete all but the most recent application
+          group.slice(1).forEach(async (duplicate) => {
+            const appRef = doc(db, 'gyms', gymId, 'applications', duplicate.id);
+            await deleteDoc(appRef);
+          });
+          return group[0];
+        }
+        return group[0];
+      });
+
+      setMembers([...approvedMembers, ...uniquePendingMembers]);
     };
     fetchMembersAndPending();
   }, [gymId]);
@@ -101,14 +130,29 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
     // Remove from applications
     const appRef = doc(db, 'gyms', gymId, 'applications', pendingToReview.id);
     await deleteDoc(appRef);
-    // Add to members
-    const memberRef = doc(collection(db, 'gyms', gymId, 'members'), pendingToReview.id);
-    await setDoc(memberRef, {
-      memberName: pendingToReview.memberName,
-      membershipType: pendingToReview.membershipType,
-      joinedAt: new Date().toISOString(),
-      status: 'active',
-    });
+    // Check if member already exists
+    const membersRef = collection(db, 'gyms', gymId, 'members');
+    const memberQuery = query(membersRef, where('memberId', '==', pendingToReview.memberId));
+    const memberSnapshot = await getDocs(memberQuery);
+    if (!memberSnapshot.empty) {
+      // Member exists, update their membershipType and status
+      const memberDocRef = doc(db, 'gyms', gymId, 'members', memberSnapshot.docs[0].id);
+      await updateDoc(memberDocRef, {
+        membershipType: pendingToReview.membershipType,
+        status: 'active',
+        joinedAt: new Date().toISOString(),
+      });
+    } else {
+      // Member does not exist, add new
+      const memberRef = doc(collection(db, 'gyms', gymId, 'members'), pendingToReview.id);
+      await setDoc(memberRef, {
+        memberId: pendingToReview.memberId,
+        memberName: pendingToReview.memberName,
+        membershipType: pendingToReview.membershipType,
+        joinedAt: new Date().toISOString(),
+        status: 'active',
+      });
+    }
     // Debug log before increment
     console.log('Incrementing members for gym:', gymId);
     // Increment gym's member count in Firestore

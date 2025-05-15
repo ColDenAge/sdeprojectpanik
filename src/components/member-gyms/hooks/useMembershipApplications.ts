@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Gym, MembershipOption } from '../types/gymTypes';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, query, where, getDocs } from 'firebase/firestore';
 
 interface UseMembershipApplicationsProps {
   currentUser: {
@@ -31,6 +31,42 @@ export const useMembershipApplications = ({ currentUser }: UseMembershipApplicat
       // fallback to currentUser.name
     }
     if (!memberName && currentUser.email) memberName = currentUser.email;
+
+    // Check if user is already an active member
+    const membersRef = collection(db, 'gyms', gym.id.toString(), 'members');
+    const memberQuery = query(
+      membersRef,
+      where('memberId', '==', currentUser.id),
+      where('status', '==', 'active')
+    );
+    const memberSnapshot = await getDocs(memberQuery);
+
+    if (!memberSnapshot.empty) {
+      toast({
+        title: "Already a Member",
+        description: "You are already an active member of this gym.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check for existing pending applications
+    const applicationsRef = collection(db, 'gyms', gym.id.toString(), 'applications');
+    const existingQuery = query(
+      applicationsRef,
+      where('memberId', '==', currentUser.id),
+      where('status', '==', 'pending')
+    );
+    const existingSnapshot = await getDocs(existingQuery);
+
+    if (!existingSnapshot.empty) {
+      toast({
+        title: "Application Already Pending",
+        description: "You already have a pending application for this gym.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     const newApplication = {
       gymId: gym.id.toString(),

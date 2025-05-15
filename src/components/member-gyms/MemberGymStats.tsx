@@ -1,19 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Building2, Clock, Calendar, Activity } from "lucide-react";
-import { activeSubscriptions } from "./data/subscriptionData";
-// If you have a hook or data for activities, import it here
-// import { recentActivities } from "./data/recentActivities";
-
-// Placeholder for recent activities and next class
-const recentActivities = [];
-const nextClass = null; // or { date: 'May 6', name: 'Yoga at FitLife Downtown' }
+import { useAuth } from "@/context/AuthProvider";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 const MemberGymStats = () => {
-  const activeMembershipsCount = activeSubscriptions.length;
-  const uniqueGyms = new Set(activeSubscriptions.map(sub => sub.gymName));
-  const uniqueGymsCount = uniqueGyms.size;
-  const recentActivitiesCount = recentActivities.length;
+  const { user } = useAuth();
+  const [activeMembershipsCount, setActiveMembershipsCount] = useState(0);
+  const [uniqueGymsCount, setUniqueGymsCount] = useState(0);
+  const [recentActivitiesCount, setRecentActivitiesCount] = useState(0);
+  const [nextClass, setNextClass] = useState<any>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStats = async () => {
+      try {
+        // Fetch all gyms
+        const gymsRef = collection(db, 'gyms');
+        const gymsSnapshot = await getDocs(gymsRef);
+        const gyms = gymsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        // Count active memberships
+        let activeCount = 0;
+        for (const gym of gyms) {
+          const membersRef = collection(db, 'gyms', gym.id, 'members');
+          const memberQuery = query(membersRef, where('memberId', '==', user.uid));
+          const memberSnapshot = await getDocs(memberQuery);
+          if (!memberSnapshot.empty) {
+            activeCount++;
+          }
+        }
+
+        setActiveMembershipsCount(activeCount);
+        setUniqueGymsCount(activeCount); // Since we're counting unique gyms where user is a member
+
+        // Fetch recent activities (you can implement this based on your activity tracking system)
+        setRecentActivitiesCount(0);
+
+        // Fetch next class (you can implement this based on your class scheduling system)
+        setNextClass(null);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [user]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
