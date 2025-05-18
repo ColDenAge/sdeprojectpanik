@@ -1,131 +1,50 @@
-
-import React, { useContext, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthContext } from "../../App";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { RoleContext } from "../../router/App";
 
-const QuickActions: React.FC = () => {
-  const { userRole } = useContext(AuthContext);
+const QuickActions = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogContent, setDialogContent] = useState({
-    title: "",
-    description: "",
-    action: () => {}
-  });
+  const { userRole } = useContext(RoleContext);
+  const isAuthenticated = !!userRole;
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  const openDialog = (title: string, description: string, action: () => void) => {
-    setDialogContent({ title, description, action });
-    setDialogOpen(true);
-  };
-
-  const handleActionConfirm = () => {
-    dialogContent.action();
-    setDialogOpen(false);
-  };
-
-  const showToast = (title: string, description: string) => {
-    toast({
-      title,
-      description
-    });
-  };
+  const actions = [
+    {
+      title: userRole === "manager" ? "View Members" : "My Classes",
+      description: userRole === "manager" ? "Manage your gym members and their details" : "View and manage your class schedule",
+      onClick: () => navigate(userRole === "manager" ? "/members" : "/gyms?tab=scheduling"),
+      icon: userRole === "manager" ? "👥" : "📅",
+    },
+    {
+      title: "Billings",
+      description: userRole === "manager" ? "Manage revenue and payments" : "View and manage your payments",
+      onClick: () => navigate("/billings"),
+      icon: "💰",
+    },
+    {
+      title: "Settings",
+      description: "Configure your gym settings",
+      onClick: () => navigate("/settings"),
+      icon: "⚙️",
+    },
+  ];
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <CardTitle className="text-[#0B294B]">
-          {userRole === "member" ? "Quick Links" : "Quick Actions"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {userRole === "member" ? (
-            <>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/gyms")}
-              >
-                View Schedule
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/settings")}
-              >
-                Update Profile
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/contact")}
-              >
-                Contact Support
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => openDialog(
-                  "Add New Class",
-                  "Create a new fitness class for your gym locations",
-                  () => handleNavigation("/gyms")
-                )}
-              >
-                Add New Class
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/gyms")}
-              >
-                Manage Members
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/billings")}
-              >
-                View Reports
-              </button>
-              <button 
-                className="w-full text-left px-4 py-2 text-[#0B294B] bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => handleNavigation("/billings")}
-              >
-                Billing & Payments
-              </button>
-            </>
-          )}
-        </div>
-      </CardContent>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{dialogContent.title}</DialogTitle>
-            <DialogDescription>
-              {dialogContent.description}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleActionConfirm}>Continue</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {actions.map((action, index) => (
+          <button
+            key={index}
+            onClick={action.onClick}
+            className="flex flex-col items-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <span className="text-4xl mb-4">{action.icon}</span>
+            <h3 className="text-lg font-semibold text-gray-900">{action.title}</h3>
+            <p className="text-sm text-gray-600 mt-2 text-center">{action.description}</p>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 };
 

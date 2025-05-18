@@ -1,17 +1,18 @@
-
 import React, { useContext } from "react";
-import { AuthContext } from "../../App";
+import { RoleContext } from "../../router/App";
 
 const DashboardHeader: React.FC = () => {
-  const { userRole } = useContext(AuthContext);
+  const { userRole } = useContext(RoleContext);
   
   return (
     <div className="mb-8">
       <h1 className="text-3xl font-bold text-[#0B294B]">
-        Welcome, {userRole === "member" ? "Gym Member" : "Gym Manager"}
+        {userRole === "member" ? "Welcome Back!" : "Gym Management Dashboard"}
       </h1>
       <p className="text-gray-600 mt-2">
-        Here's what's happening with your {userRole === "member" ? "fitness journey" : "gym"} today.
+        {userRole === "member" 
+          ? "Track your fitness journey and manage your gym activities"
+          : "Manage your gym, members, and classes"}
       </p>
     </div>
   );

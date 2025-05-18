@@ -1,16 +1,13 @@
-
 import React, { useContext } from "react";
-import { AuthContext } from "../App";
+import { RoleContext } from "../router/App";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardContent from "@/components/dashboard/DashboardContent";
 
 const Dashboard = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { userRole } = useContext(RoleContext);
 
   return (
     <DashboardLayout>
-      <DashboardHeader />
       <DashboardContent />
     </DashboardLayout>
   );

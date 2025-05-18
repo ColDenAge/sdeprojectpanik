@@ -1,97 +1,82 @@
-
 import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
-import { AuthContext } from "../App";
+import { RoleContext } from "../router/App";
 
-const AboutUs: React.FC = () => {
-  const { isAuthenticated } = useContext(AuthContext);
-  
+const AboutUs = () => {
+  const { userRole } = useContext(RoleContext);
+  const isAuthenticated = !!userRole;
+
   return (
-    <main className="flex flex-col min-h-screen bg-[#D9D9D9]">
-      <div className="px-5 md:px-20 pt-[9px]">
+    <div className="min-h-screen w-full">
+      <div className="w-full px-6 py-4">
         {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       </div>
 
-      <div className="flex flex-col items-center px-5 max-w-[1152px] mx-auto w-full pt-12 pb-24">
-        <h1 className="text-slate-800 text-5xl font-bold tracking-wide mb-6 text-center">
-          About ByteMinds Systems
-        </h1>
-        <p className="text-black text-base font-medium leading-6 mb-16 text-center max-w-[810px]">
-          Learn more about our company, mission, and the team behind our innovative gym management software.
-        </p>
+      <div className="mx-auto max-w-[1524px] py-8">
+        {/* Heading Shape */}
+        <div className="flex justify-center items-center mb-12 mt-8">
+          <h1 className="text-black font-bold text-5xl font-cairo">About Us</h1>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[1000px]">
-          <div className="flex flex-col">
-            <h2 className="text-slate-800 text-3xl font-bold mb-4">Our Story</h2>
-            <p className="text-black text-base font-medium leading-6 mb-6">
-              ByteMinds Systems is an independent team of passionate developers dedicated to designing and creating smart, efficient, and user-friendly systems that bring convenience to local businesses. Our mission is to empower businesses by streamlining operations, enhancing customer experiences, and driving growth through innovative technology solutions.
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-3xl font-bold text-[#0B294B] mb-6">Our Story</h2>
+            <p className="text-gray-700 mb-6">
+              ByteMinds Systems is dedicated to revolutionizing the fitness industry through innovative technology solutions. 
+              Our mission is to empower gym owners and members with tools that make fitness management seamless and enjoyable.
             </p>
-            <p className="text-black text-base font-medium leading-6">
-              Our journey began with a simple mission: to help gym owners focus on what they do best—creating great fitness experiences—while we handle the complex technology that powers their business operations.
+
+            <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Our Mission</h3>
+            <p className="text-gray-700 mb-6">
+              At ByteMinds Systems, our mission is to make gym management easier and more efficient through easy-to-use technology. We aim to help gym owners and members by providing tools that make daily tasks simple, improve communication, and support fitness goals. Our platform also allows gym owners to easily check when memberships expire and see how many members are registered, giving them better control over their gym operations.
             </p>
-          </div>
-          <div className="flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-md p-6 max-w-[400px]">
-              <img 
-                src="https://placehold.co/400x250/e2e8f0/1e293b?text=Our+Story" 
-                alt="ByteMinds Systems story" 
-                className="w-full h-auto rounded"
-              />
-            </div>
-          </div>
-        </div>
-        
-        <div className="w-full max-w-[1000px] h-px bg-gray-300 my-16"></div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[1000px]">
-          <div className="flex items-center justify-center md:order-1 order-2">
-            <div className="bg-white rounded-lg shadow-md p-6 max-w-[400px]">
-              <img 
-                src="https://placehold.co/400x250/e2e8f0/1e293b?text=Our+Mission" 
-                alt="ByteMinds Systems mission" 
-                className="w-full h-auto rounded"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col md:order-2 order-1">
-            <h2 className="text-slate-800 text-3xl font-bold mb-4">Our Mission</h2>
-            <p className="text-black text-base font-medium leading-6 mb-6">
-              At ByteMinds Systems, we're committed to revolutionizing how fitness businesses operate through intuitive, powerful software solutions that streamline operations and enhance member experiences.
+
+            <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Our Vision</h3>
+            <p className="text-gray-700 mb-6">
+              We envision a world where managing a gym is as easy as a few clicks, and where members can focus on their fitness 
+              journey without worrying about administrative hassles. Our platform brings together the best of technology and fitness 
+              management to create an unparalleled experience for both gym owners and members.
             </p>
-            <p className="text-black text-base font-medium leading-6">
-              We believe that technology should empower gym owners and staff, not complicate their lives. That's why we focus on creating software that's both powerful and easy to use, with features designed specifically for the unique needs of the fitness industry.
+
+            <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Why Choose Us?</h3>
+            <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
+              <li>User-friendly interface for both gym owners and members</li>
+              <li>Comprehensive management tools for gym operations</li>
+              <li>Secure and reliable platform</li>
+              <li>24/7 customer support</li>
+              <li>Regular updates and new features</li>
+            </ul>
+
+            <h3 className="text-2xl font-semibold text-[#0B294B] mb-4">Our Team</h3>
+            <p className="text-gray-700">
+              Our team consists of passionate individuals who are committed to making a difference in the fitness industry. 
+              With years of experience in both technology and fitness management, we understand the unique challenges faced 
+              by gym owners and members, and we're here to solve them.
             </p>
-          </div>
-        </div>
-        
-        <div className="w-full max-w-[1000px] h-px bg-gray-300 my-16"></div>
-        
-        <div className="w-full max-w-[1000px]">
-          <h2 className="text-slate-800 text-3xl font-bold mb-8 text-center">Our Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-slate-800 text-xl font-bold mb-3">Innovation</h3>
-              <p className="text-black text-base font-medium leading-6">
-                We continuously push the boundaries of what's possible in gym management software, staying ahead of industry trends and technological advancements.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-slate-800 text-xl font-bold mb-3">Reliability</h3>
-              <p className="text-black text-base font-medium leading-6">
-                Our customers depend on our software every day to run their businesses. We take this responsibility seriously and build our systems with reliability as a top priority.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-slate-800 text-xl font-bold mb-3">Customer Focus</h3>
-              <p className="text-black text-base font-medium leading-6">
-                We listen to our users and develop solutions that address their real needs. Our success is measured by our customers' success.
-              </p>
-            </div>
           </div>
         </div>
       </div>
-    </main>
+      {/* Footer */}
+      <footer className="bg-[#0B294B] text-white mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center">
+          <div className="flex flex-col items-center mb-6">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
+              alt="ByteMinds Systems Logo"
+              className="w-14 h-14 mb-2"
+            />
+            <span className="font-bold text-lg">ByteMinds Systems</span>
+          </div>
+          <div className="flex space-x-8">
+            <a href="/about-us" className="hover:underline">About Us</a>
+            <a href="/features" className="hover:underline">Features</a>
+            <a href="/faqs" className="hover:underline">FAQs</a>
+            <a href="/contact" className="hover:underline">Contact</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
 

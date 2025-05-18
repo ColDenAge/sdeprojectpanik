@@ -1,24 +1,54 @@
-
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Download, FileText, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { fetchRevenueDataForOwner } from "@/lib/utils";
+import { useAuth } from "@/context/AuthProvider";
+import TaxReportCard from "./TaxReportCard";
+
+function convertToCSV(data) {
+  if (!data.length) return '';
+  const header = Object.keys(data[0]).join(',');
+  const rows = data.map(row => Object.values(row).join(','));
+  return [header, ...rows].join('\r\n');
+}
+
+function downloadFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 const ExportOptions = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleExport = (format: string) => {
+  const handleExport = async (format) => {
+    if (!user) {
+      toast({ title: 'Not logged in', description: 'Please log in to export data.' });
+      return;
+    }
     toast({
       title: `Exporting as ${format}`,
       description: `Your data is being exported as ${format}. It will be ready for download shortly.`,
     });
-  };
-
-  const handleGenerateTaxReport = () => {
-    toast({
-      title: "Tax Report Generated",
-      description: "Your tax report has been generated and is ready for download.",
-    });
+    const data = await fetchRevenueDataForOwner(user.uid);
+    if (format === 'CSV') {
+      const csv = convertToCSV(data);
+      downloadFile('revenue-data.csv', csv, 'text/csv');
+    } else if (format === 'JSON') {
+      downloadFile('revenue-data.json', JSON.stringify(data, null, 2), 'application/json');
+    } else if (format === 'Excel') {
+      // TODO: Install and use xlsx library for Excel export
+      toast({ title: 'Excel export not implemented', description: 'Please install xlsx library.' });
+    } else if (format === 'PDF') {
+      // TODO: Install and use jspdf library for PDF export
+      toast({ title: 'PDF export not implemented', description: 'Please install jspdf library.' });
+    }
   };
 
   return (
@@ -79,19 +109,7 @@ const ExportOptions = () => {
             </button>
           </div>
 
-          <div className="bg-white p-4 border rounded-md hover:bg-muted/10 transition-colors">
-            <h3 className="font-medium mb-2">Tax Reports</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Generate tax reports for specified time periods
-            </p>
-            <button 
-              onClick={handleGenerateTaxReport}
-              className="w-full py-2 bg-muted hover:bg-muted/80 rounded-md transition-colors flex items-center justify-center gap-2"
-            >
-              <FileText className="h-4 w-4" />
-              <span>Generate Tax Report</span>
-            </button>
-          </div>
+          <TaxReportCard />
         </div>
       </CardContent>
     </Card>

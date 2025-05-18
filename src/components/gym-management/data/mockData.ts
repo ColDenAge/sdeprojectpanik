@@ -1,4 +1,3 @@
-
 import { Gym, MembershipApplication, ApplicationsRecord } from "../types/gymTypes";
 
 export const initialGymsData: Gym[] = [
@@ -6,62 +5,114 @@ export const initialGymsData: Gym[] = [
     id: "1",
     name: "Downtown Fitness",
     location: "Downtown",
-    address: "123 Main St, City, State",
-    contactNumber: "(555) 123-4567",
-    members: 87,
+    address: "123 Main St",
+    contactNumber: "555-0123",
+    members: 450,
     status: "Active",
-    pendingApplications: 2,
+    pendingApplications: 3
   },
   {
     id: "2",
     name: "Westside Gym",
     location: "Westside",
-    address: "456 West Ave, City, State",
-    contactNumber: "(555) 234-5678",
-    members: 65,
+    address: "456 West Ave",
+    contactNumber: "555-0124",
+    members: 320,
     status: "Active",
-    pendingApplications: 0,
+    pendingApplications: 1
   },
   {
     id: "3",
     name: "Eastside Fitness Center",
     location: "Eastside",
-    address: "789 East Blvd, City, State",
-    contactNumber: "(555) 345-6789",
-    members: 52,
+    address: "789 East Blvd",
+    contactNumber: "555-0125",
+    members: 280,
     status: "Active",
-    pendingApplications: 1,
-  },
+    pendingApplications: 4
+  }
 ];
 
-// Example mock data for pending applications, with correct status types
-export const mockApplicationsData: ApplicationsRecord = {
+export const initialMembersData = [
+  {
+    id: "1",
+    name: "John Doe",
+    membership: "Premium",
+    status: "Active",
+    location: "Downtown",
+    joinDate: "Jan 12, 2023",
+    gyms: ["Downtown Fitness"]
+  },
+  {
+    id: "2",
+    name: "Jane Smith",
+    membership: "Standard",
+    status: "Active",
+    location: "Westside",
+    joinDate: "Mar 5, 2023",
+    gyms: ["Westside Gym"]
+  },
+  {
+    id: "3",
+    name: "Robert Johnson",
+    membership: "Premium",
+    status: "Inactive",
+    location: "Downtown",
+    joinDate: "Nov 19, 2022",
+    gyms: ["Downtown Fitness", "Eastside Fitness Center"]
+  },
+  {
+    id: "4",
+    name: "Emily Davis",
+    membership: "Standard",
+    status: "Active",
+    location: "Eastside",
+    joinDate: "Jul 30, 2023",
+    gyms: ["Eastside Fitness Center"]
+  },
+  {
+    id: "5",
+    name: "Michael Wilson",
+    membership: "Premium Plus",
+    status: "Active",
+    location: "Downtown",
+    joinDate: "Feb 14, 2023",
+    gyms: ["Downtown Fitness", "Westside Gym"]
+  }
+];
+
+export const mockApplicationsData = {
   "1": [
     {
-      id: "a1",
-      gymId: "1",
-      memberName: "John Smith",
+      id: "1",
+      name: "Sarah Johnson",
+      email: "sarah.j@example.com",
+      phone: "555-0126",
       membershipType: "Premium",
-      requestDate: "May 6, 2025",
-      status: "pending",
-    },
+      status: "Pending",
+      appliedDate: "2024-03-15"
+    }
+  ],
+  "2": [
     {
-      id: "a2",
-      gymId: "1",
-      memberName: "Alice Johnson",
+      id: "2",
+      name: "David Brown",
+      email: "david.b@example.com",
+      phone: "555-0127",
       membershipType: "Standard",
-      requestDate: "May 7, 2025",
-      status: "pending",
-    },
+      status: "Pending",
+      appliedDate: "2024-03-14"
+    }
   ],
   "3": [
     {
-      id: "a3",
-      gymId: "3",
-      memberName: "Bob Williams",
-      membershipType: "Standard",
-      requestDate: "May 5, 2025",
-      status: "pending",
-    },
-  ],
+      id: "3",
+      name: "Lisa Anderson",
+      email: "lisa.a@example.com",
+      phone: "555-0128",
+      membershipType: "Premium Plus",
+      status: "Pending",
+      appliedDate: "2024-03-13"
+    }
+  ]
 };

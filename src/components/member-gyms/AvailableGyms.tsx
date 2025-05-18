@@ -1,34 +1,36 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-
-// Import components
 import GymCard from "./GymCard";
 import GymDetailsContent from "./GymDetailsContent";
 import MembershipApplicationDialog from "./MembershipApplicationDialog";
-
-// Import data and types
-import { availableGyms, gymIdMapping } from "./data/gymData";
-import { Gym, MembershipOption } from "./types/gymTypes";
+import { Gym, GymClass, MembershipOption } from "./types/gymTypes";
+import { useGyms } from "./hooks/useGyms";
+import { useMembershipApplications } from "./hooks/useMembershipApplications";
+import { useAuth } from '@/context/AuthProvider';
 
 const AvailableGyms = () => {
-  const [selectedGym, setSelectedGym] = useState<null | Gym>(null);
+  const { gyms, isLoading } = useGyms();
+  const { user } = useAuth();
+  const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedMembership, setSelectedMembership] = useState<null | MembershipOption>(null);
+  const [selectedClass, setSelectedClass] = useState<GymClass | null>(null);
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
+  const [selectedMembership, setSelectedMembership] = useState<MembershipOption | null>(null);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
-  const [applicationSuccess, setApplicationSuccess] = useState<number[]>([]);
-  const [applications, setApplications] = useState<Record<string, any[]>>({});
   const { toast } = useToast();
 
   // Mock user data
   const currentUser = {
-    name: "Alex Johnson",
-    id: "user123"
+    name: user?.displayName || '',
+    id: user?.uid || '',
+    email: user?.email || '',
   };
+
+  const { hasApplied, submitApplication } = useMembershipApplications({ currentUser });
 
   const handleViewDetails = (gym: Gym) => {
     setSelectedGym(gym);
@@ -46,53 +48,28 @@ const AvailableGyms = () => {
   };
 
   const confirmMembership = () => {
-    if (selectedGym) {
-      // Create a new application
-      const newApplication = {
-        id: `app-${Date.now()}`,
-        gymId: gymIdMapping[selectedGym.id], // Convert to manager gym ID
-        memberName: currentUser.name,
-        membershipType: selectedMembership?.name,
-        requestDate: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        status: "pending",
-        memberId: currentUser.id
-      };
-      
-      // Update applications state
-      setApplications(prev => {
-        const gymId = gymIdMapping[selectedGym.id];
-        return {
-          ...prev,
-          [gymId]: [...(prev[gymId] || []), newApplication]
-        };
-      });
-      
-      toast({
-        title: "Membership Application Submitted",
-        description: `Your application for ${selectedMembership?.name} membership at ${selectedGym.name} has been submitted successfully.`,
-      });
-      
-      // Update local application success tracking
-      setApplicationSuccess([...applicationSuccess, selectedGym.id]);
+    if (selectedGym && selectedMembership) {
+      submitApplication(selectedGym, selectedMembership);
+      setMembershipDialogOpen(false);
+      setIsDialogOpen(false);
     }
-    setMembershipDialogOpen(false);
-    setIsDialogOpen(false);
   };
 
-  const hasApplied = (gymId: number) => {
-    return applicationSuccess.includes(gymId);
-  };
-
-  // Effects to simulate updating the gym manager's pending applications
-  useEffect(() => {
-    // This would normally be handled by a backend or context/redux
-    // Here we simulate the data connection between member and manager views
-    console.log("Applications submitted:", applications);
-  }, [applications]);
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="bg-muted/50">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Explore Available Gyms
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-center">Loading gyms...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -104,8 +81,8 @@ const AvailableGyms = () => {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableGyms.map((gym) => (
-            <GymCard 
+          {gyms.map((gym) => (
+            <GymCard
               key={gym.id}
               gym={gym}
               hasApplied={hasApplied(gym.id)}
@@ -122,23 +99,29 @@ const AvailableGyms = () => {
           <DialogHeader>
             <DialogTitle>{selectedGym?.name}</DialogTitle>
           </DialogHeader>
-          
           {selectedGym && (
-            <GymDetailsContent 
+            <GymDetailsContent
               gym={selectedGym}
               hasApplied={hasApplied(selectedGym.id)}
               onSelectMembership={handleSelectMembership}
             />
           )}
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Class Enrollment Dialog */}
+      <EnrollClassDialog
+        open={enrollDialogOpen}
+        selectedClass={selectedClass}
+        onClose={() => setEnrollDialogOpen(false)}
+        onConfirm={confirmEnrollment}
+      />
+
       {/* Membership Selection Dialog */}
-      <MembershipApplicationDialog 
+      <MembershipApplicationDialog
         open={membershipDialogOpen}
         selectedGym={selectedGym}
         selectedMembership={selectedMembership}

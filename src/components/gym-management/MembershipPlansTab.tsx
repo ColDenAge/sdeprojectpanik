@@ -1,215 +1,181 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useSearch } from "./SearchContext";
-import { AddEditMembershipDialog } from "./dialogs/AddEditMembershipDialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthProvider";
+import { Gym, MembershipPlan } from "./types/gymTypes";
+import MembershipPlansDialog from "./dialogs/MembershipPlansDialog";
+import { GcashPayment } from "../member-gyms/GcashPayment";
 
-const membershipPlansData = [
-  {
-    id: "1",
-    name: "Basic",
-    price: "$29.99",
-    duration: "Monthly",
-    benefits: "Access to gym equipment, locker rooms",
-    members: "45",
-  },
-  {
-    id: "2",
-    name: "Premium",
-    price: "$59.99",
-    duration: "Monthly",
-    benefits: "Basic benefits plus all classes, sauna access, 1 guest pass",
-    members: "32",
-  },
-  {
-    id: "3",
-    name: "Family",
-    price: "$99.99",
-    duration: "Monthly",
-    benefits: "Premium benefits for up to 4 family members",
-    members: "15",
-  },
-];
+interface MembershipPlansTabProps {
+  gymId?: string;
+}
 
-const MembershipPlansTab = () => {
-  const { searchTerm } = useSearch();
-  const [membershipPlans, setMembershipPlans] = useState(membershipPlansData);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState<undefined | typeof membershipPlansData[0]>(undefined);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [planToDelete, setPlanToDelete] = useState<undefined | typeof membershipPlansData[0]>(undefined);
+const MembershipPlansTab: React.FC<MembershipPlansTabProps> = ({ gymId }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const filteredPlans = membershipPlans.filter((plan) => {
-    const search = searchTerm.toLowerCase();
-    return (
-      plan.name.toLowerCase().includes(search) ||
-      plan.price.toLowerCase().includes(search) ||
-      plan.duration.toLowerCase().includes(search) ||
-      plan.benefits.toLowerCase().includes(search)
-    );
-  });
+  useEffect(() => {
+    if (!user) return;
+    const fetchGyms = async () => {
+      try {
+        const gymsRef = collection(db, "gyms");
+        const q = query(gymsRef, where("ownerId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        const gymsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Gym));
+        setGyms(gymsList);
 
-  const handleAddPlan = () => {
-    setCurrentPlan(undefined);
+        if (gymId) {
+          const selected = gymsList.find(gym => gym.id === gymId);
+          if (selected) setSelectedGym(selected);
+        }
+      } catch (error) {
+        console.error("Error fetching gyms:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch gyms. Please try again.",
+          variant: "destructive"
+        });
+      }
+    };
+    fetchGyms();
+  }, [user, gymId]);
+
+  const handleManagePlans = (gym: Gym) => {
+    setSelectedGym(gym);
     setDialogOpen(true);
   };
 
-  const handleEditPlan = (plan: typeof membershipPlansData[0]) => {
-    setCurrentPlan(plan);
-    setDialogOpen(true);
-  };
-
-  const handleDeletePlan = (plan: typeof membershipPlansData[0]) => {
-    setPlanToDelete(plan);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDeletePlan = () => {
-    if (planToDelete) {
-      setMembershipPlans(membershipPlans.filter(plan => plan.id !== planToDelete.id));
-      toast({
-        title: "Membership Plan Deleted",
-        description: `${planToDelete.name} plan has been removed.`,
-      });
-    }
-    setDeleteDialogOpen(false);
-  };
-
-  const handleSavePlan = (values: { name: string; price: string; duration: string; benefits: string }) => {
-    if (currentPlan) {
-      // Edit existing plan
-      setMembershipPlans(
-        membershipPlans.map((item) =>
-          item.id === currentPlan.id
-            ? { ...item, ...values }
-            : item
-        )
-      );
-    } else {
-      // Add new plan
-      const newPlan = {
-        id: `${membershipPlans.length + 1}`,
-        ...values,
-        members: "0",
-      };
-      setMembershipPlans([...membershipPlans, newPlan]);
-    }
+  const handlePaymentComplete = () => {
+    // Refetch gyms to update the UI after payment
+    const gymsRef = collection(db, "gyms");
+    const q = query(gymsRef, where("ownerId", "==", user.uid));
+    getDocs(q).then(querySnapshot => {
+      const updatedGyms = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Gym));
+      setGyms(updatedGyms);
+      const updatedSelectedGym = updatedGyms.find(gym => gym.id === selectedGym?.id);
+      if (updatedSelectedGym) setSelectedGym(updatedSelectedGym);
+    });
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Membership Plans</h3>
-        <Button 
-          onClick={handleAddPlan}
-          className="bg-[#0B294B] text-white hover:bg-[#0a2544]"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Plan
-        </Button>
+        {selectedGym && (
+          <Button
+            onClick={() => handleManagePlans(selectedGym)}
+            className="bg-[#0B294B] text-white hover:bg-[#0a2544]"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Manage Plans
+          </Button>
+        )}
       </div>
-      
+
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-left text-sm font-medium">Plan Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Duration</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Benefits</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Members</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlans.length > 0 ? (
-              filteredPlans.map((plan, i) => (
-                <tr key={i} className="border-b hover:bg-muted/30">
-                  <td className="px-4 py-3 text-sm">{plan.name}</td>
-                  <td className="px-4 py-3 text-sm">{plan.price}</td>
-                  <td className="px-4 py-3 text-sm">{plan.duration}</td>
-                  <td className="px-4 py-3 text-sm max-w-xs truncate">{plan.benefits}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <Badge variant="success">
-                      {plan.members}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2"
-                        onClick={() => handleEditPlan(plan)}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Plan Name</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Benefits</TableHead>
+              <TableHead>Active Members</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {selectedGym?.membershipPlans?.length ? (
+              selectedGym.membershipPlans.map((plan) => (
+                <TableRow key={plan.id}>
+                  <TableCell className="font-medium">{plan.name}</TableCell>
+                  <TableCell>₱{plan.price.toFixed(2)}</TableCell>
+                  <TableCell>{plan.duration}</TableCell>
+                  <TableCell>
+                    <div className="max-w-xs">
+                      {Array.isArray(plan.benefits)
+                        ? plan.benefits.join(", ")
+                        : plan.benefits}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {selectedGym.activeMembers?.filter(
+                      member => member.membershipPlanId === plan.id
+                    ).length || 0}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="success">Active</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleManagePlans(selectedGym)}
                       >
-                        <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 text-red-600 hover:text-red-800 hover:bg-red-50 px-2"
-                        onClick={() => handleDeletePlan(plan)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
+                      {selectedGym.gcashNumber && (
+                        <GcashPayment
+                          gymName={selectedGym.name}
+                          gcashNumber={selectedGym.gcashNumber}
+                          membershipPlan={plan}
+                          onPaymentComplete={handlePaymentComplete}
+                        />
+                      )}
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
-                  No membership plans match your search
-                </td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center text-gray-500">
+                  {selectedGym
+                    ? "No membership plans available. Click 'Manage Plans' to add some."
+                    : "Select a gym to view its membership plans"}
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      <AddEditMembershipDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
-        membership={currentPlan}
-        onSave={handleSavePlan}
-      />
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this membership plan?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              {planToDelete && ` "${planToDelete.name}"`} plan and remove its data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeletePlan}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {selectedGym && (
+        <MembershipPlansDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          gym={selectedGym}
+          onSave={() => {
+            // Refetch gyms to update the UI
+            const gymsRef = collection(db, "gyms");
+            const q = query(gymsRef, where("ownerId", "==", user.uid));
+            getDocs(q).then(querySnapshot => {
+              const updatedGyms = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              } as Gym));
+              setGyms(updatedGyms);
+              const updatedSelectedGym = updatedGyms.find(gym => gym.id === selectedGym.id);
+              if (updatedSelectedGym) setSelectedGym(updatedSelectedGym);
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

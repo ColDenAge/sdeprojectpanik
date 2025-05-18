@@ -1,4 +1,3 @@
-
 export interface GymClass {
   id: number;
   name: string;
@@ -6,21 +5,31 @@ export interface GymClass {
   schedule: string;
   capacity: number;
   enrolled: number;
+  gymId: string;
 }
 
 export interface MembershipOption {
-  id: number;
+  id: string;
   name: string;
   price: string;
+  duration: string;
+  benefits: string[];
 }
 
 export interface Gym {
-  id: number;
+  id: string;
   name: string;
   location: string;
+  address: string;
+  contactNumber: string;
   amenities: string[];
   membershipOptions: MembershipOption[];
   classes: GymClass[];
+  status: string;
+  members: number;
+  pendingApplications: number;
+  ownerId: string;
+  updatedAt: any;
 }
 
 export interface MembershipApplication {

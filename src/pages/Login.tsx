@@ -1,5 +1,4 @@
-
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import Navbar from "@/components/homepage/Navbar";
 import AuthNavbar from "@/components/homepage/AuthNavbar";
 import { Input } from "@/components/ui/input";
@@ -7,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../App";
+import { useAuth } from "@/context/AuthProvider";
+import { RoleContext } from "@/router/App";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define form schema with validation rules
 const loginFormSchema = z.object({
@@ -31,21 +32,42 @@ const Login = (): JSX.Element => {
     }
   });
   const navigate = useNavigate();
-  const { isAuthenticated } = useContext(AuthContext);
-  const [authError, setAuthError] = useState("");
+  const { signIn } = useAuth();
+  const { userRole, setUserRole } = useContext(RoleContext);
+  const { toast } = useToast();
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      await signIn(data.email, data.password);
+      // Check if user already has a role
+      const storedRole = localStorage.getItem("userRole");
+      if (storedRole) {
+        setUserRole(storedRole);
+        navigate("/dashboard");
+      } else {
+        // Only navigate to choice page if user is authenticated but has no role
+        navigate("/choice");
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      // Show appropriate error message based on the error code
+      let errorMessage = "Login failed. Please try again.";
 
-    // Simulate valid credentials
-    const validEmail = "test@example.com";
-    const validPassword = "password123";
+      if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address. Please check your email and try again.";
+      } else if (error.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email. Please sign up first.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Please try again later.";
+      }
 
-    if (data.email === validEmail && data.password === validPassword) {
-      setAuthError("");
-      navigate("/choice");
-    } else {
-      setAuthError("Invalid login, please try again.");
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: errorMessage,
+      });
     }
   };
 
@@ -58,16 +80,14 @@ const Login = (): JSX.Element => {
 
       <div className="mx-auto max-w-[1524px] py-8">
         {/* Heading Shape */}
-        <div className="w-[756px] h-[127px] bg-[url('/blue-shape.svg')] bg-cover relative mb-12">
-          <div className="absolute w-[239px] h-[89px] top-[18px] left-[396px] text-black font-bold text-5xl font-cairo">
-            Login
-          </div>
+        <div className="flex justify-center items-center mb-12 mt-8">
+          <h1 className="text-black font-bold text-5xl font-cairo">Login</h1>
         </div>
 
         <div className="flex justify-center">
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-[#0B294B] mb-6 text-center">Sign in to Your Account</h2>
-            
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -83,7 +103,7 @@ const Login = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -97,23 +117,19 @@ const Login = (): JSX.Element => {
                     </FormItem>
                   )}
                 />
-                
-                {authError && (
-                  <div className="text-red-500 text-sm">{authError}</div>
-                )}
-                
+
                 <div className="flex justify-end">
                   <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
                     Forgot password?
                   </Link>
                 </div>
-                
+
                 <Button type="submit" className="w-full bg-[#0B294B] hover:bg-[#0a2544]">
                   Login
                 </Button>
               </form>
             </Form>
-            
+
             <div className="text-center mt-6">
               <p className="text-[#0B294B]">
                 Don't have an account?{" "}
@@ -125,6 +141,25 @@ const Login = (): JSX.Element => {
           </div>
         </div>
       </div>
+      {/* Footer */}
+      <footer className="bg-[#0B294B] text-white mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col items-center">
+          <div className="flex flex-col items-center mb-6">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/cfc59f2c2ec4490aae7dd5de34132da2/9d9a2937f9c6c78521a6ffb21852b87b95a339ed?placeholderIfAbsent=true"
+              alt="ByteMinds Systems Logo"
+              className="w-14 h-14 mb-2"
+            />
+            <span className="font-bold text-lg">ByteMinds Systems</span>
+          </div>
+          <div className="flex space-x-8">
+            <a href="/about-us" className="hover:underline">About Us</a>
+            <a href="/features" className="hover:underline">Features</a>
+            <a href="/faqs" className="hover:underline">FAQs</a>
+            <a href="/contact" className="hover:underline">Contact</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

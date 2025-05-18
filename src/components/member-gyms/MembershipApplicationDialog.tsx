@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -33,20 +32,20 @@ const MembershipApplicationDialog: React.FC<MembershipApplicationDialogProps> = 
         <DialogHeader>
           <DialogTitle>Apply for Membership</DialogTitle>
         </DialogHeader>
-        
+
         {selectedGym && selectedMembership ? (
           <div className="py-4">
             <h3 className="font-medium text-lg">{selectedGym.name}</h3>
             <p className="text-sm text-muted-foreground mt-1">{selectedGym.location}</p>
-            
+
             <div className="my-4 p-4 border rounded-md">
               <h4 className="font-medium">{selectedMembership.name} Plan</h4>
               <p className="text-sm text-muted-foreground">{selectedMembership.price}</p>
             </div>
-            
+
             <div className="mt-6 p-4 bg-muted/30 rounded-md">
               <p className="text-sm">
-                By applying for this membership, you agree to the terms and conditions of the gym. 
+                By applying for this membership, you agree to the terms and conditions of the gym.
                 After approval, membership fees will be automatically charged to your payment method on file.
               </p>
             </div>
@@ -55,12 +54,12 @@ const MembershipApplicationDialog: React.FC<MembershipApplicationDialogProps> = 
           <div className="py-4">
             <h3 className="font-medium text-lg">{selectedGym.name}</h3>
             <p className="text-sm text-muted-foreground mt-1">{selectedGym.location}</p>
-            
+
             <div className="my-4">
               <h4 className="font-medium mb-2">Select a Membership Plan:</h4>
               <div className="space-y-3">
-                {selectedGym.membershipOptions.map((plan) => (
-                  <div 
+                {(selectedGym.membershipOptions ?? []).map((plan) => (
+                  <div
                     key={plan.id}
                     className={`p-3 border rounded-md cursor-pointer transition-colors ${
                       selectedMembership?.id === plan.id ? 'border-[#0B294B] bg-[#0B294B]/5' : ''
@@ -75,7 +74,7 @@ const MembershipApplicationDialog: React.FC<MembershipApplicationDialogProps> = 
                 ))}
               </div>
             </div>
-            
+
             <div className="mt-4 p-4 bg-muted/30 rounded-md">
               <p className="text-sm">
                 Please select a membership plan to continue with your application.
@@ -91,8 +90,8 @@ const MembershipApplicationDialog: React.FC<MembershipApplicationDialogProps> = 
           }}>
             Cancel
           </Button>
-          <Button 
-            onClick={onConfirm} 
+          <Button
+            onClick={onConfirm}
             className="bg-[#0B294B] text-white hover:bg-[#0a2544]"
             disabled={!selectedMembership}
           >

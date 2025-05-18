@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,28 +12,45 @@ interface GymDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   gym: Gym | null;
+  onEnrollClass: (classItem: GymClass) => void;
+  canEnroll: boolean;
 }
 
 const GymDetailsDialog: React.FC<GymDetailsDialogProps> = ({
   isOpen,
   onClose,
-  gym
+  gym,
+  onEnrollClass,
+  canEnroll
 }) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-xl">{gym?.name}</DialogTitle>
-          <p className="text-sm text-muted-foreground">{gym?.location}</p>
-        </DialogHeader>
-        
-        {gym && (
-          <div className="flex-grow overflow-hidden">
-            <GymDetailsTabs gym={gym} />
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{gym?.name}</DialogTitle>
+            <p className="text-sm text-muted-foreground">{gym?.location}</p>
+          </DialogHeader>
+
+          {gym && (
+            <div className="flex-grow overflow-hidden">
+              <GymDetailsTabs
+                gym={gym}
+                onEnrollClass={handleEnrollClick}
+                canEnroll={canEnroll}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <EnrollClassDialog
+        open={enrollDialogOpen}
+        selectedClass={selectedClass}
+        onClose={() => setEnrollDialogOpen(false)}
+        onConfirm={handleEnrollConfirm}
+      />
+    </>
   );
 };
 

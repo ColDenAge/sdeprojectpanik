@@ -1,34 +1,28 @@
-
-import React, { useContext, useEffect } from "react";
-import { AuthContext } from "../../App";
-import AuthNavbar from "@/components/homepage/AuthNavbar";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { RoleContext } from "../../router/App";
+import AuthNavbar from "../homepage/AuthNavbar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { userRole } = useContext(RoleContext);
+  const isAuthenticated = !!userRole;
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login");
-    }
-  }, [isAuthenticated, navigate]);
+  if (!isAuthenticated) {
+    navigate("/login");
+    return null;
+  }
 
   return (
-    <div className="min-h-screen w-full bg-background">
-      {/* Navigation Bar */}
-      <div className="w-full px-6 py-4">
-        <AuthNavbar />
-      </div>
-
-      <div className="mx-auto max-w-[1524px] py-8 px-6">
+    <div className="min-h-screen bg-gray-100">
+      <AuthNavbar />
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {children}
-      </div>
+      </main>
     </div>
   );
 };

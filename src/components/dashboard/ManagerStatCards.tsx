@@ -1,9 +1,91 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthProvider";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, BarChart } from "lucide-react";
+import { usePendingApplicationsCount } from '../../hooks/usePendingApplicationsCount';
 
 const ManagerStatCards: React.FC = () => {
+  const { user } = useAuth();
+  const [totalActiveMembers, setTotalActiveMembers] = useState(0);
+  const [attendanceRate, setAttendanceRate] = useState(0);
+  const [revenue, setRevenue] = useState(0);
+  const [newSignups, setNewSignups] = useState(0);
+  const pendingApplicationsCount = usePendingApplicationsCount();
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchStats = async () => {
+      // 1. Fetch gyms for owner
+      const gymsRef = collection(db, "gyms");
+      const q = query(gymsRef, where("ownerId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      const gyms = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Active Members
+      let total = 0;
+      for (const gym of gyms) {
+        const membersRef = collection(db, "gyms", gym.id, "members");
+        const membersSnapshot = await getDocs(membersRef);
+        const activeMembers = membersSnapshot.docs.filter(doc => doc.data().status === 'active');
+        total += activeMembers.length;
+      }
+      setTotalActiveMembers(total);
+      // 2. Fetch classes for all gyms
+      let allClasses = [];
+      for (let i = 0; i < gyms.length; i++) {
+        const gymId = gyms[i].id;
+        const classesRef = collection(db, "gyms", gymId, "classes");
+        const classesSnapshot = await getDocs(classesRef);
+        allClasses.push(...classesSnapshot.docs.map(doc => doc.data()));
+      }
+      // Attendance Rate
+      let totalAttendees = 0;
+      let totalPossible = 0;
+      allClasses.forEach(cls => {
+        const enrolled = typeof cls.enrolled === "number" ? cls.enrolled : parseInt(cls.enrolled || "0");
+        const capacity = typeof cls.capacity === "number" ? cls.capacity : parseInt(cls.capacity || "0");
+        totalAttendees += enrolled;
+        totalPossible += capacity;
+      });
+      let attendance = 0;
+      if (totalPossible > 0) {
+        attendance = Math.round((totalAttendees / totalPossible) * 100);
+      }
+      setAttendanceRate(attendance);
+      // 3. Fetch payments for all gyms (current month)
+      const gymIds = gyms.map(gym => gym.id);
+      let payments = [];
+      if (gymIds.length > 0) {
+        const paymentsRef = collection(db, "payments");
+        for (let i = 0; i < gymIds.length; i += 10) {
+          const batch = gymIds.slice(i, i + 10);
+          const paymentsQuery = query(paymentsRef, where("gymId", "in", batch));
+          const paymentsSnapshot = await getDocs(paymentsQuery);
+          payments.push(...paymentsSnapshot.docs.map(doc => doc.data()));
+        }
+      }
+      const now = new Date();
+      const thisMonth = now.getMonth();
+      const thisYear = now.getFullYear();
+      let monthRevenue = 0;
+      payments.forEach(p => {
+        if (p.status === "Paid") {
+          const date = new Date(p.date);
+          if (date.getFullYear() === thisYear && date.getMonth() === thisMonth) {
+            monthRevenue += p.amount;
+          }
+        }
+      });
+      setRevenue(monthRevenue);
+      // 4. New Sign-ups (members joined in last 7 days)
+      // NOTE: activeMembers is a string[], so we cannot get joinDate here.
+      // To enable this, store member objects with joinDate or fetch from a members collection.
+      setNewSignups(0);
+    };
+    fetchStats();
+  }, [user]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <Card className="hover:shadow-md transition-shadow">
@@ -14,8 +96,8 @@ const ManagerStatCards: React.FC = () => {
           <Users className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">245</div>
-          <p className="text-xs text-gray-600">7% increase from last month</p>
+          <div className="text-2xl font-bold text-[#0B294B]">{totalActiveMembers}</div>
+          <p className="text-xs text-gray-600">{totalActiveMembers === 0 ? '' : '7% increase from last month'}</p>
         </CardContent>
       </Card>
       <Card className="hover:shadow-md transition-shadow">
@@ -26,7 +108,7 @@ const ManagerStatCards: React.FC = () => {
           <Calendar className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">89%</div>
+          <div className="text-2xl font-bold text-[#0B294B]">{attendanceRate}%</div>
           <p className="text-xs text-gray-600">Average attendance rate</p>
         </CardContent>
       </Card>
@@ -38,7 +120,7 @@ const ManagerStatCards: React.FC = () => {
           <BarChart className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">$24.5k</div>
+          <div className="text-2xl font-bold text-[#0B294B]">${revenue.toLocaleString()}</div>
           <p className="text-xs text-gray-600">Month to date</p>
         </CardContent>
       </Card>
@@ -50,7 +132,7 @@ const ManagerStatCards: React.FC = () => {
           <Users className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">12</div>
+          <div className="text-2xl font-bold text-[#0B294B]">{newSignups}</div>
           <p className="text-xs text-gray-600">In the last 7 days</p>
         </CardContent>
       </Card>

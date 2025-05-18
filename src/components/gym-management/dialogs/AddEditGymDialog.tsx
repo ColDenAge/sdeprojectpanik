@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,11 @@ const gymFormSchema = z.object({
   location: z.string().min(2, { message: "Location must be at least 2 characters." }),
   address: z.string().min(5, { message: "Please enter a valid address." }),
   contactNumber: z.string().min(10, { message: "Please enter a valid contact number." }),
+  gcashNumber: z.string()
+    .min(11, "GCash number must be 11 digits")
+    .max(11, "GCash number must be 11 digits")
+    .regex(/^09\d{9}$/, "Please enter a valid GCash number starting with 09")
+    .optional(),
 });
 
 type GymFormValues = z.infer<typeof gymFormSchema>;
@@ -26,6 +30,7 @@ interface AddEditGymDialogProps {
     location: string;
     address?: string;
     contactNumber?: string;
+    gcashNumber?: string;
   };
   onSave: (values: GymFormValues) => void;
 }
@@ -38,6 +43,7 @@ export function AddEditGymDialog({ open, onOpenChange, gym, onSave }: AddEditGym
     location: gym?.location || "",
     address: gym?.address || "",
     contactNumber: gym?.contactNumber || "",
+    gcashNumber: gym?.gcashNumber || "",
   };
 
   const form = useForm<GymFormValues>({
@@ -105,6 +111,19 @@ export function AddEditGymDialog({ open, onOpenChange, gym, onSave }: AddEditGym
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
                     <Input placeholder="(555) 123-4567" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gcashNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GCash Number (for payments)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="09XXXXXXXXX" {...field} className="font-mono" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
