@@ -25,6 +25,7 @@ import { MoreHorizontal, UserPlus } from "lucide-react";
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, doc, deleteDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { useGyms } from "@/components/member-gyms/hooks/useGyms";
+import { addMonths, addYears } from 'date-fns';
 
 interface MembersTabProps {
   gymId?: string;
@@ -238,7 +239,38 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
                     <Badge variant={member.status === 'inactive' ? 'secondary' : 'success'}>{member.status}</Badge>
                   )}
                 </TableCell>
-                <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}</TableCell>
+                <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}
+                  {/* Expiration Date */}
+                  {(() => {
+                    let exp = member.expirationDate;
+                    const PLAN_DURATIONS = {
+                      basic: { months: 1 },
+                      premium: { months: 3 },
+                      vip: { years: 1 },
+                    };
+                    const plan = member.membershipType?.toLowerCase();
+                    if (!exp && member.joinedAt && plan && PLAN_DURATIONS[plan]) {
+                      const join = new Date(member.joinedAt);
+                      if (PLAN_DURATIONS[plan].months) {
+                        exp = addMonths(join, PLAN_DURATIONS[plan].months);
+                      } else if (PLAN_DURATIONS[plan].years) {
+                        exp = addYears(join, PLAN_DURATIONS[plan].years);
+                      }
+                    }
+                    if (exp) {
+                      const expDate = typeof exp === 'string' ? new Date(exp) : exp;
+                      return (
+                        <>
+                          <br />
+                          <span style={{ color: '#888', fontSize: '0.9em' }}>
+                            Exp: {expDate.toLocaleDateString()}
+                          </span>
+                        </>
+                      );
+                    }
+                    return null;
+                  })()}
+                </TableCell>
                 <TableCell>{currentGym ? currentGym.name : '-'}</TableCell>
                 <TableCell>
                   <Button variant="outline" size="sm" onClick={() => handlePaymentClick(member)}>

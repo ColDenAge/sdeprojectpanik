@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { 
@@ -11,50 +10,36 @@ import {
 } from "@/components/ui/table";
 import { Receipt, Download, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data for billing history
-const billingHistory = [
-  {
-    id: 1,
-    date: "May 1, 2023",
-    description: "Monthly Membership - FitLife Downtown",
-    amount: "$49.99",
-    status: "Paid"
-  },
-  {
-    id: 2,
-    date: "Apr 1, 2023",
-    description: "Monthly Membership - FitLife Downtown",
-    amount: "$49.99",
-    status: "Paid"
-  },
-  {
-    id: 3,
-    date: "Mar 1, 2023",
-    description: "Monthly Membership - FitLife Downtown",
-    amount: "$49.99",
-    status: "Paid"
-  },
-  {
-    id: 4,
-    date: "Feb 1, 2023",
-    description: "Monthly Membership - FitLife Downtown",
-    amount: "$49.99",
-    status: "Paid"
-  }
-];
+import { useAuth } from "@/context/AuthProvider";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useEffect, useState } from "react";
 
 const BillingHistory = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [payments, setPayments] = useState([]);
 
-  const handleDownloadPDF = (invoiceId: number, date: string) => {
-    // In a real application, this would generate and download a PDF
+  useEffect(() => {
+    if (!user) return;
+    const fetchPayments = async () => {
+      const q = query(
+        collection(db, "payments"),
+        where("userId", "==", user.uid),
+        where("status", "==", "Paid"), // Only show paid
+        orderBy("date", "desc")
+      );
+      const snapshot = await getDocs(q);
+      setPayments(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchPayments();
+  }, [user]);
+
+  const handleDownloadPDF = (invoiceId, date) => {
     toast({
       title: "Downloading Invoice PDF",
       description: `Your invoice from ${date} is being downloaded.`,
     });
-    
-    // Simulate download delay
     setTimeout(() => {
       toast({
         title: "Download Complete",
@@ -68,8 +53,6 @@ const BillingHistory = () => {
       title: "Downloading All Receipts",
       description: "Your receipts are being prepared for download as a ZIP file.",
     });
-    
-    // Simulate download delay
     setTimeout(() => {
       toast({
         title: "Download Complete",
@@ -106,11 +89,11 @@ const BillingHistory = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {billingHistory.map((invoice) => (
+              {payments.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell>{invoice.date}</TableCell>
-                  <TableCell className="font-medium">{invoice.description}</TableCell>
-                  <TableCell>{invoice.amount}</TableCell>
+                  <TableCell>{invoice.date ? new Date(invoice.date).toLocaleDateString() : "-"}</TableCell>
+                  <TableCell className="font-medium">{invoice.description || invoice.paymentMethod || "-"}</TableCell>
+                  <TableCell>{invoice.amount ? `$${invoice.amount}` : "-"}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       {invoice.status}
@@ -118,14 +101,21 @@ const BillingHistory = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <button 
-                        onClick={() => handleDownloadPDF(invoice.id, invoice.date)}
-                        className="inline-flex items-center text-[#0B294B] hover:text-[#0a2544] transition-colors"
-                        aria-label="Download receipt"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        PDF
-                      </button>
+                      {invoice.receiptUrl ? (
+                        <a href={invoice.receiptUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-[#0B294B] hover:text-[#0a2544] transition-colors" aria-label="Download receipt">
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </a>
+                      ) : (
+                        <button 
+                          onClick={() => handleDownloadPDF(invoice.id, invoice.date)}
+                          className="inline-flex items-center text-[#0B294B] hover:text-[#0a2544] transition-colors"
+                          aria-label="Download receipt"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

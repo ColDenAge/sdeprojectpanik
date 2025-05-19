@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Wallet, Users } from "lucide-react";
@@ -14,6 +14,7 @@ const BillingStats = () => {
 
   useEffect(() => {
     if (!user) return;
+    let unsubscribe = null;
     const fetchStats = async () => {
       // 1. Fetch gyms for owner
       const gymsRef = collection(db, "gyms");
@@ -27,44 +28,53 @@ const BillingStats = () => {
         setOverduePayments(0);
         return;
       }
-      // 2. Fetch payments for these gyms
+      // 2. Listen to payments for these gyms
       const paymentsRef = collection(db, "payments");
-      // Firestore 'in' queries are limited to 10 items
-      const payments = [];
+      const allPayments = [];
+      const unsubscribes = [];
       for (let i = 0; i < gymIds.length; i += 10) {
         const batch = gymIds.slice(i, i + 10);
         const paymentsQuery = query(paymentsRef, where("gymId", "in", batch));
-        const paymentsSnapshot = await getDocs(paymentsQuery);
-        payments.push(...paymentsSnapshot.docs.map(doc => doc.data()));
-      }
-      // 3. Calculate stats
-      const now = new Date();
-      const thisMonth = now.getMonth();
-      const thisYear = now.getFullYear();
-      let monthRevenue = 0;
-      let yearRevenue = 0;
-      let activeSubs = 0;
-      let overdue = 0;
-      payments.forEach(p => {
-        if (p.status === "Paid") {
-          const date = new Date(p.date);
-          if (date.getFullYear() === thisYear) {
-            yearRevenue += p.amount;
-            if (date.getMonth() === thisMonth) {
-              monthRevenue += p.amount;
+        const unsubscribeBatch = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
+          allPayments.length = 0;
+          paymentsSnapshot.docs.forEach(doc => allPayments.push(doc.data()));
+          // 3. Calculate stats
+          const now = new Date();
+          const thisMonth = now.getMonth();
+          const thisYear = now.getFullYear();
+          let monthRevenue = 0;
+          let yearRevenue = 0;
+          let activeSubs = 0;
+          let overdue = 0;
+          allPayments.forEach(p => {
+            if (p.status === "Paid") {
+              // Use the month/year fields if available, otherwise fallback to date
+              const month = p.month !== undefined ? p.month : new Date(p.date).getMonth();
+              const year = p.year !== undefined ? p.year : new Date(p.date).getFullYear();
+              if (year === thisYear) {
+                yearRevenue += p.amount;
+                if (month === thisMonth) {
+                  monthRevenue += p.amount;
+                }
+              }
+              activeSubs += 1;
+            } else if (p.status === "Overdue" || p.status === "Failed") {
+              overdue += 1;
             }
-          }
-          activeSubs += 1;
-        } else if (p.status === "Overdue" || p.status === "Failed") {
-          overdue += 1;
-        }
-      });
-      setMonthlyRevenue(monthRevenue);
-      setYearlyRevenue(yearRevenue);
-      setActiveSubscriptions(activeSubs);
-      setOverduePayments(overdue);
+          });
+          setMonthlyRevenue(monthRevenue);
+          setYearlyRevenue(yearRevenue);
+          setActiveSubscriptions(activeSubs);
+          setOverduePayments(overdue);
+        });
+        unsubscribes.push(unsubscribeBatch);
+      }
+      unsubscribe = () => unsubscribes.forEach(unsub => unsub());
     };
     fetchStats();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user]);
 
   return (

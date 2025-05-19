@@ -11,6 +11,7 @@ interface GymTableRowProps {
   onEditGym: (gym: Gym) => void;
   onDeleteGym: (gym: Gym) => void;
   onViewApplications: (gym: Gym) => void;
+  onPayment?: (gym: Gym) => void;
 }
 
 const GymTableRow: React.FC<GymTableRowProps> = ({
@@ -19,6 +20,7 @@ const GymTableRow: React.FC<GymTableRowProps> = ({
   onEditGym,
   onDeleteGym,
   onViewApplications,
+  onPayment,
 }) => {
   const pendingCount = usePendingApplicationsCountForGym(gym.id);
   return (
@@ -72,6 +74,16 @@ const GymTableRow: React.FC<GymTableRowProps> = ({
               <span className="ml-2 font-bold">({pendingCount})</span>
             )}
           </Button>
+          {onPayment && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800 px-3 mt-1"
+              onClick={() => onPayment(gym)}
+            >
+              Payment
+            </Button>
+          )}
         </div>
       </td>
     </tr>

@@ -11,7 +11,7 @@ import {
   ResponsiveContainer 
 } from "recharts";
 import { useAuth } from "@/context/AuthProvider";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -24,6 +24,7 @@ const RevenueChart = () => {
 
   React.useEffect(() => {
     if (!user) return;
+    let unsubscribe = null;
     const fetchRevenue = async () => {
       // 1. Fetch gyms for owner
       const gymsRef = collection(db, "gyms");
@@ -34,36 +35,46 @@ const RevenueChart = () => {
         setRevenueData(months.map((month) => ({ month, revenue: 0, projections: 0 })));
         return;
       }
-      // 2. Fetch payments for these gyms
+      // 2. Listen to payments for these gyms
       const paymentsRef = collection(db, "payments");
-      const payments = [];
+      const allPayments = [];
+      const unsubscribes = [];
       for (let i = 0; i < gymIds.length; i += 10) {
         const batch = gymIds.slice(i, i + 10);
         const paymentsQuery = query(paymentsRef, where("gymId", "in", batch));
-        const paymentsSnapshot = await getDocs(paymentsQuery);
-        payments.push(...paymentsSnapshot.docs.map(doc => doc.data()));
+        const unsubscribeBatch = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
+          allPayments.length = 0;
+          paymentsSnapshot.docs.forEach(doc => allPayments.push(doc.data()));
+          // 3. Aggregate revenue by month
+          const now = new Date();
+          const thisYear = now.getFullYear();
+          const monthlyRevenue = Array(12).fill(0);
+          allPayments.forEach(p => {
+            if (p.status === "Paid") {
+              // Use the month field if available, otherwise fallback to date
+              const month = p.month !== undefined ? p.month : new Date(p.date).getMonth();
+              const year = p.year !== undefined ? p.year : new Date(p.date).getFullYear();
+              if (year === thisYear) {
+                monthlyRevenue[month] += p.amount;
+              }
+            }
+          });
+          setRevenueData(
+            months.map((month, idx) => ({
+              month,
+              revenue: monthlyRevenue[idx],
+              projections: 0 // You can add projections logic if needed
+            }))
+          );
+        });
+        unsubscribes.push(unsubscribeBatch);
       }
-      // 3. Aggregate revenue by month
-      const now = new Date();
-      const thisYear = now.getFullYear();
-      const monthlyRevenue = Array(12).fill(0);
-      payments.forEach(p => {
-        if (p.status === "Paid") {
-          const date = new Date(p.date);
-          if (date.getFullYear() === thisYear) {
-            monthlyRevenue[date.getMonth()] += p.amount;
-          }
-        }
-      });
-      setRevenueData(
-        months.map((month, idx) => ({
-          month,
-          revenue: monthlyRevenue[idx],
-          projections: 0 // You can add projections logic if needed
-        }))
-      );
+      unsubscribe = () => unsubscribes.forEach(unsub => unsub());
     };
     fetchRevenue();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user]);
 
   return (
