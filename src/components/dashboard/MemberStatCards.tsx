@@ -1,9 +1,13 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Dumbbell, Receipt, CreditCard } from "lucide-react";
 
-const MemberStatCards: React.FC = () => {
+interface MemberStatCardsProps {
+  upcomingClassesCount: number;
+  workoutStreakDays: number | string;
+}
+
+const MemberStatCards: React.FC<MemberStatCardsProps> = ({ upcomingClassesCount, workoutStreakDays }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <Card className="hover:shadow-md transition-shadow">
@@ -14,7 +18,7 @@ const MemberStatCards: React.FC = () => {
           <Calendar className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">3</div>
+          <div className="text-2xl font-bold text-[#0B294B]">{upcomingClassesCount}</div>
           <p className="text-xs text-gray-600">Classes scheduled this week</p>
         </CardContent>
       </Card>
@@ -26,7 +30,7 @@ const MemberStatCards: React.FC = () => {
           <Dumbbell className="h-4 w-4 text-[#0B294B]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[#0B294B]">8 days</div>
+          <div className="text-2xl font-bold text-[#0B294B]">{workoutStreakDays}</div>
           <p className="text-xs text-gray-600">Keep it up!</p>
         </CardContent>
       </Card>

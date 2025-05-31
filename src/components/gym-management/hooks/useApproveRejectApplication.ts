@@ -16,15 +16,18 @@ export async function approveApplication(application: MembershipApplication) {
     joinDate: joinDate.toISOString(),
   });
 
-  // Fetch gym to get membershipPlanId (if needed)
+  // Fetch gym to get membership plans
   const gymSnap = await getDoc(gymRef);
   let membershipPlanId = '';
+
   if (gymSnap.exists()) {
     const gymData = gymSnap.data();
     if (gymData.membershipPlans && gymData.membershipPlans.length > 0) {
-      // Try to match plan by name
+      // Find the selected plan
       const plan = gymData.membershipPlans.find((p: any) => p.name === application.membershipType);
-      if (plan) membershipPlanId = plan.id;
+      if (plan) {
+        membershipPlanId = plan.id;
+      }
     }
   }
 
@@ -33,7 +36,7 @@ export async function approveApplication(application: MembershipApplication) {
     id: application.memberId,
     name: application.memberName,
     membershipPlanId,
-    startDate: joinDate,
+    startDate: joinDate.toISOString(),
     endDate: null,
     status: 'active',
   };

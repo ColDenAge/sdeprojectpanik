@@ -10,8 +10,8 @@ export interface ActiveMember {
   id: string;
   name: string;
   membershipPlanId: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string | null;
   status: "active" | "expired" | "suspended";
 }
 

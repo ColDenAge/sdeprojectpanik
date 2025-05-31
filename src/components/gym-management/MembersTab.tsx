@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { MoreHorizontal, UserPlus } from "lucide-react";
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, doc, deleteDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, setDoc, updateDoc, increment, getDoc } from 'firebase/firestore';
 import { useGyms } from "@/components/member-gyms/hooks/useGyms";
 import { addMonths, addYears } from 'date-fns';
 
@@ -54,6 +54,8 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
       const approvedMembers = membersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
+        // Ensure endDate is included if it exists
+        endDate: doc.data().endDate || null,
       }));
 
       // Fetch pending applications
@@ -189,17 +191,40 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
 
   const handlePaymentStatus = async (status: 'paid' | 'expired') => {
     if (!selectedPaymentMember || !gymId) return;
+    const memberRef = doc(db, 'gyms', gymId, 'members', selectedPaymentMember.id);
+
     if (status === 'expired') {
       // Update status to inactive in Firestore
-      const memberRef = doc(db, 'gyms', gymId, 'members', selectedPaymentMember.id);
-      await updateDoc(memberRef, { status: 'inactive' });
-      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'inactive' } : m));
+      await updateDoc(memberRef, { status: 'inactive', endDate: null }); // Clear end date on expiration
+      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'inactive', endDate: null } : m));
       toast({ title: 'Status Updated', description: `${selectedPaymentMember.memberName} is now inactive.` });
     } else {
-      // Update status to active in Firestore
-      const memberRef = doc(db, 'gyms', gymId, 'members', selectedPaymentMember.id);
-      await updateDoc(memberRef, { status: 'active' });
-      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'active' } : m));
+      // Status is 'paid' (set to 'active')
+      // Fetch gym data to get membership plans
+      const gymRef = doc(db, 'gyms', gymId);
+      const gymSnap = await getDoc(gymRef);
+      let endDate: Date | null = null;
+
+      if (gymSnap.exists()) {
+        const gymData = gymSnap.data();
+        if (gymData.membershipPlans && gymData.membershipPlans.length > 0) {
+          // Find the selected plan based on member's membershipType
+          const plan = gymData.membershipPlans.find((p: any) => p.name === selectedPaymentMember.membershipType);
+          if (plan && selectedPaymentMember.joinedAt) {
+            const joinedDate = new Date(selectedPaymentMember.joinedAt);
+            // Calculate end date based on plan duration
+            if (plan.duration === 'monthly') {
+              endDate = addMonths(joinedDate, 1);
+            } else if (plan.duration === 'yearly') {
+              endDate = addYears(joinedDate, 1);
+            }
+          }
+        }
+      }
+
+      // Update status to active and set endDate in Firestore
+      await updateDoc(memberRef, { status: 'active', endDate: endDate ? endDate.toISOString() : null });
+      setMembers(members => members.map(m => m.id === selectedPaymentMember.id ? { ...m, status: 'active', endDate: endDate ? endDate.toISOString() : null } : m));
       toast({ title: 'Status Updated', description: `${selectedPaymentMember.memberName} is now active.` });
     }
     setPaymentDialogOpen(false);
@@ -215,6 +240,7 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
             <TableHead>Membership</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Join Date</TableHead>
+            <TableHead>Expiration Date</TableHead>
             <TableHead>Gyms</TableHead>
             <TableHead>Payment</TableHead>
             <TableHead>Actions</TableHead>
@@ -239,41 +265,11 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
                     <Badge variant={member.status === 'inactive' ? 'secondary' : 'success'}>{member.status}</Badge>
                   )}
                 </TableCell>
-                <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}
-                  {/* Expiration Date */}
-                  {(() => {
-                    let exp = member.expirationDate;
-                    const PLAN_DURATIONS = {
-                      basic: { months: 1 },
-                      premium: { months: 3 },
-                      vip: { years: 1 },
-                    };
-                    const plan = member.membershipType?.toLowerCase();
-                    if (!exp && member.joinedAt && plan && PLAN_DURATIONS[plan]) {
-                      const join = new Date(member.joinedAt);
-                      if (PLAN_DURATIONS[plan].months) {
-                        exp = addMonths(join, PLAN_DURATIONS[plan].months);
-                      } else if (PLAN_DURATIONS[plan].years) {
-                        exp = addYears(join, PLAN_DURATIONS[plan].years);
-                      }
-                    }
-                    if (exp) {
-                      const expDate = typeof exp === 'string' ? new Date(exp) : exp;
-                      return (
-                        <>
-                          <br />
-                          <span style={{ color: '#888', fontSize: '0.9em' }}>
-                            Exp: {expDate.toLocaleDateString()}
-                          </span>
-                        </>
-                      );
-                    }
-                    return null;
-                  })()}
-                </TableCell>
+                <TableCell>{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}</TableCell>
+                <TableCell>{member.endDate ? new Date(member.endDate).toLocaleDateString() : '-'}</TableCell>
                 <TableCell>{currentGym ? currentGym.name : '-'}</TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" onClick={() => handlePaymentClick(member)}>
+                  <Button variant="outline" size="sm" onClick={() => handlePaymentClick(member)} disabled={member.status === 'active'}>
                     Payment
                   </Button>
                 </TableCell>
@@ -293,7 +289,7 @@ const MembersTab: React.FC<MembersTabProps> = ({ gymId, onMemberAccepted }) => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-gray-500">
+              <TableCell colSpan={8} className="h-24 text-center text-gray-500">
                 No members match your search
               </TableCell>
             </TableRow>
