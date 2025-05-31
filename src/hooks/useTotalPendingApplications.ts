@@ -14,6 +14,7 @@ export function useMyGymsPendingApplications() {
     let gymCounts: Record<string, number> = {};
 
     const fetchGymsAndListen = async () => {
+      // Only get gyms where ownerId matches the current user
       const gymsSnapshot = await getDocs(query(collection(db, "gyms"), where("ownerId", "==", user.uid)));
       const gymIds = gymsSnapshot.docs.map(doc => doc.id);
       if (gymIds.length === 0) {
@@ -23,8 +24,10 @@ export function useMyGymsPendingApplications() {
       unsubscribes = gymIds.map(gymId => {
         const appsQuery = query(collection(db, "gyms", gymId, "applications"), where("status", "==", "pending"));
         return onSnapshot(appsQuery, (snapshot) => {
-          gymCounts[gymId] = snapshot.size;
-          // Sum all gyms' pending counts
+          // Only count documents that actually exist and have status 'pending'
+          const pendingDocs = snapshot.docs.filter(doc => doc.exists() && doc.data().status === 'pending');
+          gymCounts[gymId] = pendingDocs.length;
+          // Sum all gyms' pending counts for this user only
           const total = Object.values(gymCounts).reduce((sum, val) => sum + val, 0);
           if (isMounted) setCount(total);
         });
