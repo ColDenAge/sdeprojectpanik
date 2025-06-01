@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Log environment variables (without exposing sensitive data)
 console.log('Firebase Config Check:', {
@@ -54,13 +55,15 @@ isSupported().then((supported) => {
 
 let auth;
 let db;
+let storage;
 try {
   auth = getAuth(app);
   db = getFirestore(app);
-  console.log('Firebase Auth and Firestore initialized successfully');
+  storage = getStorage(app);
+  console.log('Firebase Auth, Firestore, and Storage initialized successfully');
 } catch (error) {
-  console.error('Error initializing Firebase Auth or Firestore:', error);
+  console.error('Error initializing Firebase Auth, Firestore, or Storage:', error);
   throw error;
 }
 
-export { app, analytics, auth, db };
+export { app, analytics, auth, db, storage };

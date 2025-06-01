@@ -1,4 +1,3 @@
-
 import React from "react";
 import GymTableRow from "./GymTableRow";
 import { Gym } from "./types/gymTypes";
@@ -9,6 +8,7 @@ interface GymsTableProps {
   onEditGym: (gym: Gym) => void;
   onDeleteGym: (gym: Gym) => void;
   onViewApplications: (gym: Gym) => void;
+  onPayment?: (gym: Gym) => void;
 }
 
 const GymsTable: React.FC<GymsTableProps> = ({
@@ -17,6 +17,7 @@ const GymsTable: React.FC<GymsTableProps> = ({
   onEditGym,
   onDeleteGym,
   onViewApplications,
+  onPayment,
 }) => {
   return (
     <table className="w-full">
@@ -40,6 +41,7 @@ const GymsTable: React.FC<GymsTableProps> = ({
               onEditGym={onEditGym}
               onDeleteGym={onDeleteGym}
               onViewApplications={onViewApplications}
+              onPayment={onPayment}
             />
           ))
         ) : (

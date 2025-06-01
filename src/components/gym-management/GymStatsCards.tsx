@@ -1,10 +1,10 @@
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Users, Building2, User, Calendar } from "lucide-react";
-import { useTotalPendingApplications } from "@/hooks/useTotalPendingApplications";
+import { useMyGymsPendingApplications } from "@/hooks/useTotalPendingApplications";
 
 const GymStatsCards = () => {
-  const pendingApplications = useTotalPendingApplications();
+  const pendingApplications = useMyGymsPendingApplications();
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <Card>
